@@ -1,10 +1,10 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
+
 import customtkinter as ctk
 
 import torch
-import torch.nn as nn
 import torchaudio.transforms as T
 
 import librosa
@@ -15,19 +15,20 @@ try:
 except:
     sd = None
 
-from train import SERModel
+from train import UnifiedSERModel
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 EMOTION_COLORS = {
-    "anger": "#ff5252",
-    "disgust": "#8bc34a",
+    "anger": "#ef5350",
+    "disgust": "#66bb6a",
     "fear": "#ab47bc",
-    "happiness": "#ffd54f",
+    "happiness": "#ffee58",
     "neutral": "#90a4ae",
     "sadness": "#42a5f5",
-    "surprise": "#ff9800"
+    "surprise": "#ffa726",
+    "uncertain": "#bdbdbd"
 }
 
 EMOTION_EMOJIS = {
@@ -37,7 +38,8 @@ EMOTION_EMOJIS = {
     "happiness": "😄",
     "neutral": "😐",
     "sadness": "😢",
-    "surprise": "😲"
+    "surprise": "😲",
+    "uncertain": "❓"
 }
 
 class SERApp:
@@ -47,12 +49,12 @@ class SERApp:
         self.root = root
 
         self.root.title(
-            "Multimodal Emotion Recognition"
+            "Speech Emotion Recognition"
         )
 
-        self.root.geometry("1200x750")
+        self.root.geometry("1250x780")
 
-        self.root.minsize(1000, 650)
+        self.root.minsize(1100, 700)
 
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu"
@@ -70,13 +72,15 @@ class SERApp:
 
         self.fs = 16000
 
-        self.max_len = 16000 * 3
+        self.max_len = self.fs * 3
 
         self.recording = False
 
         self.audio_data = []
 
         self.stream = None
+
+        self.current_file = "No file selected"
 
         self.base_dir = os.path.dirname(
             os.path.abspath(__file__)
@@ -88,7 +92,7 @@ class SERApp:
             "best_model.pth"
         )
 
-        self.model = SERModel(
+        self.model = UnifiedSERModel(
             num_classes=len(self.classes)
         ).to(self.device)
 
@@ -111,7 +115,7 @@ class SERApp:
 
         self.sidebar = ctk.CTkFrame(
             self.root,
-            width=260,
+            width=280,
             corner_radius=0
         )
 
@@ -127,13 +131,13 @@ class SERApp:
             text="Emotion AI",
 
             font=ctk.CTkFont(
-                size=28,
+                size=32,
                 weight="bold"
             )
         )
 
         self.logo.pack(
-            pady=(40, 20)
+            pady=(40, 30)
         )
 
         self.upload_btn = ctk.CTkButton(
@@ -142,10 +146,10 @@ class SERApp:
 
             text="Upload Audio",
 
-            height=50,
+            height=55,
 
             font=ctk.CTkFont(
-                size=16,
+                size=18,
                 weight="bold"
             ),
 
@@ -164,14 +168,14 @@ class SERApp:
 
             text="Hold To Record",
 
-            height=50,
+            height=55,
 
             fg_color="#d32f2f",
 
             hover_color="#b71c1c",
 
             font=ctk.CTkFont(
-                size=16,
+                size=18,
                 weight="bold"
             )
         )
@@ -210,12 +214,33 @@ class SERApp:
             text_color="#00e676",
 
             font=ctk.CTkFont(
-                size=14
+                size=16,
+                weight="bold"
             )
         )
 
         self.status_label.pack(
-            pady=20
+            pady=(25, 10)
+        )
+
+        self.file_label = ctk.CTkLabel(
+
+            self.sidebar,
+
+            text="No file selected",
+
+            wraplength=220,
+
+            justify="left",
+
+            font=ctk.CTkFont(
+                size=14
+            )
+        )
+
+        self.file_label.pack(
+            padx=20,
+            pady=10
         )
 
         self.main_frame = ctk.CTkFrame(
@@ -236,28 +261,28 @@ class SERApp:
             text="Speech Emotion Recognition",
 
             font=ctk.CTkFont(
-                size=34,
+                size=36,
                 weight="bold"
             )
         )
 
         self.header.pack(
-            pady=(40, 20)
+            pady=(35, 25)
         )
 
         self.result_card = ctk.CTkFrame(
 
             self.main_frame,
 
-            width=700,
+            width=760,
 
-            height=260,
+            height=300,
 
-            corner_radius=25
+            corner_radius=30
         )
 
         self.result_card.pack(
-            pady=30
+            pady=20
         )
 
         self.result_emoji = ctk.CTkLabel(
@@ -267,12 +292,12 @@ class SERApp:
             text="🎤",
 
             font=ctk.CTkFont(
-                size=90
+                size=100
             )
         )
 
         self.result_emoji.pack(
-            pady=(30, 10)
+            pady=(35, 15)
         )
 
         self.result_text = ctk.CTkLabel(
@@ -282,7 +307,7 @@ class SERApp:
             text="Waiting For Prediction",
 
             font=ctk.CTkFont(
-                size=28,
+                size=32,
                 weight="bold"
             )
         )
@@ -296,27 +321,27 @@ class SERApp:
             text="Confidence: --",
 
             font=ctk.CTkFont(
-                size=18
+                size=20
             )
         )
 
         self.confidence_text.pack(
-            pady=10
+            pady=12
         )
 
         self.progress = ctk.CTkProgressBar(
 
             self.main_frame,
 
-            width=500,
+            width=550,
 
-            height=20,
+            height=22,
 
             progress_color="#00e676"
         )
 
         self.progress.pack(
-            pady=20
+            pady=18
         )
 
         self.progress.set(0)
@@ -329,16 +354,33 @@ class SERApp:
         )
 
         self.bottom_frame.pack(
-            fill="x",
+            fill="both",
+            expand=True,
             padx=40,
             pady=20
+        )
+
+        self.logs_title = ctk.CTkLabel(
+
+            self.bottom_frame,
+
+            text="System Logs",
+
+            font=ctk.CTkFont(
+                size=20,
+                weight="bold"
+            )
+        )
+
+        self.logs_title.pack(
+            pady=(15, 10)
         )
 
         self.info_text = ctk.CTkTextbox(
 
             self.bottom_frame,
 
-            height=150,
+            height=200,
 
             font=ctk.CTkFont(
                 size=15
@@ -349,13 +391,11 @@ class SERApp:
             fill="both",
             expand=True,
             padx=20,
-            pady=20
+            pady=(0, 20)
         )
 
         self.info_text.insert(
-
             "end",
-
             "System Initialized...\n"
         )
 
@@ -386,7 +426,7 @@ class SERApp:
 
             messagebox.showerror(
                 "Error",
-                "Model not found."
+                "best_model.pth not found"
             )
 
             return
@@ -426,6 +466,14 @@ class SERApp:
         if not filepath:
 
             return
+
+        self.current_file = os.path.basename(
+            filepath
+        )
+
+        self.file_label.configure(
+            text=f"Selected File:\n{self.current_file}"
+        )
 
         try:
 
@@ -596,6 +644,10 @@ class SERApp:
                 * 100
             )
 
+            if confidence < 55:
+
+                pred_emotion = "uncertain"
+
             self.update_ui(
                 pred_emotion,
                 confidence
@@ -622,12 +674,10 @@ class SERApp:
         )
 
         self.result_text.configure(
-
             text=emotion.upper()
         )
 
         self.confidence_text.configure(
-
             text=f"Confidence: {confidence:.2f}%"
         )
 

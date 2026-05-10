@@ -1,0 +1,11 @@
+,precision,recall,f1-score,support
+anger,1.0,1.0,1.0,80.0
+disgust,1.0,1.0,1.0,80.0
+fear,1.0,1.0,1.0,80.0
+happiness,1.0,1.0,1.0,80.0
+neutral,1.0,1.0,1.0,80.0
+sadness,1.0,1.0,1.0,80.0
+surprise,1.0,1.0,1.0,80.0
+accuracy,1.0,1.0,1.0,1.0
+macro avg,1.0,1.0,1.0,560.0
+weighted avg,1.0,1.0,1.0,560.0

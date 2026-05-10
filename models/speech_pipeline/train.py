@@ -16,7 +16,7 @@ from torch.utils.data import Dataset, DataLoader
 import torchaudio.transforms as T
 
 from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import GroupShuffleSplit
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
     classification_report,
     confusion_matrix,
@@ -40,7 +40,7 @@ os.makedirs(METRICS_DIR, exist_ok=True)
 os.makedirs(LOGS_DIR, exist_ok=True)
 
 BATCH_SIZE = 32
-EPOCHS = 40
+EPOCHS = 25
 LR = 0.0005
 
 class SERDataset(Dataset):
@@ -54,11 +54,11 @@ class SERDataset(Dataset):
         self.augment = augment
 
         self.freq_mask = T.FrequencyMasking(
-            freq_mask_param=20
+            freq_mask_param=8
         )
 
         self.time_mask = T.TimeMasking(
-            time_mask_param=40
+            time_mask_param=15
         )
 
     def __len__(self):
@@ -69,7 +69,9 @@ class SERDataset(Dataset):
 
         row = self.df.iloc[idx]
 
-        x = np.load(row["feature_path"])
+        x = np.load(
+            row["feature_path"]
+        )
 
         x = torch.tensor(
             x,
@@ -171,13 +173,13 @@ class UnifiedSERModel(nn.Module):
         self.cnn = nn.Sequential(
 
             ResBlock(3, 32),
-            nn.Dropout2d(0.3),
+            nn.Dropout2d(0.2),
 
             ResBlock(32, 64),
-            nn.Dropout2d(0.3),
+            nn.Dropout2d(0.2),
 
             ResBlock(64, 128),
-            nn.Dropout2d(0.3)
+            nn.Dropout2d(0.2)
         )
 
         with torch.no_grad():
@@ -219,7 +221,7 @@ class UnifiedSERModel(nn.Module):
 
             nn.ReLU(),
 
-            nn.Dropout(0.5),
+            nn.Dropout(0.4),
 
             nn.Linear(
                 128,
@@ -273,14 +275,6 @@ def main():
         "metadata.csv"
     )
 
-    if not os.path.exists(metadata_path):
-
-        print(
-            "metadata.csv not found"
-        )
-
-        return
-
     df = pd.read_csv(
         metadata_path
     )
@@ -297,32 +291,16 @@ def main():
         encoder.classes_
     )
 
-    gss = GroupShuffleSplit(
+    train_df, test_df = train_test_split(
 
-        n_splits=1,
+        df,
 
-        test_size=0.5,
+        test_size=0.2,
 
-        random_state=42
+        random_state=42,
+
+        stratify=df["emotion"]
     )
-
-    train_idx, test_idx = next(
-
-        gss.split(
-
-            df,
-
-            groups=df["speaker_id"]
-        )
-    )
-
-    train_df = df.iloc[
-        train_idx
-    ]
-
-    test_df = df.iloc[
-        test_idx
-    ]
 
     print("\nTraining Samples:")
 
@@ -395,29 +373,28 @@ def main():
 
         lr=LR,
 
-        weight_decay=1e-2
+        weight_decay=1e-4
     )
 
-    scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
 
         optimizer,
 
-        T_0=10,
+        mode="max",
 
-        T_mult=2
+        patience=3,
+
+        factor=0.5
     )
 
-    best_uar = 0.0
+    best_acc = 0.0
 
     history = {
 
         "loss": [],
-
+        "accuracy": [],
         "uar": [],
-
-        "f1": [],
-
-        "accuracy": []
+        "f1": []
     }
 
     print("\nStarting Training...\n")
@@ -453,8 +430,6 @@ def main():
             optimizer.step()
 
             running_loss += loss.item()
-
-        scheduler.step()
 
         model.eval()
 
@@ -508,6 +483,10 @@ def main():
             average="macro"
         ) * 100
 
+        scheduler.step(
+            accuracy
+        )
+
         epoch_loss = (
             running_loss / len(train_loader)
         )
@@ -516,16 +495,16 @@ def main():
             epoch_loss
         )
 
+        history["accuracy"].append(
+            accuracy
+        )
+
         history["uar"].append(
             uar
         )
 
         history["f1"].append(
             f1
-        )
-
-        history["accuracy"].append(
-            accuracy
         )
 
         print(
@@ -541,32 +520,9 @@ def main():
             f"F1: {f1:.2f}%"
         )
 
-        with open(
+        if accuracy > best_acc:
 
-            os.path.join(
-                LOGS_DIR,
-                "training_log.txt"
-            ),
-
-            "a"
-        ) as f:
-
-            f.write(
-
-                f"Epoch {epoch+1}/{EPOCHS} | "
-
-                f"Loss: {epoch_loss:.4f} | "
-
-                f"Accuracy: {accuracy:.2f}% | "
-
-                f"UAR: {uar:.2f}% | "
-
-                f"F1: {f1:.2f}%\n"
-            )
-
-        if uar > best_uar:
-
-            best_uar = uar
+            best_acc = accuracy
 
             best_predictions = predictions
 
@@ -587,8 +543,7 @@ def main():
     print("\nTraining Complete")
 
     print(
-
-        f"\nBest Speaker Independent UAR: {best_uar:.2f}%"
+        f"\nBest Accuracy: {best_acc:.2f}%"
     )
 
     report = classification_report(
@@ -671,7 +626,7 @@ def main():
     )
 
     plt.title(
-        "Training Loss"
+        "Loss Curve"
     )
 
     plt.xlabel(
@@ -701,11 +656,11 @@ def main():
     plt.figure(figsize=(8, 5))
 
     plt.plot(
-        history["uar"]
+        history["accuracy"]
     )
 
     plt.title(
-        "UAR Curve"
+        "Accuracy Curve"
     )
 
     plt.xlabel(
@@ -713,7 +668,7 @@ def main():
     )
 
     plt.ylabel(
-        "UAR"
+        "Accuracy"
     )
 
     plt.grid()
@@ -726,41 +681,7 @@ def main():
 
             PLOTS_DIR,
 
-            "uar_curve.png"
-        )
-    )
-
-    plt.close()
-
-    plt.figure(figsize=(8, 5))
-
-    plt.plot(
-        history["f1"]
-    )
-
-    plt.title(
-        "F1 Curve"
-    )
-
-    plt.xlabel(
-        "Epoch"
-    )
-
-    plt.ylabel(
-        "F1"
-    )
-
-    plt.grid()
-
-    plt.tight_layout()
-
-    plt.savefig(
-
-        os.path.join(
-
-            PLOTS_DIR,
-
-            "f1_curve.png"
+            "accuracy_curve.png"
         )
     )
 
