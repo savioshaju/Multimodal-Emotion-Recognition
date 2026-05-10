@@ -1,188 +1,653 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from tkinter import font as tkfont
+import customtkinter as ctk
+
 import torch
+import torch.nn as nn
 import torchaudio.transforms as T
+
 import librosa
 import numpy as np
 
 try:
     import sounddevice as sd
-except ImportError:
-    print("WARNING: 'sounddevice' module not found. Please install it using: pip install sounddevice")
+except:
     sd = None
 
-# Import the model architecture from the local train.py
-from train import UnifiedSERModel
+from train import SERModel
+
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
+EMOTION_COLORS = {
+    "anger": "#ff5252",
+    "disgust": "#8bc34a",
+    "fear": "#ab47bc",
+    "happiness": "#ffd54f",
+    "neutral": "#90a4ae",
+    "sadness": "#42a5f5",
+    "surprise": "#ff9800"
+}
+
+EMOTION_EMOJIS = {
+    "anger": "😡",
+    "disgust": "🤢",
+    "fear": "😨",
+    "happiness": "😄",
+    "neutral": "😐",
+    "sadness": "😢",
+    "surprise": "😲"
+}
 
 class SERApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Live Speech Emotion Recognition")
-        self.root.geometry("450x450")
-        self.root.configure(bg="#1E1E1E")
-        self.font = tkfont.Font(family="Helvetica", size=12)
-        
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        
-        # Alphabetical classes based on LabelEncoder from training
-        self.classes = ['anger', 'disgust', 'fear', 'happiness', 'neutral', 'sadness', 'surprise']
-        self.model = UnifiedSERModel(num_classes=len(self.classes)).to(self.device)
-        
-        # Robust pathing (works whether run from root or inside speech_pipeline/)
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        self.model_path = os.path.join(base_dir, "saved_models", "best_unified_cnn.pth")
-        
-        self.setup_ui()
-        self.load_model()
 
-        # Audio feature extractors (Identical to training)
-        self.mel_transform = T.MelSpectrogram(sample_rate=16000, n_fft=1024, hop_length=256, n_mels=128)
-        self.amplitude_to_db = T.AmplitudeToDB()
-        self.compute_deltas = T.ComputeDeltas()
-        self.max_len = 16000 * 3 # 3 seconds
-        
+    def __init__(self, root):
+
+        self.root = root
+
+        self.root.title(
+            "Multimodal Emotion Recognition"
+        )
+
+        self.root.geometry("1200x750")
+
+        self.root.minsize(1000, 650)
+
+        self.device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu"
+        )
+
+        self.classes = [
+            "anger",
+            "disgust",
+            "fear",
+            "happiness",
+            "neutral",
+            "sadness",
+            "surprise"
+        ]
+
         self.fs = 16000
+
+        self.max_len = 16000 * 3
+
         self.recording = False
-        self.audio_data = None
+
+        self.audio_data = []
+
         self.stream = None
 
-    def setup_ui(self):
-        lbl = tk.Label(self.root, text="Speech Emotion Recognition", font=("Helvetica", 16, "bold"), bg="#1E1E1E", fg="#FFFFFF")
-        lbl.pack(pady=20)
+        self.base_dir = os.path.dirname(
+            os.path.abspath(__file__)
+        )
 
-        self.btn_upload = tk.Button(self.root, text="📂 Upload Audio File", font=self.font, bg="#4CAF50", fg="white", command=self.upload_audio, width=25)
-        self.btn_upload.pack(pady=10)
+        self.model_path = os.path.join(
+            self.base_dir,
+            "saved_models",
+            "best_model.pth"
+        )
 
-        self.btn_record = tk.Button(self.root, text="🎙️ Hold to Record Live", font=self.font, bg="#f44336", fg="white", width=25)
-        self.btn_record.pack(pady=10)
-        
+        self.model = SERModel(
+            num_classes=len(self.classes)
+        ).to(self.device)
+
+        self.mel_transform = T.MelSpectrogram(
+            sample_rate=16000,
+            n_fft=1024,
+            hop_length=256,
+            n_mels=128
+        )
+
+        self.amplitude_to_db = T.AmplitudeToDB()
+
+        self.compute_deltas = T.ComputeDeltas()
+
+        self.build_ui()
+
+        self.load_model()
+
+    def build_ui(self):
+
+        self.sidebar = ctk.CTkFrame(
+            self.root,
+            width=260,
+            corner_radius=0
+        )
+
+        self.sidebar.pack(
+            side="left",
+            fill="y"
+        )
+
+        self.logo = ctk.CTkLabel(
+
+            self.sidebar,
+
+            text="Emotion AI",
+
+            font=ctk.CTkFont(
+                size=28,
+                weight="bold"
+            )
+        )
+
+        self.logo.pack(
+            pady=(40, 20)
+        )
+
+        self.upload_btn = ctk.CTkButton(
+
+            self.sidebar,
+
+            text="Upload Audio",
+
+            height=50,
+
+            font=ctk.CTkFont(
+                size=16,
+                weight="bold"
+            ),
+
+            command=self.upload_audio
+        )
+
+        self.upload_btn.pack(
+            padx=20,
+            pady=15,
+            fill="x"
+        )
+
+        self.record_btn = ctk.CTkButton(
+
+            self.sidebar,
+
+            text="Hold To Record",
+
+            height=50,
+
+            fg_color="#d32f2f",
+
+            hover_color="#b71c1c",
+
+            font=ctk.CTkFont(
+                size=16,
+                weight="bold"
+            )
+        )
+
+        self.record_btn.pack(
+            padx=20,
+            pady=15,
+            fill="x"
+        )
+
         if sd is not None:
-            self.btn_record.bind("<ButtonPress-1>", self.start_recording)
-            self.btn_record.bind("<ButtonRelease-1>", self.stop_recording)
+
+            self.record_btn.bind(
+                "<ButtonPress-1>",
+                self.start_recording
+            )
+
+            self.record_btn.bind(
+                "<ButtonRelease-1>",
+                self.stop_recording
+            )
+
         else:
-            self.btn_record.config(state=tk.DISABLED, text="Install 'sounddevice' for Live Audio")
 
-        self.status_lbl = tk.Label(self.root, text="Ready", font=("Helvetica", 10, "italic"), bg="#1E1E1E", fg="#AAAAAA")
-        self.status_lbl.pack(pady=10)
+            self.record_btn.configure(
+                state="disabled",
+                text="sounddevice Missing"
+            )
 
-        self.result_frame = tk.Frame(self.root, bg="#2D2D2D", bd=2, relief=tk.GROOVE)
-        self.result_frame.pack(pady=20, fill=tk.X, padx=20)
-        
-        self.result_lbl = tk.Label(self.result_frame, text="Prediction: None", font=("Helvetica", 18, "bold"), bg="#2D2D2D", fg="#00E676")
-        self.result_lbl.pack(pady=20)
+        self.status_label = ctk.CTkLabel(
+
+            self.sidebar,
+
+            text="Model Ready",
+
+            text_color="#00e676",
+
+            font=ctk.CTkFont(
+                size=14
+            )
+        )
+
+        self.status_label.pack(
+            pady=20
+        )
+
+        self.main_frame = ctk.CTkFrame(
+            self.root,
+            corner_radius=0
+        )
+
+        self.main_frame.pack(
+            side="right",
+            fill="both",
+            expand=True
+        )
+
+        self.header = ctk.CTkLabel(
+
+            self.main_frame,
+
+            text="Speech Emotion Recognition",
+
+            font=ctk.CTkFont(
+                size=34,
+                weight="bold"
+            )
+        )
+
+        self.header.pack(
+            pady=(40, 20)
+        )
+
+        self.result_card = ctk.CTkFrame(
+
+            self.main_frame,
+
+            width=700,
+
+            height=260,
+
+            corner_radius=25
+        )
+
+        self.result_card.pack(
+            pady=30
+        )
+
+        self.result_emoji = ctk.CTkLabel(
+
+            self.result_card,
+
+            text="🎤",
+
+            font=ctk.CTkFont(
+                size=90
+            )
+        )
+
+        self.result_emoji.pack(
+            pady=(30, 10)
+        )
+
+        self.result_text = ctk.CTkLabel(
+
+            self.result_card,
+
+            text="Waiting For Prediction",
+
+            font=ctk.CTkFont(
+                size=28,
+                weight="bold"
+            )
+        )
+
+        self.result_text.pack()
+
+        self.confidence_text = ctk.CTkLabel(
+
+            self.result_card,
+
+            text="Confidence: --",
+
+            font=ctk.CTkFont(
+                size=18
+            )
+        )
+
+        self.confidence_text.pack(
+            pady=10
+        )
+
+        self.progress = ctk.CTkProgressBar(
+
+            self.main_frame,
+
+            width=500,
+
+            height=20,
+
+            progress_color="#00e676"
+        )
+
+        self.progress.pack(
+            pady=20
+        )
+
+        self.progress.set(0)
+
+        self.bottom_frame = ctk.CTkFrame(
+
+            self.main_frame,
+
+            corner_radius=20
+        )
+
+        self.bottom_frame.pack(
+            fill="x",
+            padx=40,
+            pady=20
+        )
+
+        self.info_text = ctk.CTkTextbox(
+
+            self.bottom_frame,
+
+            height=150,
+
+            font=ctk.CTkFont(
+                size=15
+            )
+        )
+
+        self.info_text.pack(
+            fill="both",
+            expand=True,
+            padx=20,
+            pady=20
+        )
+
+        self.info_text.insert(
+
+            "end",
+
+            "System Initialized...\n"
+        )
+
+        self.info_text.configure(
+            state="disabled"
+        )
+
+    def log(self, text):
+
+        self.info_text.configure(
+            state="normal"
+        )
+
+        self.info_text.insert(
+            "end",
+            f"{text}\n"
+        )
+
+        self.info_text.see("end")
+
+        self.info_text.configure(
+            state="disabled"
+        )
 
     def load_model(self):
-        if os.path.exists(self.model_path):
-            try:
-                self.model.load_state_dict(torch.load(self.model_path, map_location=self.device))
-                self.model.eval()
-                self.status_lbl.config(text="Model Loaded Successfully!")
-            except Exception as e:
-                self.status_lbl.config(text="Error loading weights.", fg="red")
-                messagebox.showerror("Weight Error", f"Could not load weights. Architecture mismatch?\n{e}")
-        else:
-            self.status_lbl.config(text=f"Model not found.", fg="red")
-            messagebox.showwarning("Model Missing", f"Could not find model weights at:\n{self.model_path}\nPlease run train.py first.")
+
+        if not os.path.exists(self.model_path):
+
+            messagebox.showerror(
+                "Error",
+                "Model not found."
+            )
+
+            return
+
+        try:
+
+            self.model.load_state_dict(
+
+                torch.load(
+                    self.model_path,
+                    map_location=self.device
+                )
+            )
+
+            self.model.eval()
+
+            self.log(
+                "Model Loaded Successfully"
+            )
+
+        except Exception as e:
+
+            messagebox.showerror(
+                "Model Error",
+                str(e)
+            )
 
     def upload_audio(self):
-        filepath = filedialog.askopenfilename(filetypes=[("Audio Files", "*.wav *.mp3 *.ogg")])
+
+        filepath = filedialog.askopenfilename(
+
+            filetypes=[
+                ("Audio Files", "*.wav *.mp3")
+            ]
+        )
+
         if not filepath:
+
             return
-        
-        self.status_lbl.config(text=f"Processing...", fg="yellow")
-        self.root.update()
-        
+
         try:
-            audio_np, _ = librosa.load(filepath, sr=self.fs)
-            audio_np, _ = librosa.effects.trim(audio_np, top_db=30)
+
+            self.status_label.configure(
+                text="Processing Audio...",
+                text_color="yellow"
+            )
+
+            self.root.update()
+
+            audio_np, _ = librosa.load(
+                filepath,
+                sr=self.fs
+            )
+
+            audio_np, _ = librosa.effects.trim(
+                audio_np,
+                top_db=30
+            )
+
             self.predict(audio_np)
+
         except Exception as e:
-            messagebox.showerror("Audio Error", str(e))
-            self.status_lbl.config(text="Error processing audio.", fg="red")
+
+            messagebox.showerror(
+                "Audio Error",
+                str(e)
+            )
 
     def start_recording(self, event):
-        if self.btn_record['state'] == tk.DISABLED: return
-        self.recording = True
-        self.btn_record.config(bg="#d32f2f", text="🎙️ Recording... (Release to stop)")
-        self.status_lbl.config(text="Listening...", fg="red")
-        
-        self.audio_data = []
-        def callback(indata, frames, time, status):
-            if self.recording:
-                self.audio_data.append(indata.copy())
 
-        self.stream = sd.InputStream(samplerate=self.fs, channels=1, callback=callback)
+        self.recording = True
+
+        self.audio_data = []
+
+        self.status_label.configure(
+            text="Recording...",
+            text_color="#ff5252"
+        )
+
+        self.record_btn.configure(
+            text="Recording..."
+        )
+
+        def callback(indata, frames, time, status):
+
+            if self.recording:
+
+                self.audio_data.append(
+                    indata.copy()
+                )
+
+        self.stream = sd.InputStream(
+
+            samplerate=self.fs,
+
+            channels=1,
+
+            callback=callback
+        )
+
         self.stream.start()
 
     def stop_recording(self, event):
-        if self.btn_record['state'] == tk.DISABLED or not self.recording: return
+
         self.recording = False
-        
-        if self.stream is not None:
-            self.stream.stop()
-            self.stream.close()
-            
-        self.btn_record.config(bg="#f44336", text="🎙️ Hold to Record Live")
-        self.status_lbl.config(text="Processing live audio...", fg="yellow")
-        self.root.update()
-        
+
+        self.stream.stop()
+
+        self.stream.close()
+
+        self.record_btn.configure(
+            text="Hold To Record"
+        )
+
+        self.status_label.configure(
+            text="Processing...",
+            text_color="yellow"
+        )
+
         if len(self.audio_data) > 0:
-            audio_np = np.concatenate(self.audio_data, axis=0).flatten()
-            audio_np, _ = librosa.effects.trim(audio_np, top_db=30)
-            
-            if len(audio_np) < self.fs * 0.5: # Less than 0.5s of audio
-                messagebox.showwarning("Warning", "Audio too short or silent.")
-                self.status_lbl.config(text="Ready", fg="#AAAAAA")
-                return
-                
+
+            audio_np = np.concatenate(
+                self.audio_data,
+                axis=0
+            ).flatten()
+
             self.predict(audio_np)
-        else:
-            self.status_lbl.config(text="Ready", fg="#AAAAAA")
 
     def predict(self, audio_np):
-        waveform = torch.tensor(audio_np, dtype=torch.float32).unsqueeze(0)
-        
-        # Pad or truncate to max length
+
+        waveform = torch.tensor(
+            audio_np,
+            dtype=torch.float32
+        ).unsqueeze(0)
+
         if waveform.shape[1] > self.max_len:
+
             waveform = waveform[:, :self.max_len]
+
         else:
+
             pad_amount = self.max_len - waveform.shape[1]
-            waveform = torch.nn.functional.pad(waveform, (0, pad_amount))
-            
+
+            waveform = torch.nn.functional.pad(
+                waveform,
+                (0, pad_amount)
+            )
+
         with torch.no_grad():
-            # Feature extraction exactly as in train.py
-            mel = self.mel_transform(waveform)
-            mel_db = self.amplitude_to_db(mel)
-            delta1 = self.compute_deltas(mel_db)
-            delta2 = self.compute_deltas(delta1)
-            
-            x = torch.cat([mel_db, delta1, delta2], dim=0)
-            
-            # Instance Normalization
-            mean = x.mean(dim=(1, 2), keepdim=True)
-            std = x.std(dim=(1, 2), keepdim=True)
-            x = (x - mean) / (std + 1e-8)
-            
-            # Add batch dimension and move to device
-            x = x.unsqueeze(0).to(self.device)
-            
-            # Predict
+
+            mel = self.mel_transform(
+                waveform
+            )
+
+            mel_db = self.amplitude_to_db(
+                mel
+            )
+
+            delta1 = self.compute_deltas(
+                mel_db
+            )
+
+            delta2 = self.compute_deltas(
+                delta1
+            )
+
+            x = torch.cat(
+                [mel_db, delta1, delta2],
+                dim=0
+            )
+
+            mean = x.mean(
+                dim=(1, 2),
+                keepdim=True
+            )
+
+            std = x.std(
+                dim=(1, 2),
+                keepdim=True
+            )
+
+            x = (
+                x - mean
+            ) / (std + 1e-8)
+
+            x = x.unsqueeze(0).to(
+                self.device
+            )
+
             output = self.model(x)
-            probabilities = torch.softmax(output, dim=1).squeeze()
-            pred_idx = torch.argmax(probabilities).item()
-            pred_emotion = self.classes[pred_idx]
-            confidence = probabilities[pred_idx].item() * 100
-            
-            # Update UI
-            emoji_map = {'anger':'😡', 'disgust':'🤢', 'fear':'😨', 'happiness':'😄', 'neutral':'😐', 'sadness':'😢', 'surprise':'😲'}
-            emoji = emoji_map.get(pred_emotion, '')
-            
-            self.result_lbl.config(text=f"{emoji} {pred_emotion.capitalize()}\nConf: {confidence:.1f}%")
-            self.status_lbl.config(text="Ready", fg="#AAAAAA")
+
+            probabilities = torch.softmax(
+                output,
+                dim=1
+            ).squeeze()
+
+            pred_idx = torch.argmax(
+                probabilities
+            ).item()
+
+            pred_emotion = self.classes[
+                pred_idx
+            ]
+
+            confidence = (
+                probabilities[pred_idx].item()
+                * 100
+            )
+
+            self.update_ui(
+                pred_emotion,
+                confidence
+            )
+
+    def update_ui(self, emotion, confidence):
+
+        color = EMOTION_COLORS.get(
+            emotion,
+            "#00e676"
+        )
+
+        emoji = EMOTION_EMOJIS.get(
+            emotion,
+            "🎤"
+        )
+
+        self.result_card.configure(
+            fg_color=color
+        )
+
+        self.result_emoji.configure(
+            text=emoji
+        )
+
+        self.result_text.configure(
+
+            text=emotion.upper()
+        )
+
+        self.confidence_text.configure(
+
+            text=f"Confidence: {confidence:.2f}%"
+        )
+
+        self.progress.set(
+            confidence / 100
+        )
+
+        self.status_label.configure(
+            text="Prediction Complete",
+            text_color="#00e676"
+        )
+
+        self.log(
+            f"Prediction: {emotion} | Confidence: {confidence:.2f}%"
+        )
 
 if __name__ == "__main__":
-    root = tk.Tk()
+
+    root = ctk.CTk()
+
     app = SERApp(root)
+
     root.mainloop()

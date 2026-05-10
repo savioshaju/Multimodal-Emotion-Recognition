@@ -6,6 +6,7 @@ checkpoints/
 logs/
 cache/
 processed_dataset/
+models/speech_pipeline/processed_data
 .idea/
 .vscode/
 dataset/
