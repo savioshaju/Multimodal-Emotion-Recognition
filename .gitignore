@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+*.npy
+checkpoints/
+logs/
+cache/
+processed_dataset/
+.idea/
+.vscode/
+dataset/
+metadata.csv
