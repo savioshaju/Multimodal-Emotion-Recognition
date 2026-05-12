@@ -1,12 +1,8 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
-
 import customtkinter as ctk
-
 import torch
-import torchaudio.transforms as T
-
 import librosa
 import numpy as np
 
@@ -42,662 +38,335 @@ EMOTION_EMOJIS = {
     "uncertain": "❓"
 }
 
+SR = 16000
+DURATION = 3
+MAX_LEN = SR * DURATION
+N_MELS = 128
+
+CLASS_NAMES = [
+    "anger",
+    "disgust",
+    "fear",
+    "happiness",
+    "neutral",
+    "sadness",
+    "surprise"
+]
+
+def preprocess_audio_array(audio):
+    audio = np.asarray(audio, dtype=np.float32)
+
+    if audio.ndim > 1:
+        audio = audio.flatten()
+
+    audio, _ = librosa.effects.trim(audio, top_db=30)
+
+    if len(audio) > MAX_LEN:
+        audio = audio[:MAX_LEN]
+    else:
+        audio = np.pad(audio, (0, MAX_LEN - len(audio)))
+
+    audio = librosa.util.normalize(audio)
+
+    return audio.astype(np.float32)
+
+def normalize_feature(x):
+    return (x - x.mean()) / (x.std() + 1e-8)
+
+def extract_features(audio):
+    mel = librosa.feature.melspectrogram(
+        y=audio,
+        sr=SR,
+        n_fft=1024,
+        hop_length=256,
+        n_mels=N_MELS
+    )
+
+    mel_db = librosa.power_to_db(mel, ref=np.max)
+    delta1 = librosa.feature.delta(mel_db)
+
+    mfcc = librosa.feature.mfcc(
+        y=audio,
+        sr=SR,
+        n_mfcc=40,
+        n_fft=1024,
+        hop_length=256
+    )
+
+    mfcc = librosa.util.fix_length(mfcc, size=mel_db.shape[1], axis=1)
+    mfcc = np.repeat(mfcc, 4, axis=0)[:128]
+
+    mel_db = normalize_feature(mel_db)
+    delta1 = normalize_feature(delta1)
+    mfcc = normalize_feature(mfcc)
+
+    stacked = np.stack([mel_db, delta1, mfcc], axis=0)
+
+    return stacked.astype(np.float32)
+
 class SERApp:
-
     def __init__(self, root):
-
         self.root = root
+        self.root.title("Speech Emotion Recognition")
+        self.root.geometry("1000x650")
+        self.root.minsize(900, 500)
 
-        self.root.title(
-            "Speech Emotion Recognition"
-        )
-
-        self.root.geometry("1250x780")
-
-        self.root.minsize(1100, 700)
-
-        self.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu"
-        )
-
-        self.classes = [
-            "anger",
-            "disgust",
-            "fear",
-            "happiness",
-            "neutral",
-            "sadness",
-            "surprise"
-        ]
-
-        self.fs = 16000
-
-        self.max_len = self.fs * 3
-
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.classes = CLASS_NAMES
+        self.fs = SR
+        self.max_len = MAX_LEN
         self.recording = False
-
         self.audio_data = []
-
         self.stream = None
 
-        self.current_file = "No file selected"
+        self.base_dir = os.path.dirname(os.path.abspath(__file__))
+        self.model_path = os.path.join(self.base_dir, "saved_models", "best_model.pth")
 
-        self.base_dir = os.path.dirname(
-            os.path.abspath(__file__)
-        )
-
-        self.model_path = os.path.join(
-            self.base_dir,
-            "saved_models",
-            "best_model.pth"
-        )
-
-        self.model = UnifiedSERModel(
-            num_classes=len(self.classes)
-        ).to(self.device)
-
-        self.mel_transform = T.MelSpectrogram(
-            sample_rate=16000,
-            n_fft=1024,
-            hop_length=256,
-            n_mels=128
-        )
-
-        self.amplitude_to_db = T.AmplitudeToDB()
-
-        self.compute_deltas = T.ComputeDeltas()
+        self.model = UnifiedSERModel(num_classes=len(self.classes)).to(self.device)
 
         self.build_ui()
-
         self.load_model()
 
     def build_ui(self):
+        # Header
+        self.header_frame = ctk.CTkFrame(self.root, fg_color="transparent")
+        self.header_frame.pack(fill="x", pady=(30, 20), padx=40)
 
-        self.sidebar = ctk.CTkFrame(
-            self.root,
-            width=280,
-            corner_radius=0
+        self.title_label = ctk.CTkLabel(
+            self.header_frame,
+            text="Speech Emotion Recognition",
+            font=ctk.CTkFont(family="Helvetica", size=32, weight="bold")
         )
+        self.title_label.pack(side="left")
 
-        self.sidebar.pack(
-            side="left",
-            fill="y"
-        )
-
-        self.logo = ctk.CTkLabel(
-
-            self.sidebar,
-
-            text="Emotion AI",
-
-            font=ctk.CTkFont(
-                size=32,
-                weight="bold"
-            )
-        )
-
-        self.logo.pack(
-            pady=(40, 30)
-        )
-
-        self.upload_btn = ctk.CTkButton(
-
-            self.sidebar,
-
-            text="Upload Audio",
-
-            height=55,
-
-            font=ctk.CTkFont(
-                size=18,
-                weight="bold"
-            ),
-
-            command=self.upload_audio
-        )
-
-        self.upload_btn.pack(
-            padx=20,
-            pady=15,
-            fill="x"
-        )
-
-        self.record_btn = ctk.CTkButton(
-
-            self.sidebar,
-
-            text="Hold To Record",
-
-            height=55,
-
-            fg_color="#d32f2f",
-
-            hover_color="#b71c1c",
-
-            font=ctk.CTkFont(
-                size=18,
-                weight="bold"
-            )
-        )
-
-        self.record_btn.pack(
-            padx=20,
-            pady=15,
-            fill="x"
-        )
-
-        if sd is not None:
-
-            self.record_btn.bind(
-                "<ButtonPress-1>",
-                self.start_recording
-            )
-
-            self.record_btn.bind(
-                "<ButtonRelease-1>",
-                self.stop_recording
-            )
-
-        else:
-
-            self.record_btn.configure(
-                state="disabled",
-                text="sounddevice Missing"
-            )
+        self.status_badge = ctk.CTkFrame(self.header_frame, corner_radius=15, fg_color="#1b5e20")
+        self.status_badge.pack(side="right", pady=5)
 
         self.status_label = ctk.CTkLabel(
-
-            self.sidebar,
-
+            self.status_badge,
             text="Model Ready",
-
-            text_color="#00e676",
-
-            font=ctk.CTkFont(
-                size=16,
-                weight="bold"
-            )
+            text_color="#69f0ae",
+            font=ctk.CTkFont(size=14, weight="bold")
         )
+        self.status_label.pack(padx=15, pady=5)
 
-        self.status_label.pack(
-            pady=(25, 10)
+        # Main Body
+        self.body_frame = ctk.CTkFrame(self.root, fg_color="transparent")
+        self.body_frame.pack(fill="both", expand=True, padx=40, pady=(0, 40))
+
+        self.body_frame.columnconfigure(0, weight=1)
+        self.body_frame.columnconfigure(1, weight=2)
+        self.body_frame.rowconfigure(0, weight=1)
+
+        # Left Column - Controls
+        self.controls_card = ctk.CTkFrame(self.body_frame, corner_radius=20, fg_color="#212121")
+        self.controls_card.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
+
+        self.controls_title = ctk.CTkLabel(
+            self.controls_card,
+            text="Input Audio",
+            font=ctk.CTkFont(size=20, weight="bold")
         )
+        self.controls_title.pack(pady=(40, 30))
 
-        self.file_label = ctk.CTkLabel(
-
-            self.sidebar,
-
-            text="No file selected",
-
-            wraplength=220,
-
-            justify="left",
-
-            font=ctk.CTkFont(
-                size=14
-            )
+        self.upload_btn = ctk.CTkButton(
+            self.controls_card,
+            text="Upload File",
+            height=50,
+            corner_radius=10,
+            font=ctk.CTkFont(size=16, weight="bold"),
+            command=self.upload_audio
         )
+        self.upload_btn.pack(padx=30, pady=15, fill="x")
 
-        self.file_label.pack(
-            padx=20,
-            pady=10
+        self.record_btn = ctk.CTkButton(
+            self.controls_card,
+            text="Hold To Record",
+            height=50,
+            corner_radius=10,
+            fg_color="#d32f2f",
+            hover_color="#b71c1c",
+            font=ctk.CTkFont(size=16, weight="bold")
         )
+        self.record_btn.pack(padx=30, pady=15, fill="x")
 
-        self.main_frame = ctk.CTkFrame(
-            self.root,
-            corner_radius=0
-        )
+        if sd is not None:
+            self.record_btn.bind("<ButtonPress-1>", self.start_recording)
+            self.record_btn.bind("<ButtonRelease-1>", self.stop_recording)
+        else:
+            self.record_btn.configure(state="disabled", text="sounddevice Missing")
 
-        self.main_frame.pack(
-            side="right",
-            fill="both",
-            expand=True
-        )
-
-        self.header = ctk.CTkLabel(
-
-            self.main_frame,
-
-            text="Speech Emotion Recognition",
-
-            font=ctk.CTkFont(
-                size=36,
-                weight="bold"
-            )
-        )
-
-        self.header.pack(
-            pady=(35, 25)
-        )
-
-        self.result_card = ctk.CTkFrame(
-
-            self.main_frame,
-
-            width=760,
-
-            height=300,
-
-            corner_radius=30
-        )
-
-        self.result_card.pack(
-            pady=20
-        )
+        # Right Column - Results
+        self.result_card = ctk.CTkFrame(self.body_frame, corner_radius=20, fg_color="#263238")
+        self.result_card.grid(row=0, column=1, sticky="nsew", padx=(10, 0))
 
         self.result_emoji = ctk.CTkLabel(
-
             self.result_card,
-
-            text="🎤",
-
-            font=ctk.CTkFont(
-                size=100
-            )
+            text="🎙️",
+            font=ctk.CTkFont(size=120)
         )
-
-        self.result_emoji.pack(
-            pady=(35, 15)
-        )
+        self.result_emoji.pack(pady=(60, 20), expand=True)
 
         self.result_text = ctk.CTkLabel(
-
             self.result_card,
-
-            text="Waiting For Prediction",
-
-            font=ctk.CTkFont(
-                size=32,
-                weight="bold"
-            )
+            text="Ready for Input",
+            font=ctk.CTkFont(size=38, weight="bold")
         )
-
-        self.result_text.pack()
+        self.result_text.pack(pady=(0, 10))
 
         self.confidence_text = ctk.CTkLabel(
-
             self.result_card,
-
             text="Confidence: --",
-
-            font=ctk.CTkFont(
-                size=20
-            )
+            font=ctk.CTkFont(size=18),
+            text_color="gray70"
         )
-
-        self.confidence_text.pack(
-            pady=12
-        )
+        self.confidence_text.pack(pady=(0, 20))
 
         self.progress = ctk.CTkProgressBar(
-
-            self.main_frame,
-
-            width=550,
-
-            height=22,
-
-            progress_color="#00e676"
+            self.result_card,
+            width=400,
+            height=15,
+            progress_color="#00e676",
+            fg_color="#37474f"
         )
-
-        self.progress.pack(
-            pady=18
-        )
-
+        self.progress.pack(pady=(0, 60))
         self.progress.set(0)
 
-        self.bottom_frame = ctk.CTkFrame(
-
-            self.main_frame,
-
-            corner_radius=20
-        )
-
-        self.bottom_frame.pack(
-            fill="both",
-            expand=True,
-            padx=40,
-            pady=20
-        )
-
-        self.logs_title = ctk.CTkLabel(
-
-            self.bottom_frame,
-
-            text="System Logs",
-
-            font=ctk.CTkFont(
-                size=20,
-                weight="bold"
-            )
-        )
-
-        self.logs_title.pack(
-            pady=(15, 10)
-        )
-
-        self.info_text = ctk.CTkTextbox(
-
-            self.bottom_frame,
-
-            height=200,
-
-            font=ctk.CTkFont(
-                size=15
-            )
-        )
-
-        self.info_text.pack(
-            fill="both",
-            expand=True,
-            padx=20,
-            pady=(0, 20)
-        )
-
-        self.info_text.insert(
-            "end",
-            "System Initialized...\n"
-        )
-
-        self.info_text.configure(
-            state="disabled"
-        )
-
-    def log(self, text):
-
-        self.info_text.configure(
-            state="normal"
-        )
-
-        self.info_text.insert(
-            "end",
-            f"{text}\n"
-        )
-
-        self.info_text.see("end")
-
-        self.info_text.configure(
-            state="disabled"
-        )
+    def set_status(self, text, badge_color="#1b5e20", text_color="#69f0ae"):
+        self.status_label.configure(text=text, text_color=text_color)
+        self.status_badge.configure(fg_color=badge_color)
 
     def load_model(self):
-
         if not os.path.exists(self.model_path):
-
-            messagebox.showerror(
-                "Error",
-                "best_model.pth not found"
-            )
-
+            messagebox.showerror("Error", f"best_model.pth not found:\n{self.model_path}")
+            self.set_status("Model Missing", badge_color="#b71c1c", text_color="#ff5252")
             return
 
         try:
-
-            self.model.load_state_dict(
-
-                torch.load(
-                    self.model_path,
-                    map_location=self.device
-                )
-            )
-
+            state_dict = torch.load(self.model_path, map_location=self.device)
+            self.model.load_state_dict(state_dict)
             self.model.eval()
-
-            self.log(
-                "Model Loaded Successfully"
-            )
-
+            self.set_status("Model Loaded")
         except Exception as e:
-
-            messagebox.showerror(
-                "Model Error",
-                str(e)
-            )
+            messagebox.showerror("Model Error", str(e))
+            self.set_status("Model Error", badge_color="#b71c1c", text_color="#ff5252")
 
     def upload_audio(self):
-
         filepath = filedialog.askopenfilename(
-
-            filetypes=[
-                ("Audio Files", "*.wav *.mp3")
-            ]
+            filetypes=[("Audio Files", "*.wav *.mp3 *.flac *.ogg *.m4a")]
         )
 
         if not filepath:
-
             return
 
-        self.current_file = os.path.basename(
-            filepath
-        )
-
-        self.file_label.configure(
-            text=f"Selected File:\n{self.current_file}"
-        )
-
         try:
-
-            self.status_label.configure(
-                text="Processing Audio...",
-                text_color="yellow"
-            )
-
+            self.set_status("Processing...", badge_color="#f57f17", text_color="#ffee58")
             self.root.update()
 
-            audio_np, _ = librosa.load(
-                filepath,
-                sr=self.fs
-            )
-
-            audio_np, _ = librosa.effects.trim(
-                audio_np,
-                top_db=30
-            )
-
+            audio_np, _ = librosa.load(filepath, sr=self.fs, mono=True)
             self.predict(audio_np)
 
         except Exception as e:
-
-            messagebox.showerror(
-                "Audio Error",
-                str(e)
-            )
+            messagebox.showerror("Audio Error", str(e))
+            self.set_status("Audio Error", badge_color="#b71c1c", text_color="#ff5252")
 
     def start_recording(self, event):
+        if sd is None:
+            return
 
         self.recording = True
-
         self.audio_data = []
 
-        self.status_label.configure(
-            text="Recording...",
-            text_color="#ff5252"
-        )
-
-        self.record_btn.configure(
-            text="Recording..."
-        )
+        self.set_status("Recording...", badge_color="#b71c1c", text_color="#ff5252")
+        self.record_btn.configure(text="Recording...", fg_color="#b71c1c")
 
         def callback(indata, frames, time, status):
-
             if self.recording:
+                self.audio_data.append(indata.copy())
 
-                self.audio_data.append(
-                    indata.copy()
-                )
+        try:
+            self.stream = sd.InputStream(
+                samplerate=self.fs,
+                channels=1,
+                dtype="float32",
+                callback=callback
+            )
+            self.stream.start()
 
-        self.stream = sd.InputStream(
-
-            samplerate=self.fs,
-
-            channels=1,
-
-            callback=callback
-        )
-
-        self.stream.start()
+        except Exception as e:
+            self.recording = False
+            messagebox.showerror("Recording Error", str(e))
+            self.set_status("Recording Error", badge_color="#b71c1c", text_color="#ff5252")
+            self.record_btn.configure(text="Hold To Record", fg_color="#d32f2f")
 
     def stop_recording(self, event):
+        if sd is None:
+            return
 
         self.recording = False
 
-        self.stream.stop()
+        try:
+            if self.stream is not None:
+                self.stream.stop()
+                self.stream.close()
+                self.stream = None
+        except Exception:
+            pass
 
-        self.stream.close()
+        self.record_btn.configure(text="Hold To Record", fg_color="#d32f2f")
 
-        self.record_btn.configure(
-            text="Hold To Record"
-        )
+        if len(self.audio_data) == 0:
+            self.set_status("No Audio", badge_color="#b71c1c", text_color="#ff5252")
+            return
 
-        self.status_label.configure(
-            text="Processing...",
-            text_color="yellow"
-        )
+        self.set_status("Processing...", badge_color="#f57f17", text_color="#ffee58")
 
-        if len(self.audio_data) > 0:
-
-            audio_np = np.concatenate(
-                self.audio_data,
-                axis=0
-            ).flatten()
-
-            self.predict(audio_np)
+        audio_np = np.concatenate(self.audio_data, axis=0).flatten()
+        self.predict(audio_np)
 
     def predict(self, audio_np):
+        try:
+            audio_np = preprocess_audio_array(audio_np)
+            features = extract_features(audio_np)
 
-        waveform = torch.tensor(
-            audio_np,
-            dtype=torch.float32
-        ).unsqueeze(0)
+            if features.shape != (3, 128, 188):
+                raise ValueError(f"Invalid feature shape: {features.shape}")
 
-        if waveform.shape[1] > self.max_len:
+            x = torch.tensor(features, dtype=torch.float32).unsqueeze(0).to(self.device)
 
-            waveform = waveform[:, :self.max_len]
+            with torch.no_grad():
+                output = self.model(x)
+                probabilities = torch.softmax(output, dim=1).squeeze()
+                
+                pred_idx = torch.argmax(probabilities).item()
+                pred_emotion = self.classes[pred_idx]
+                confidence = probabilities[pred_idx].item() * 100
 
-        else:
+                if confidence < 55:
+                    display_emotion = "uncertain"
+                else:
+                    display_emotion = pred_emotion
 
-            pad_amount = self.max_len - waveform.shape[1]
+                self.update_ui(display_emotion, confidence)
 
-            waveform = torch.nn.functional.pad(
-                waveform,
-                (0, pad_amount)
-            )
-
-        with torch.no_grad():
-
-            mel = self.mel_transform(
-                waveform
-            )
-
-            mel_db = self.amplitude_to_db(
-                mel
-            )
-
-            delta1 = self.compute_deltas(
-                mel_db
-            )
-
-            delta2 = self.compute_deltas(
-                delta1
-            )
-
-            x = torch.cat(
-                [mel_db, delta1, delta2],
-                dim=0
-            )
-
-            mean = x.mean(
-                dim=(1, 2),
-                keepdim=True
-            )
-
-            std = x.std(
-                dim=(1, 2),
-                keepdim=True
-            )
-
-            x = (
-                x - mean
-            ) / (std + 1e-8)
-
-            x = x.unsqueeze(0).to(
-                self.device
-            )
-
-            output = self.model(x)
-
-            probabilities = torch.softmax(
-                output,
-                dim=1
-            ).squeeze()
-
-            pred_idx = torch.argmax(
-                probabilities
-            ).item()
-
-            pred_emotion = self.classes[
-                pred_idx
-            ]
-
-            confidence = (
-                probabilities[pred_idx].item()
-                * 100
-            )
-
-            if confidence < 55:
-
-                pred_emotion = "uncertain"
-
-            self.update_ui(
-                pred_emotion,
-                confidence
-            )
+        except Exception as e:
+            messagebox.showerror("Prediction Error", str(e))
+            self.set_status("Prediction Error", badge_color="#b71c1c", text_color="#ff5252")
 
     def update_ui(self, emotion, confidence):
+        color = EMOTION_COLORS.get(emotion, "#00e676")
+        emoji = EMOTION_EMOJIS.get(emotion, "🎙️")
 
-        color = EMOTION_COLORS.get(
-            emotion,
-            "#00e676"
-        )
+        self.result_emoji.configure(text=emoji)
+        self.result_text.configure(text=emotion.upper(), text_color=color)
+        self.confidence_text.configure(text=f"Confidence: {confidence:.2f}%")
+        self.progress.configure(progress_color=color)
+        self.progress.set(confidence / 100)
 
-        emoji = EMOTION_EMOJIS.get(
-            emotion,
-            "🎤"
-        )
+        self.set_status("Prediction Complete")
 
-        self.result_card.configure(
-            fg_color=color
-        )
-
-        self.result_emoji.configure(
-            text=emoji
-        )
-
-        self.result_text.configure(
-            text=emotion.upper()
-        )
-
-        self.confidence_text.configure(
-            text=f"Confidence: {confidence:.2f}%"
-        )
-
-        self.progress.set(
-            confidence / 100
-        )
-
-        self.status_label.configure(
-            text="Prediction Complete",
-            text_color="#00e676"
-        )
-
-        self.log(
-            f"Prediction: {emotion} | Confidence: {confidence:.2f}%"
-        )
 
 if __name__ == "__main__":
-
     root = ctk.CTk()
-
     app = SERApp(root)
-
     root.mainloop()
