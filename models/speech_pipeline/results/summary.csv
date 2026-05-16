@@ -1,2 +1,2 @@
-base_train_speaker,target_speaker,target_classes_added_to_training,target_class_add_ratio,test_accuracy,test_uar,test_macro_f1,happiness_recall,happiness_f1,anger_precision,anger_recall
-oaf,yaf,"anger,disgust,fear,happiness,neutral,sadness,surprise",0.15,99.51980792316927,99.51980792316927,99.52030809675706,0.9915966386554622,0.9915966386554622,0.9833333333333333,0.9915966386554622
+test_accuracy,test_uar,test_macro_f1,model_name
+99.88137603795967,99.88193624557262,99.88193422955986,microsoft/wavlm-base

@@ -1,0 +1,28 @@
+{
+    "dataset": "DailyDialog",
+    "model_name": "roberta-base",
+    "architecture": "RoBERTa Transformer Encoder + Mean Pooling + Classification Head",
+    "classes": [
+        "anger",
+        "disgust",
+        "fear",
+        "happiness",
+        "neutral",
+        "sadness",
+        "surprise"
+    ],
+    "max_length": 96,
+    "batch_size": 32,
+    "epochs": 8,
+    "learning_rate": 1.2e-05,
+    "weight_decay": 0.01,
+    "patience": 2,
+    "seed": 42,
+    "max_class_weight": 2.5,
+    "warmup_ratio": 0.06,
+    "label_smoothing": 0.03,
+    "dropout_rate": 0.3,
+    "weighted_sampler": false,
+    "mixed_precision": true,
+    "split_requirement": "dialogue_id_group_split_no_leakage"
+}

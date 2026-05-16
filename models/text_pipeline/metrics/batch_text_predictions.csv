@@ -1,0 +1,8 @@
+text,cleaned_text,final_label,top1,top1_confidence,top2,top2_confidence,top3,top3_confidence,confidence_gap
+I am really disappointed with what happened today.,I am really disappointed with what happened today.,disgust,disgust,92.88,anger,2.46,neutral,1.54,90.42
+"That is wonderful news, I am so happy for you.","That is wonderful news, I am so happy for you.",happiness,happiness,94.28,neutral,1.24,surprise,1.09,93.03
+I am scared something bad might happen.,I am scared something bad might happen.,fear,fear,69.44,neutral,14.3,sadness,7.39,55.14
+"Okay, I will come there tomorrow.","Okay, I will come there tomorrow.",uncertain,happiness,43.37,neutral,39.22,surprise,3.84,4.15
+That behavior is disgusting and unacceptable.,That behavior is disgusting and unacceptable.,disgust,disgust,62.8,anger,30.54,neutral,2.22,32.26
+I am shocked by what just happened.,I am shocked by what just happened.,surprise,surprise,73.23,neutral,14.74,anger,3.35,58.48
+I feel very sad and lonely today.,I feel very sad and lonely today.,sadness,sadness,89.58,neutral,3.9,fear,1.47,85.68

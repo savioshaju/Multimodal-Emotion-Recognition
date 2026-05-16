@@ -11,3 +11,5 @@ models/speech_pipeline/processed_data
 .vscode/
 dataset/
 metadata.csv
+models/speech_pipeline/saved_models/best_model.pth
+*.pth

@@ -1,0 +1,1 @@
+{"model_name": "microsoft/wavlm-base", "classes": ["anger", "disgust", "fear", "happiness", "neutral", "sadness", "surprise"], "sr": 16000, "duration": 3}
