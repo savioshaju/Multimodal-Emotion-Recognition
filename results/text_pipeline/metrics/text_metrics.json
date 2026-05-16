@@ -1,0 +1,32 @@
+{
+    "dataset": "DailyDialog",
+    "model_name": "roberta-base",
+    "best_epoch": 8,
+    "best_validation_macro_f1": 45.30848315312691,
+    "test_loss": 1.4412958287313336,
+    "test_accuracy": 81.29773442012707,
+    "test_uar": 56.68022015984295,
+    "test_macro_f1": 49.77372167550345,
+    "test_weighted_f1": 82.82376870947364,
+    "classes": [
+        "anger",
+        "disgust",
+        "fear",
+        "happiness",
+        "neutral",
+        "sadness",
+        "surprise"
+    ],
+    "train_samples": 71913,
+    "val_samples": 15471,
+    "test_samples": 15581,
+    "max_length": 96,
+    "batch_size": 32,
+    "learning_rate": 1.2e-05,
+    "max_class_weight": 2.5,
+    "label_smoothing": 0.03,
+    "dropout_rate": 0.3,
+    "weighted_sampler": false,
+    "mixed_precision": true,
+    "leakage_check": "dialogue_id checked"
+}
