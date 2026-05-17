@@ -1,362 +1,400 @@
 file_path,emotion,speaker_id,raw_emotion,original_folder,dataset
-../../dataset\YAF_pleasant_surprised\YAF_gun_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_pleasant_surprised\YAF_tire_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_angry\YAF_join_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_sad\YAF_fit_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_sad\YAF_should_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_fear\YAF_cause_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_angry\YAF_bath_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_angry\YAF_lean_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_fear\YAF_live_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_pleasant_surprised\YAF_kite_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_pleasant_surprised\YAF_read_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_angry\YAF_five_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_pleasant_surprised\YAF_chat_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_disgust\YAF_deep_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_pleasant_surprised\YAF_keep_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_pleasant_surprised\YAF_voice_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_angry\YAF_rat_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_happy\YAF_search_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_pleasant_surprised\YAF_met_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_pleasant_surprised\YAF_chain_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_disgust\YAF_cool_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_pleasant_surprised\YAF_doll_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_pleasant_surprised\YAF_fat_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_sad\YAF_sub_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_angry\YAF_pearl_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_disgust\YAF_pad_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_neutral\YAF_said_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_disgust\YAF_mouse_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_sad\YAF_jug_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_pleasant_surprised\YAF_death_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_angry\YAF_time_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_neutral\YAF_vine_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_sad\YAF_merge_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_disgust\YAF_gun_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_disgust\YAF_date_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_sad\YAF_lease_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_fear\YAF_puff_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_fear\YAF_sub_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_neutral\YAF_team_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_angry\YAF_yearn_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_pleasant_surprised\YAF_join_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_disgust\YAF_lease_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_pleasant_surprised\YAF_laud_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_happy\YAF_knock_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_pleasant_surprised\YAF_choice_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_happy\YAF_wash_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_sad\YAF_sheep_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_angry\YAF_thin_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_sad\YAF_which_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_disgust\YAF_wag_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_happy\YAF_laud_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_angry\YAF_hash_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_disgust\YAF_witch_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_pleasant_surprised\YAF_thin_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_sad\YAF_jar_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_pleasant_surprised\YAF_yearn_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_happy\YAF_bone_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_neutral\YAF_witch_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_pleasant_surprised\YAF_yes_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_happy\YAF_chat_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_pleasant_surprised\YAF_week_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_fear\YAF_team_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_neutral\YAF_tip_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_happy\YAF_sail_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_pleasant_surprised\YAF_whip_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_sad\YAF_vine_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_sad\YAF_wire_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_happy\YAF_make_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_fear\YAF_book_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_angry\YAF_rose_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_pleasant_surprised\YAF_lean_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_happy\YAF_read_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_pleasant_surprised\YAF_door_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_fear\YAF_thumb_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_disgust\YAF_note_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_pleasant_surprised\YAF_chalk_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_sad\YAF_pole_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_disgust\YAF_boat_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_angry\YAF_lid_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_sad\YAF_home_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_fear\YAF_goal_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_neutral\YAF_five_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_happy\YAF_whip_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_fear\YAF_back_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_sad\YAF_witch_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_fear\YAF_shirt_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_neutral\YAF_learn_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_sad\YAF_mill_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_sad\YAF_knock_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_fear\YAF_king_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_angry\YAF_shout_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_neutral\YAF_hurl_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_fear\YAF_yes_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_neutral\YAF_phone_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_fear\YAF_germ_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_disgust\YAF_love_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_fear\YAF_ripe_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_happy\YAF_cab_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_fear\YAF_met_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_angry\YAF_reach_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_happy\YAF_pick_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_disgust\YAF_fall_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_disgust\YAF_learn_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_angry\YAF_when_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_disgust\YAF_pain_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_sad\YAF_haze_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_happy\YAF_jug_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_angry\YAF_keep_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_happy\YAF_numb_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_fear\YAF_witch_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_neutral\YAF_far_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_pleasant_surprised\YAF_young_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_happy\YAF_keen_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_fear\YAF_cool_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_happy\YAF_death_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_happy\YAF_chain_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_sad\YAF_chalk_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_happy\YAF_chair_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_neutral\YAF_kill_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_neutral\YAF_shirt_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_pleasant_surprised\YAF_neat_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_fear\YAF_room_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_fear\YAF_sure_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_disgust\YAF_rat_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_pleasant_surprised\YAF_walk_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_happy\YAF_cause_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_angry\YAF_gaze_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_neutral\YAF_sub_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_angry\YAF_yes_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_sad\YAF_tool_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_happy\YAF_hire_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_fear\YAF_haze_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_fear\YAF_bone_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_sad\YAF_shirt_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_disgust\YAF_kick_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_sad\YAF_time_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_sad\YAF_walk_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_angry\YAF_tool_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_happy\YAF_kite_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_neutral\YAF_book_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_angry\YAF_thought_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_sad\YAF_rat_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_pleasant_surprised\YAF_gin_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_angry\YAF_walk_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_neutral\YAF_shall_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_happy\YAF_food_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_sad\YAF_voice_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_disgust\YAF_burn_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_sad\YAF_note_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_fear\YAF_jail_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_pleasant_surprised\YAF_life_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_happy\YAF_room_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_disgust\YAF_germ_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_neutral\YAF_bone_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_fear\YAF_hurl_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_pleasant_surprised\YAF_date_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_sad\YAF_base_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_disgust\YAF_thought_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_pleasant_surprised\YAF_merge_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_fear\YAF_kite_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_disgust\YAF_whip_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_happy\YAF_when_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_pleasant_surprised\YAF_seize_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_fear\YAF_red_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_angry\YAF_back_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_angry\YAF_vine_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_angry\YAF_seize_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_happy\YAF_king_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_neutral\YAF_which_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_neutral\YAF_moon_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_neutral\YAF_death_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_sad\YAF_hole_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_fear\YAF_dime_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_happy\YAF_bite_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_disgust\YAF_jar_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_happy\YAF_rush_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_fear\YAF_pike_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_neutral\YAF_chat_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_neutral\YAF_wire_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_pleasant_surprised\YAF_jar_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_disgust\YAF_yearn_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_disgust\YAF_door_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_disgust\YAF_pole_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_happy\YAF_home_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_angry\YAF_bean_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_neutral\YAF_cause_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_disgust\YAF_merge_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_disgust\YAF_moon_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_neutral\YAF_home_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_happy\YAF_late_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_angry\YAF_bone_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_neutral\YAF_germ_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_angry\YAF_long_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_disgust\YAF_ditch_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_angry\YAF_gas_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_angry\YAF_read_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_neutral\YAF_fat_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_disgust\YAF_chain_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_happy\YAF_shirt_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_happy\YAF_hit_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_fear\YAF_neat_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_fear\YAF_sheep_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_angry\YAF_talk_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_sad\YAF_get_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_angry\YAF_get_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_sad\YAF_take_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_disgust\YAF_dead_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_happy\YAF_bean_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_disgust\YAF_wash_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_fear\YAF_fit_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_sad\YAF_door_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_neutral\YAF_wash_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_neutral\YAF_should_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_disgust\YAF_search_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_happy\YAF_wag_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_sad\YAF_judge_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_sad\YAF_fall_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_sad\YAF_long_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_neutral\YAF_match_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_pleasant_surprised\YAF_moon_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_neutral\YAF_neat_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_fear\YAF_shall_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_pleasant_surprised\YAF_soup_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_angry\YAF_late_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_disgust\YAF_talk_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_disgust\YAF_jug_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_fear\YAF_should_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_fear\YAF_lease_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_fear\YAF_knock_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_pleasant_surprised\YAF_rough_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_sad\YAF_far_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_neutral\YAF_tell_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_neutral\YAF_make_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_neutral\YAF_when_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_angry\YAF_dead_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_happy\YAF_such_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_fear\YAF_gaze_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_happy\YAF_sure_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_neutral\YAF_good_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_sad\YAF_chat_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_pleasant_surprised\YAF_search_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_fear\YAF_boat_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_pleasant_surprised\YAF_bite_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_angry\YAF_ton_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_sad\YAF_chain_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_pleasant_surprised\YAF_chair_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_happy\YAF_walk_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_pleasant_surprised\YAF_rat_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_happy\YAF_fall_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_fear\YAF_vine_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_pleasant_surprised\YAF_phone_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_neutral\YAF_food_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_fear\YAF_good_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_disgust\YAF_gas_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_angry\YAF_dime_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_fear\YAF_judge_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_happy\YAF_lot_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_happy\YAF_should_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_pleasant_surprised\YAF_tool_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_sad\YAF_rough_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_happy\YAF_yearn_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_neutral\YAF_such_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_fear\YAF_dog_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_angry\YAF_gap_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_fear\YAF_week_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_pleasant_surprised\YAF_rush_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_disgust\YAF_walk_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_fear\YAF_bought_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_pleasant_surprised\YAF_sheep_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_angry\YAF_shirt_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_angry\YAF_chalk_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_angry\YAF_take_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_angry\YAF_nice_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_sad\YAF_mouse_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_fear\YAF_mouse_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_disgust\YAF_lid_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_sad\YAF_loaf_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_disgust\YAF_such_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_fear\YAF_tell_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_angry\YAF_chief_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_fear\YAF_jar_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_angry\YAF_book_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_neutral\YAF_cool_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_sad\YAF_puff_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_neutral\YAF_dab_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_happy\YAF_met_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_sad\YAF_king_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_neutral\YAF_lot_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_angry\YAF_chair_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_angry\YAF_search_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_angry\YAF_sure_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_sad\YAF_sail_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_fear\YAF_hush_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_neutral\YAF_red_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_neutral\YAF_choice_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_fear\YAF_search_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_neutral\YAF_rush_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_disgust\YAF_said_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_pleasant_surprised\YAF_third_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_happy\YAF_neat_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_happy\YAF_burn_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_disgust\YAF_vote_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_sad\YAF_name_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_disgust\YAF_hire_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_neutral\YAF_judge_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_neutral\YAF_date_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_neutral\YAF_knock_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_sad\YAF_size_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_sad\YAF_room_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_angry\YAF_jug_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_fear\YAF_pass_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_happy\YAF_gas_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_neutral\YAF_mood_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_angry\YAF_hush_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_happy\YAF_gun_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_sad\YAF_chief_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_angry\YAF_witch_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_disgust\YAF_peg_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_happy\YAF_thumb_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_sad\YAF_keen_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_angry\YAF_fall_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_fear\YAF_raise_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_fear\YAF_road_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_disgust\YAF_cab_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_fear\YAF_calm_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_happy\YAF_pain_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_sad\YAF_dead_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_angry\YAF_death_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_pleasant_surprised\YAF_ditch_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_neutral\YAF_join_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_happy\YAF_gap_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_happy\YAF_kick_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_sad\YAF_thin_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_fear\YAF_whip_fear.wav,fear,yaf,fear,YAF_fear,TESS
-../../dataset\YAF_pleasant_surprised\YAF_good_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_disgust\YAF_tape_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_disgust\YAF_phone_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_disgust\YAF_hole_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_sad\YAF_boat_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_sad\YAF_peg_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_disgust\YAF_sure_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_disgust\YAF_shirt_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_angry\YAF_date_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_disgust\YAF_tough_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_neutral\YAF_talk_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_neutral\YAF_yearn_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_neutral\YAF_note_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_disgust\YAF_rush_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_pleasant_surprised\YAF_gaze_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_neutral\YAF_wag_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_pleasant_surprised\YAF_haze_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_neutral\YAF_tough_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
-../../dataset\YAF_pleasant_surprised\YAF_take_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_pleasant_surprised\YAF_dime_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_angry\YAF_bought_angry.wav,anger,yaf,angry,YAF_angry,TESS
-../../dataset\YAF_pleasant_surprised\YAF_base_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
-../../dataset\YAF_happy\YAF_germ_happy.wav,happiness,yaf,happy,YAF_happy,TESS
-../../dataset\YAF_sad\YAF_germ_sad.wav,sadness,yaf,sad,YAF_sad,TESS
-../../dataset\YAF_disgust\YAF_fit_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_disgust\YAF_rag_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
-../../dataset\YAF_happy\YAF_thought_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_ditch_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_judge_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_tip_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_vote_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_ditch_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_calm_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_sell_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_burn_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_far_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_read_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_jug_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_have_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_raid_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_hash_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_limb_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_book_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_rat_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_phone_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_merge_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_bite_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_deep_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_jug_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_pad_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_tire_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_learn_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_seize_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_back_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_five_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_home_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_match_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_white_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_keen_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_lore_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_fall_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_gas_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_thin_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_bean_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_bath_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_chief_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_said_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_shirt_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_live_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_join_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_get_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_bone_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_join_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_such_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_fit_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_neat_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_date_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_raise_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_tip_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_size_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_chalk_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_five_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_get_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_pass_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_pass_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_white_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_met_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_team_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_lot_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_kill_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_pike_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_room_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_chair_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_vine_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_fit_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_hush_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_white_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_vine_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_bar_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_hire_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_bath_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_mouse_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_kick_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_have_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_keen_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_read_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_love_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_dip_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_boat_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_cab_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_met_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_knock_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_raise_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_hate_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_tool_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_bar_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_live_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_wire_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_thumb_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_note_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_kick_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_when_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_witch_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_lease_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_haze_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_yearn_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_food_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_pad_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_mood_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_get_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_jail_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_peg_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_tape_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_page_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_chalk_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_door_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_yes_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_bought_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_yes_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_fall_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_shirt_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_sure_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_loaf_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_sail_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_shack_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_mouse_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_room_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_nice_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_knock_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_rose_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_pearl_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_sour_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_pad_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_live_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_week_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_fall_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_ripe_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_which_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_hush_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_dead_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_mode_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_chair_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_yes_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_pick_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_ring_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_knock_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_witch_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_ring_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_join_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_rag_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_dodge_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_bar_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_met_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_loaf_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_young_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_cause_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_rat_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_when_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_whip_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_mood_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_boat_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_life_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_wire_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_note_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_book_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_haze_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_white_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_rose_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_cool_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_shirt_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_lore_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_when_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_tip_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_soap_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_lot_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_home_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_match_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_lean_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_raid_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_rough_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_dime_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_kick_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_lease_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_team_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_jar_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_wire_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_chain_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_fall_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_sell_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_tough_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_tool_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_learn_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_team_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_kill_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_ditch_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_tool_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_shawl_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_sour_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_met_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_chat_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_merge_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_talk_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_raise_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_live_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_soap_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_chain_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_kill_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_wash_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_ditch_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_thin_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_lore_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_talk_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_jar_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_five_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_door_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_keep_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_vine_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_door_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_lot_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_dog_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_south_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_shall_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_seize_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_good_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_lean_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_calm_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_doll_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_merge_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_sheep_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_mill_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_love_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_death_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_half_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_tool_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_jar_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_bite_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_bite_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_king_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_nag_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_cheek_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_met_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_near_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_date_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_burn_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_dab_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_fat_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_king_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_cool_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_back_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_gun_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_thumb_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_rough_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_thumb_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_hire_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_void_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_jail_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_keep_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_dab_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_limb_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_moon_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_haze_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_kill_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_pick_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_raise_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_peg_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_note_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_keep_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_hate_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_hall_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_tape_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_bone_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_tell_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_gaze_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_love_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_witch_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_white_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_wag_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_lid_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_yearn_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_fail_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_pearl_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_lid_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_life_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_soup_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_book_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_fall_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_ditch_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_get_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_tell_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_time_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_shout_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_home_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_fail_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_date_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_dab_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_gaze_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_choice_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_keen_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_cheek_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_gas_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_should_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_pain_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_phone_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_gas_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_late_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_laud_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_fat_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_dog_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_pick_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_laud_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_seize_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_wash_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_tape_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_should_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_reach_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_neat_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_death_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_red_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_hire_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_luck_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_talk_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_soup_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_search_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_germ_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_good_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_mess_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_limb_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_dodge_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_void_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_chain_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_date_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_such_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_red_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_wire_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_whip_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_king_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_gap_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_chalk_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_page_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_search_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_time_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_long_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_thin_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_book_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_half_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_jail_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_sour_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_name_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_half_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_pike_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_page_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_gaze_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_burn_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_bar_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_near_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_date_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_phone_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_search_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_vote_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_raid_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_hate_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_tape_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_doll_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_bone_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_rain_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_haze_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_keep_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_death_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_raise_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_cause_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_voice_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_keg_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_chat_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_get_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_hash_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_search_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_haze_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_page_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_pike_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_witch_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_food_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_haze_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_fit_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_learn_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_cheek_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_pain_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_take_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_merge_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_kite_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_pain_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_rat_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_sub_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_date_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_chair_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_laud_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_nice_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_neutral\YAF_puff_neutral.wav,neutral,yaf,neutral,YAF_neutral,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_disgust\YAF_phone_disgust.wav,disgust,yaf,disgust,YAF_disgust,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_south_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_happy\YAF_walk_happy.wav,happiness,yaf,happy,YAF_happy,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_fear\YAF_red_fear.wav,fear,yaf,fear,YAF_fear,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_pool_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_vine_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_angry\YAF_size_angry.wav,anger,yaf,angry,YAF_angry,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_sad\YAF_late_sad.wav,sadness,yaf,sad,YAF_sad,TESS
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset\YAF_pleasant_surprised\YAF_book_ps.wav,surprise,yaf,pleasant_surprised,YAF_pleasant_surprised,TESS

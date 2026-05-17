@@ -59,28 +59,19 @@ Multimodal Emotion Recognition/
 │   │   ├── train_split.csv           # Speaker-aware train split
 │   │   ├── val_split.csv             # Speaker-aware validation split
 │   │   ├── test_split.csv            # Speaker-aware test split
-│   │   ├── saved_models/
-│   │   │   ├── best_model.pth        # Trained model weights (state_dict)
-│   │   │   └── model_config.json     # Classes, sr, duration, model name
-│   │   ├── metrics/
-│   │   │   ├── speech_metrics.json   # Final test metrics
-│   │   │   └── training_metrics.csv  # Per-epoch history
-│   │   ├── results/
-│   │   │   ├── classification_report.csv
-│   │   │   ├── classification_report.txt
-│   │   │   ├── confusion_matrix.csv
-│   │   │   └── summary.csv
-│   │   ├── plots/
-│   │   │   ├── training_curve.png
-│   │   │   └── confusion_matrix.png
-│   │   └── logs/
-│   │       └── training_log.txt
+│   │   ├── checkpoints/
+│   │   ├── processed_data/
+│   │   └── saved_models/
+│   │       ├── best_model.pth        # Trained model weights (state_dict)
+│   │       └── model_config.json     # Classes, sr, duration, model name
 │   │
 │   └── text_pipeline/
 │       ├── preprocess.py             # Parses DailyDialog, group splits by dialogue_id
 │       ├── train.py                  # Trains RoBERTa text classifier
 │       ├── test.py                   # GUI inference
 │       ├── batch_test.py             # Batch terminal inference → CSV
+│       ├── y.py                      # Batch script
+│       ├── checkpoints/
 │       ├── data/
 │       │   ├── dialogues_text.txt    # DailyDialog utterances
 │       │   └── dialogues_emotion.txt # DailyDialog labels
@@ -88,20 +79,37 @@ Multimodal Emotion Recognition/
 │       │   ├── metadata.csv
 │       │   ├── train.csv / val.csv / test.csv
 │       │   └── split_info.json
-│       ├── saved_models/
-│       │   ├── text_emotion_model.pth   # Full checkpoint dict
-│       │   └── model_config.json
+│       └── saved_models/
+│           ├── text_emotion_model.pth   # Full checkpoint dict
+│           └── model_config.json
+│
+├── results/
+│   ├── speech_pipeline/
+│   │   ├── metrics/
+│   │   │   ├── speech_metrics.json   # Final test metrics
+│   │   │   └── training_metrics.csv  # Per-epoch history
+│   │   ├── plots/
+│   │   │   ├── training_curve.png
+│   │   │   └── confusion_matrix.png
+│   │   └── results/
+│   │       ├── classification_report.csv
+│   │       ├── classification_report.txt
+│   │       ├── confusion_matrix.csv
+│   │       └── summary.csv
+│   │
+│   └── text_pipeline/
 │       ├── metrics/
 │       │   ├── text_metrics.json
-│       │   ├── classification_report.txt
-│       │   ├── classification_report.csv
-│       │   ├── confusion_matrix.csv
 │       │   ├── training_metrics.csv
 │       │   └── batch_text_predictions.csv
-│       └── plots/
-│           ├── training_curve.png
-│           ├── confusion_matrix.png
-│           └── class_distribution.png
+│       ├── plots/
+│       │   ├── training_curve.png
+│       │   ├── confusion_matrix.png
+│       │   └── class_distribution.png
+│       └── results/
+│           ├── classification_report.txt
+│           ├── classification_report.csv
+│           └── confusion_matrix.csv
 │
 ├── requirements.txt
 ├── setup.bat
@@ -234,7 +242,7 @@ Training ran for all **8 epochs**. Best epoch: **epoch 8** (val Macro F1 = 45.31
 | Test Accuracy | **99.88%** |
 | Test UAR | **99.88%** |
 | Test Macro F1 | **99.88%** |
-| Saved Model | `speech_pipeline/saved_models/best_model.pth` |
+| Saved Model | `models/speech_pipeline/saved_models/best_model.pth` |
 | Remark | Results are specific to TESS controlled dataset. Expected to be lower on real-world speech. |
 
 ### Text-Only Experiment
@@ -250,7 +258,7 @@ Training ran for all **8 epochs**. Best epoch: **epoch 8** (val Macro F1 = 45.31
 | Test UAR (Macro Recall) | **56.68%** |
 | Test Macro F1 | **49.77%** |
 | Test Weighted F1 | **82.82%** |
-| Saved Model | `text_pipeline/saved_models/text_emotion_model.pth` |
+| Saved Model | `models/text_pipeline/saved_models/text_emotion_model.pth` |
 | Remark | Accuracy inflated by neutral class (≈83% of data). Macro F1 is the reliable metric. |
 
 ### Fusion Experiment
@@ -456,33 +464,33 @@ python batch_test.py
 
 | File | Description |
 |---|---|
-| `saved_models/best_model.pth` | Best model weights (state_dict format, 378 MB) |
-| `saved_models/model_config.json` | Model name, classes, sr, duration |
-| `metrics/speech_metrics.json` | Full test metrics JSON |
-| `metrics/training_metrics.csv` | Per-epoch train loss, val accuracy, UAR, macro F1 |
-| `results/classification_report.csv` | Per-class precision/recall/F1 |
-| `results/classification_report.txt` | Plain text classification report |
-| `results/confusion_matrix.csv` | 7×7 confusion matrix |
-| `results/summary.csv` | Accuracy, UAR, Macro F1, model name |
-| `plots/training_curve.png` | Train loss + val Macro F1 over epochs |
-| `plots/confusion_matrix.png` | Seaborn heatmap confusion matrix |
+| `models/speech_pipeline/saved_models/best_model.pth` | Best model weights (state_dict format, 378 MB) |
+| `models/speech_pipeline/saved_models/model_config.json` | Model name, classes, sr, duration |
+| `results/speech_pipeline/metrics/speech_metrics.json` | Full test metrics JSON |
+| `results/speech_pipeline/metrics/training_metrics.csv` | Per-epoch train loss, val accuracy, UAR, macro F1 |
+| `results/speech_pipeline/results/classification_report.csv` | Per-class precision/recall/F1 |
+| `results/speech_pipeline/results/classification_report.txt` | Plain text classification report |
+| `results/speech_pipeline/results/confusion_matrix.csv` | 7×7 confusion matrix |
+| `results/speech_pipeline/results/summary.csv` | Accuracy, UAR, Macro F1, model name |
+| `results/speech_pipeline/plots/training_curve.png` | Train loss + val Macro F1 over epochs |
+| `results/speech_pipeline/plots/confusion_matrix.png` | Seaborn heatmap confusion matrix |
 
 ### Text Pipeline
 
 | File | Description |
 |---|---|
-| `saved_models/text_emotion_model.pth` | Full checkpoint dict (model state + config + classes, 499 MB) |
-| `saved_models/model_config.json` | Architecture, hyperparameters, split requirement |
-| `metrics/text_metrics.json` | Full test metrics JSON |
-| `metrics/training_metrics.csv` | Per-epoch train/val loss, accuracy, UAR, macro F1, weighted F1 |
-| `metrics/classification_report.csv` | Per-class metrics CSV |
-| `metrics/classification_report.txt` | Plain text report |
-| `metrics/confusion_matrix.csv` | 7×7 confusion matrix |
-| `metrics/batch_text_predictions.csv` | Batch inference results with top-3 and confidence gap |
-| `plots/training_curve.png` | Training curves |
-| `plots/confusion_matrix.png` | Heatmap |
-| `plots/class_distribution.png` | Class distribution bar chart |
-| `processed_data/split_info.json` | Split sizes, dialogue counts, leakage check result |
+| `models/text_pipeline/saved_models/text_emotion_model.pth` | Full checkpoint dict (model state + config + classes, 499 MB) |
+| `models/text_pipeline/saved_models/model_config.json` | Architecture, hyperparameters, split requirement |
+| `results/text_pipeline/metrics/text_metrics.json` | Full test metrics JSON |
+| `results/text_pipeline/metrics/training_metrics.csv` | Per-epoch train/val loss, accuracy, UAR, macro F1, weighted F1 |
+| `results/text_pipeline/results/classification_report.csv` | Per-class metrics CSV |
+| `results/text_pipeline/results/classification_report.txt` | Plain text report |
+| `results/text_pipeline/results/confusion_matrix.csv` | 7×7 confusion matrix |
+| `results/text_pipeline/results/batch_text_predictions.csv` | Batch inference results with top-3 and confidence gap |
+| `results/text_pipeline/plots/training_curve.png` | Training curves |
+| `results/text_pipeline/plots/confusion_matrix.png` | Heatmap |
+| `results/text_pipeline/plots/class_distribution.png` | Class distribution bar chart |
+| `models/text_pipeline/processed_data/split_info.json` | Split sizes, dialogue counts, leakage check result |
 
 ---
 

@@ -21,15 +21,20 @@ ctk.set_default_color_theme("blue")
 # PATH CONFIGURATION
 # =========================
 
-MODEL_PATH = "saved_models/text_emotion_model.pth"
-CONFIG_PATH = "saved_models/model_config.json"
+PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
 
-REPORT_TXT = "metrics/classification_report.txt"
-CM_CSV = "metrics/confusion_matrix.csv"
-METRICS_JSON = "metrics/text_metrics.json"
+OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "results", "text_pipeline")
 
-PLOT_CM = "plots/confusion_matrix.png"
-PLOT_CURVE = "plots/training_curve.png"
+MODEL_PATH = os.path.join(PIPELINE_DIR, "saved_models", "text_emotion_model.pth")
+CONFIG_PATH = os.path.join(PIPELINE_DIR, "saved_models", "model_config.json")
+
+REPORT_TXT = os.path.join(OUTPUT_ROOT, "results", "classification_report.txt")
+CM_CSV = os.path.join(OUTPUT_ROOT, "results", "confusion_matrix.csv")
+METRICS_JSON = os.path.join(OUTPUT_ROOT, "metrics", "text_metrics.json")
+
+PLOT_CM = os.path.join(OUTPUT_ROOT, "plots", "confusion_matrix.png")
+PLOT_CURVE = os.path.join(OUTPUT_ROOT, "plots", "training_curve.png")
 
 
 # =========================

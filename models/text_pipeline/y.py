@@ -11,9 +11,14 @@ from transformers import AutoTokenizer, AutoModel
 # PATH CONFIGURATION
 # =========================
 
-MODEL_PATH = "saved_models/text_emotion_model.pth"
-CONFIG_PATH = "saved_models/model_config.json"
-OUTPUT_PATH = "metrics/batch_text_predictions.csv"
+PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
+
+OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "results", "text_pipeline")
+
+MODEL_PATH = os.path.join(PIPELINE_DIR, "saved_models", "text_emotion_model.pth")
+CONFIG_PATH = os.path.join(PIPELINE_DIR, "saved_models", "model_config.json")
+OUTPUT_PATH = os.path.join(OUTPUT_ROOT, "results", "batch_text_predictions.csv")
 
 
 # =========================

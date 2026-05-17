@@ -112,6 +112,9 @@ class SERApp:
         self.stream = None
 
         self.base_dir = os.path.dirname(os.path.abspath(__file__))
+        self.project_root = os.path.abspath(os.path.join(self.base_dir, "..", ".."))
+        self.output_root = os.path.join(self.project_root, "results", "speech_pipeline")
+        
         self.model_path = os.path.join(self.base_dir, "saved_models", "best_model.pth")
         self.config_path = os.path.join(self.base_dir, "saved_models", "model_config.json")
 
@@ -411,7 +414,7 @@ class SERApp:
             return str(value)
 
     def show_csv_table(self, title, csv_path, table_type):
-        filepath = os.path.join(self.base_dir, csv_path)
+        filepath = os.path.join(self.output_root, csv_path)
         if not os.path.exists(filepath):
             messagebox.showinfo("Not Found", f"{title} not found at {filepath}")
             return
@@ -495,7 +498,7 @@ class SERApp:
         self.show_csv_table("Confusion Matrix", "results/confusion_matrix.csv", "confusion")
 
     def show_metrics_summary(self):
-        filepath = os.path.join(self.base_dir, "results", "summary.csv")
+        filepath = os.path.join(self.output_root, "results", "summary.csv")
 
         if not os.path.exists(filepath):
             messagebox.showinfo("Not Found", f"Metrics Summary not found at:\n{filepath}")
@@ -713,8 +716,8 @@ class SERApp:
         close_btn.pack(pady=(0, 20))
 
     def show_plots(self):
-        plot_cm = os.path.join(self.base_dir, "plots/confusion_matrix.png")
-        plot_curve = os.path.join(self.base_dir, "plots/training_curve.png")
+        plot_cm = os.path.join(self.output_root, "plots", "confusion_matrix.png")
+        plot_curve = os.path.join(self.output_root, "plots", "training_curve.png")
         
         if not os.path.exists(plot_cm) and not os.path.exists(plot_curve):
             messagebox.showinfo("Not Found", "No plots found in the plots/ directory.")

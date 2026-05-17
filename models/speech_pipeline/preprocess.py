@@ -2,22 +2,30 @@ import os
 import pandas as pd
 from tqdm import tqdm
 
-DATASET_PATH = "../../dataset"
-METADATA_PATH = "metadata.csv"
+# =========================
+# PATH CONFIGURATION
+# =========================
+
+PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
+
+DATASET_PATH  = os.path.join(PROJECT_ROOT, "dataset")
+METADATA_PATH = os.path.join(PIPELINE_DIR, "metadata.csv")
 
 EMOTION_MAP = {
-    "angry": "anger",
-    "disgust": "disgust",
-    "fear": "fear",
-    "happy": "happiness",
-    "neutral": "neutral",
-    "sad": "sadness",
-    "pleasant_surprise": "surprise",
+    "angry":              "anger",
+    "disgust":            "disgust",
+    "fear":               "fear",
+    "happy":              "happiness",
+    "neutral":            "neutral",
+    "sad":                "sadness",
+    "pleasant_surprise":  "surprise",
     "pleasant_surprised": "surprise",
-    "pleasant": "surprise",
-    "surprise": "surprise",
-    "ps": "surprise"
+    "pleasant":           "surprise",
+    "surprise":           "surprise",
+    "ps":                 "surprise",
 }
+
 
 def get_emotion_from_folder(folder):
     folder_lower = folder.lower()
@@ -27,7 +35,14 @@ def get_emotion_from_folder(folder):
     emotion = EMOTION_MAP.get(raw_emotion, None)
     return speaker_id, raw_emotion, emotion
 
+
 def main():
+    if not os.path.exists(DATASET_PATH):
+        raise FileNotFoundError(
+            f"Dataset folder not found: {DATASET_PATH}\n"
+            "Place the TESS dataset under the project-root 'dataset/' folder."
+        )
+
     if os.path.exists(METADATA_PATH):
         os.remove(METADATA_PATH)
 
@@ -47,7 +62,7 @@ def main():
 
     for folder, file in tqdm(all_files):
         folder_path = os.path.join(DATASET_PATH, folder)
-        file_path = os.path.join(folder_path, file)
+        file_path   = os.path.join(folder_path, file)
 
         if not os.path.exists(file_path):
             continue
@@ -60,12 +75,12 @@ def main():
                 continue
 
             metadata.append({
-                "file_path": file_path,
-                "emotion": emotion,
-                "speaker_id": speaker_id,
-                "raw_emotion": raw_emotion,
+                "file_path":       file_path,
+                "emotion":         emotion,
+                "speaker_id":      speaker_id,
+                "raw_emotion":     raw_emotion,
                 "original_folder": folder,
-                "dataset": "TESS"
+                "dataset":         "TESS",
             })
 
         except Exception as e:
@@ -79,7 +94,6 @@ def main():
     print(f"Total valid samples: {len(df)}")
     print("\nClass counts:")
     print(df["emotion"].value_counts().sort_index())
-
     print("\nSpeaker IDs:")
     print(df["speaker_id"].unique())
 
@@ -88,7 +102,8 @@ def main():
         for item in skipped[:20]:
             print(item)
 
-    print("\nMetadata Saved -> metadata.csv")
+    print(f"\nMetadata Saved -> {METADATA_PATH}")
+
 
 if __name__ == "__main__":
     main()

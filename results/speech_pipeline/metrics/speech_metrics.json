@@ -2,6 +2,11 @@
     "dataset": "TESS (Toronto Emotional Speech Set)",
     "model_name": "microsoft/wavlm-base",
     "architecture": "WavLM Transformer Encoder + Mean Pooling + Classification Head",
+    "best_epoch": 6,
+    "best_validation_macro_f1": 100.0,
+    "test_accuracy": 99.89258861439313,
+    "test_uar": 99.89258861439313,
+    "test_macro_f1": 99.89258709631828,
     "classes": [
         "anger",
         "disgust",
@@ -12,19 +17,13 @@
         "surprise"
     ],
     "split_strategy": "speaker_aware",
-    "base_train_speaker": "OAF",
-    "target_speaker": "YAF",
-    "adapt_ratio": 0.14,
+    "base_train_speaker": "oaf",
+    "target_speaker": "yaf",
+    "adapt_ratio": 0.05,
     "sr": 16000,
     "duration": 3,
     "batch_size": 16,
     "learning_rate": 2e-05,
-    "weight_decay": 1e-04,
-    "patience": 5,
     "seed": 42,
-    "augmentation": true,
-    "test_accuracy": 99.88137603795967,
-    "test_uar": 99.88193624557262,
-    "test_macro_f1": 99.88193422955986,
-    "note": "Results are specific to TESS controlled dataset (2 speakers, studio-recorded, single-word utterances). Performance on spontaneous real-world speech is expected to be significantly lower."
+    "note": "Results are specific to the TESS controlled dataset. Performance on spontaneous real-world speech is expected to be lower."
 }

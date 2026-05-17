@@ -9,10 +9,10 @@ from sklearn.model_selection import GroupShuffleSplit
 # PATH CONFIGURATION
 # =========================
 
-BASE_DIR = os.getcwd()
+PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DATASET_DIR = os.path.join(BASE_DIR, "data")
-PROCESSED_DIR = os.path.join(BASE_DIR, "processed_data")
+DATASET_DIR = os.path.join(PIPELINE_DIR, "data")
+PROCESSED_DIR = os.path.join(PIPELINE_DIR, "processed_data")
 
 TEXT_PATH = os.path.join(DATASET_DIR, "dialogues_text.txt")
 EMOTION_PATH = os.path.join(DATASET_DIR, "dialogues_emotion.txt")

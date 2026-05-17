@@ -17,14 +17,18 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix, recall_score, f1_score, accuracy_score
 from transformers import AutoFeatureExtractor, AutoModel
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-METADATA_PATH = os.path.join(BASE_DIR, "metadata.csv")
-PLOTS_DIR = os.path.join(BASE_DIR, "plots")
-RESULTS_DIR = os.path.join(BASE_DIR, "results")
-MODELS_DIR = os.path.join(BASE_DIR, "saved_models")
-METRICS_DIR = os.path.join(BASE_DIR, "metrics")
+PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
 
-for d in [PLOTS_DIR, RESULTS_DIR, MODELS_DIR, METRICS_DIR]:
+METADATA_PATH = os.path.join(PIPELINE_DIR, "metadata.csv")
+MODELS_DIR    = os.path.join(PIPELINE_DIR, "saved_models")
+
+OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "results", "speech_pipeline")
+METRICS_DIR = os.path.join(OUTPUT_ROOT, "metrics")
+PLOTS_DIR   = os.path.join(OUTPUT_ROOT, "plots")
+RESULTS_DIR = os.path.join(OUTPUT_ROOT, "results")
+
+for d in [MODELS_DIR, METRICS_DIR, PLOTS_DIR, RESULTS_DIR]:
     os.makedirs(d, exist_ok=True)
 
 SR = 16000
@@ -42,7 +46,7 @@ random.seed(SEED)
 
 BASE_TRAIN_SPEAKER = "oaf"
 TARGET_SPEAKER = "yaf"
-ADAPT_RATIO = 0.14
+ADAPT_RATIO = 0.05
 
 CLASS_NAMES = ["anger", "disgust", "fear", "happiness", "neutral", "sadness", "surprise"]
 
@@ -156,9 +160,9 @@ def build_training_data(df):
     val_df = val_df.reset_index(drop=True)
     test_df = test_df.reset_index(drop=True)
 
-    train_df.to_csv(os.path.join(BASE_DIR, "train_split.csv"), index=False)
-    val_df.to_csv(os.path.join(BASE_DIR, "val_split.csv"), index=False)
-    test_df.to_csv(os.path.join(BASE_DIR, "test_split.csv"), index=False)
+    train_df.to_csv(os.path.join(PIPELINE_DIR, "train_split.csv"), index=False)
+    val_df.to_csv(os.path.join(PIPELINE_DIR, "val_split.csv"), index=False)
+    test_df.to_csv(os.path.join(PIPELINE_DIR, "test_split.csv"), index=False)
 
     return train_df, val_df, test_df
 
@@ -323,7 +327,6 @@ def main():
     summary_df.to_csv(os.path.join(RESULTS_DIR, "summary.csv"), index=False)
 
     # Save comprehensive metrics JSON for submission
-    import json
     speech_metrics = {
         "dataset": "TESS (Toronto Emotional Speech Set)",
         "model_name": MODEL_NAME,
