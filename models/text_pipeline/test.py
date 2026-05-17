@@ -29,8 +29,9 @@ OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "results", "text_pipeline")
 MODEL_PATH = os.path.join(PIPELINE_DIR, "saved_models", "text_emotion_model.pth")
 CONFIG_PATH = os.path.join(PIPELINE_DIR, "saved_models", "model_config.json")
 
-REPORT_TXT = os.path.join(OUTPUT_ROOT, "results", "classification_report.txt")
-CM_CSV = os.path.join(OUTPUT_ROOT, "results", "confusion_matrix.csv")
+# FIXED PATHS
+REPORT_TXT = os.path.join(OUTPUT_ROOT, "metrics", "classification_report.txt")
+CM_CSV = os.path.join(OUTPUT_ROOT, "metrics", "confusion_matrix.csv")
 METRICS_JSON = os.path.join(OUTPUT_ROOT, "metrics", "text_metrics.json")
 
 PLOT_CM = os.path.join(OUTPUT_ROOT, "plots", "confusion_matrix.png")
@@ -112,7 +113,6 @@ class TextEmotionModel(nn.Module):
         )
 
         logits = self.classifier(pooled_output)
-
         return logits
 
 
@@ -300,13 +300,19 @@ class TextEmotionApp:
 
     def load_model(self):
         if not os.path.exists(MODEL_PATH):
-            messagebox.showerror("Error", f"Model file not found:\n{MODEL_PATH}\n\nRun train.py first.")
+            messagebox.showerror(
+                "Error",
+                f"Model file not found:\n{MODEL_PATH}\n\nRun train.py first."
+            )
             self.set_status("Model Missing", badge_color="#b71c1c", text_color="#ff5252")
             self.predict_btn.configure(state="disabled")
             return
 
         if not os.path.exists(CONFIG_PATH):
-            messagebox.showerror("Error", f"Config file not found:\n{CONFIG_PATH}\n\nRun train.py first.")
+            messagebox.showerror(
+                "Error",
+                f"Config file not found:\n{CONFIG_PATH}\n\nRun train.py first."
+            )
             self.set_status("Config Missing", badge_color="#b71c1c", text_color="#ff5252")
             self.predict_btn.configure(state="disabled")
             return
@@ -419,24 +425,23 @@ class TextEmotionApp:
         emoji = EMOTION_EMOJIS.get(emotion, "💬")
 
         self.result_emoji.configure(text=emoji)
+
         if emotion == "uncertain":
             self.result_text.configure(text="UNCERTAIN", text_color=color)
         else:
             self.result_text.configure(text=emotion.upper(), text_color=color)
 
+        top_text = " | ".join(
+            [f"{emo}: {score:.2f}%" for emo, score in (top3_results or [])]
+        )
+
         if emotion == "uncertain":
             self.confidence_text.configure(
-                text=f"Low confidence: {confidence:.2f}%\n"
-                     f"Top predictions: " + " | ".join(
-                         [f"{emo}: {score:.2f}%" for emo, score in (top3_results or [])]
-                     )
+                text=f"Low confidence: {confidence:.2f}%\nTop predictions: {top_text}"
             )
         else:
             self.confidence_text.configure(
-                text=f"Confidence: {confidence:.2f}%\n"
-                     f"Top predictions: " + " | ".join(
-                         [f"{emo}: {score:.2f}%" for emo, score in (top3_results or [])]
-                     )
+                text=f"Confidence: {confidence:.2f}%\nTop predictions: {top_text}"
             )
 
         self.progress.configure(progress_color=color)
@@ -453,9 +458,21 @@ class TextEmotionApp:
         self.progress.set(0)
         self.set_status("Model Loaded")
 
-    def format_cell_value(self, value):
-        if pd.isna(value):
+    def safe_value_to_string(self, value):
+        if value is None:
             return ""
+
+        if isinstance(value, (list, tuple)):
+            return ", ".join(map(str, value))
+
+        if isinstance(value, dict):
+            return json.dumps(value, indent=2)
+
+        try:
+            if pd.isna(value):
+                return ""
+        except Exception:
+            pass
 
         try:
             float_val = float(value)
@@ -465,7 +482,7 @@ class TextEmotionApp:
 
             return f"{float_val:.4f}"
 
-        except (ValueError, TypeError):
+        except Exception:
             return str(value)
 
     def create_table_popup(self, title, df, table_type):
@@ -527,14 +544,14 @@ class TextEmotionApp:
             tree.heading(col, text=str(col))
 
             if table_type == "summary":
-                tree.column(col, anchor="w" if col == columns[0] else "center", width=250)
+                tree.column(col, anchor="w" if col == columns[0] else "center", width=300)
             elif table_type == "classification":
                 tree.column(col, anchor="w" if col == columns[0] else "center", width=140)
             else:
                 tree.column(col, anchor="center", width=120)
 
         for _, row in df.iterrows():
-            formatted_row = [self.format_cell_value(val) for val in row]
+            formatted_row = [self.safe_value_to_string(val) for val in row]
             tree.insert("", "end", values=formatted_row)
 
         close_btn = ctk.CTkButton(
@@ -548,7 +565,10 @@ class TextEmotionApp:
 
     def show_classification_report(self):
         if not os.path.exists(REPORT_TXT):
-            messagebox.showinfo("Not Found", f"Classification Report not found at {REPORT_TXT}")
+            messagebox.showinfo(
+                "Not Found",
+                f"Classification Report not found at:\n{REPORT_TXT}"
+            )
             return
 
         try:
@@ -595,11 +615,17 @@ class TextEmotionApp:
             self.create_table_popup("Classification Report", df, "classification")
 
         except Exception as e:
-            messagebox.showerror("Parse Error", f"Failed to load classification report:\n{e}")
+            messagebox.showerror(
+                "Parse Error",
+                f"Failed to load classification report:\n{e}"
+            )
 
     def show_confusion_matrix(self):
         if not os.path.exists(CM_CSV):
-            messagebox.showinfo("Not Found", f"Confusion Matrix not found at {CM_CSV}")
+            messagebox.showinfo(
+                "Not Found",
+                f"Confusion Matrix not found at:\n{CM_CSV}"
+            )
             return
 
         try:
@@ -608,28 +634,46 @@ class TextEmotionApp:
             self.create_table_popup("Confusion Matrix", df, "confusion")
 
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to load {CM_CSV}:\n{e}")
+            messagebox.showerror(
+                "Error",
+                f"Failed to load {CM_CSV}:\n{e}"
+            )
 
     def show_metrics_summary(self):
         if not os.path.exists(METRICS_JSON):
-            messagebox.showinfo("Not Found", f"Metrics Summary not found at {METRICS_JSON}")
+            messagebox.showinfo(
+                "Not Found",
+                f"Metrics Summary not found at:\n{METRICS_JSON}"
+            )
             return
 
         try:
             with open(METRICS_JSON, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            df = pd.DataFrame(list(data.items()), columns=["Metric", "Value"])
-            df["Metric"] = df["Metric"].str.replace("_", " ").str.title()
+            rows = []
+
+            for key, value in data.items():
+                metric_name = key.replace("_", " ").title()
+                metric_value = self.safe_value_to_string(value)
+                rows.append([metric_name, metric_value])
+
+            df = pd.DataFrame(rows, columns=["Metric", "Value"])
 
             self.create_table_popup("Metrics Summary", df, "summary")
 
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to load {METRICS_JSON}:\n{e}")
+            messagebox.showerror(
+                "Error",
+                f"Failed to load {METRICS_JSON}:\n{e}"
+            )
 
     def show_plots(self):
         if not os.path.exists(PLOT_CM) and not os.path.exists(PLOT_CURVE):
-            messagebox.showinfo("Not Found", "No plots found in the plots/ directory.")
+            messagebox.showinfo(
+                "Not Found",
+                "No plots found in the plots/ directory."
+            )
             return
 
         top = ctk.CTkToplevel(self.root)

@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
 
 from transformers import AutoTokenizer, AutoModel, get_linear_schedule_with_warmup
 from torch.optim import AdamW
@@ -37,7 +37,6 @@ SAVED_MODELS_DIR = os.path.join(PIPELINE_DIR, "saved_models")
 OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "results", "text_pipeline")
 METRICS_DIR = os.path.join(OUTPUT_ROOT, "metrics")
 PLOTS_DIR = os.path.join(OUTPUT_ROOT, "plots")
-RESULTS_DIR = os.path.join(OUTPUT_ROOT, "results")
 
 TRAIN_PATH = os.path.join(PROCESSED_DIR, "train.csv")
 VAL_PATH = os.path.join(PROCESSED_DIR, "val.csv")
@@ -46,16 +45,17 @@ TEST_PATH = os.path.join(PROCESSED_DIR, "test.csv")
 MODEL_PATH = os.path.join(SAVED_MODELS_DIR, "text_emotion_model.pth")
 CONFIG_PATH = os.path.join(SAVED_MODELS_DIR, "model_config.json")
 
-CLASSIFICATION_REPORT_PATH = os.path.join(RESULTS_DIR, "classification_report.txt")
-CLASSIFICATION_REPORT_CSV_PATH = os.path.join(RESULTS_DIR, "classification_report.csv")
-CONFUSION_MATRIX_PATH = os.path.join(RESULTS_DIR, "confusion_matrix.csv")
+CLASSIFICATION_REPORT_PATH = os.path.join(METRICS_DIR, "classification_report.txt")
+CLASSIFICATION_REPORT_CSV_PATH = os.path.join(METRICS_DIR, "classification_report.csv")
+CONFUSION_MATRIX_PATH = os.path.join(METRICS_DIR, "confusion_matrix.csv")
 TEXT_METRICS_PATH = os.path.join(METRICS_DIR, "text_metrics.json")
 TRAINING_METRICS_PATH = os.path.join(METRICS_DIR, "training_metrics.csv")
 
 TRAINING_CURVE_PATH = os.path.join(PLOTS_DIR, "training_curve.png")
 CONFUSION_MATRIX_PLOT_PATH = os.path.join(PLOTS_DIR, "confusion_matrix.png")
+CLASS_DISTRIBUTION_PLOT_PATH = os.path.join(PLOTS_DIR, "class_distribution.png")
 
-for d in [SAVED_MODELS_DIR, METRICS_DIR, PLOTS_DIR, RESULTS_DIR]:
+for d in [SAVED_MODELS_DIR, METRICS_DIR, PLOTS_DIR]:
     os.makedirs(d, exist_ok=True)
 
 
@@ -74,11 +74,13 @@ WEIGHT_DECAY = 0.01
 PATIENCE = 2
 SEED = 42
 
-MAX_CLASS_WEIGHT = 2.5
 WARMUP_RATIO = 0.06
-LABEL_SMOOTHING = 0.03
+LABEL_SMOOTHING = 0.0
 DROPOUT_RATE = 0.30
 GRAD_CLIP = 1.0
+
+USE_WEIGHTED_SAMPLER = True
+USE_CLASS_WEIGHTS = False
 
 CLASS_NAMES = [
     "anger",
@@ -163,9 +165,12 @@ class TextEmotionModel(nn.Module):
             attention_mask=attention_mask
         )
 
-        pooled = self.mean_pooling(outputs.last_hidden_state, attention_mask)
-        logits = self.classifier(pooled)
+        pooled = self.mean_pooling(
+            outputs.last_hidden_state,
+            attention_mask
+        )
 
+        logits = self.classifier(pooled)
         return logits
 
 
@@ -201,8 +206,12 @@ def check_dialogue_leakage(train_df, val_df, test_df):
     val_ids = set(val_df["dialogue_id"].unique())
     test_ids = set(test_df["dialogue_id"].unique())
 
-    if train_ids.intersection(val_ids) or train_ids.intersection(test_ids) or val_ids.intersection(test_ids):
-        raise ValueError("Dialogue-level leakage detected. Re-run the corrected preprocess.py.")
+    if (
+        train_ids.intersection(val_ids)
+        or train_ids.intersection(test_ids)
+        or val_ids.intersection(test_ids)
+    ):
+        raise ValueError("Dialogue-level leakage detected. Re-run preprocess.py.")
 
     print("\nLeakage check passed: no dialogue_id overlap.")
 
@@ -228,12 +237,23 @@ def tokenize_dataframe(df, tokenizer):
 
 
 def create_class_weights(train_df, device):
-    counts = train_df["emotion"].value_counts().reindex(CLASS_NAMES, fill_value=1)
+    if not USE_CLASS_WEIGHTS:
+        weights = np.ones(len(CLASS_NAMES), dtype=np.float32)
 
+        class_weights = torch.tensor(
+            weights,
+            dtype=torch.float32
+        ).to(device)
+
+        print("\nClass weights disabled because WeightedRandomSampler is enabled:")
+        for cls, weight in zip(CLASS_NAMES, weights):
+            print(f"{cls:10s} | Weight: {weight:.4f}")
+
+        return class_weights
+
+    counts = train_df["emotion"].value_counts().reindex(CLASS_NAMES, fill_value=1)
     total = counts.sum()
     weights = total / (len(CLASS_NAMES) * counts.values)
-
-    weights = np.minimum(weights, MAX_CLASS_WEIGHT)
 
     class_weights = torch.tensor(
         weights,
@@ -245,6 +265,31 @@ def create_class_weights(train_df, device):
         print(f"{cls:10s} | Count: {int(count):6d} | Weight: {weight:.4f}")
 
     return class_weights
+
+
+def create_weighted_sampler(train_df, label_encoder):
+    labels = label_encoder.transform(train_df["emotion"])
+
+    class_counts = np.bincount(labels, minlength=len(CLASS_NAMES))
+    class_counts = np.maximum(class_counts, 1)
+
+    class_sample_weights = 1.0 / class_counts
+    sample_weights = class_sample_weights[labels]
+
+    sample_weights = torch.DoubleTensor(sample_weights)
+
+    sampler = WeightedRandomSampler(
+        weights=sample_weights,
+        num_samples=len(sample_weights),
+        replacement=True
+    )
+
+    print("\nWeightedRandomSampler enabled.")
+    print("Sampler class counts:")
+    for cls, count in zip(CLASS_NAMES, class_counts):
+        print(f"{cls:10s} | Count: {int(count):6d}")
+
+    return sampler
 
 
 def evaluate(model, dataloader, device, criterion):
@@ -306,6 +351,7 @@ def plot_training(history):
     plt.plot(history["epoch"], history["val_macro_f1"], label="Validation Macro F1")
 
     plt.xlabel("Epoch")
+    plt.ylabel("Value")
     plt.title("Text Model Training Curve")
     plt.legend()
     plt.grid()
@@ -338,6 +384,25 @@ def plot_confusion_matrix(cm, classes):
 
     plt.tight_layout()
     plt.savefig(CONFUSION_MATRIX_PLOT_PATH)
+    plt.close()
+
+
+def plot_class_distribution(train_df, val_df, test_df):
+    distribution_df = pd.DataFrame({
+        "train": train_df["emotion"].value_counts().reindex(CLASS_NAMES, fill_value=0),
+        "validation": val_df["emotion"].value_counts().reindex(CLASS_NAMES, fill_value=0),
+        "test": test_df["emotion"].value_counts().reindex(CLASS_NAMES, fill_value=0)
+    })
+
+    distribution_df.plot(kind="bar", figsize=(10, 6))
+
+    plt.title("Text Dataset Class Distribution")
+    plt.xlabel("Emotion")
+    plt.ylabel("Sample Count")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    plt.savefig(CLASS_DISTRIBUTION_PLOT_PATH)
     plt.close()
 
 
@@ -399,13 +464,25 @@ def main():
     num_workers = 2 if os.name == "nt" else 4
     pin_memory = torch.cuda.is_available()
 
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=BATCH_SIZE,
-        shuffle=True,
-        num_workers=num_workers,
-        pin_memory=pin_memory
-    )
+    if USE_WEIGHTED_SAMPLER:
+        train_sampler = create_weighted_sampler(train_df, label_encoder)
+
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=BATCH_SIZE,
+            sampler=train_sampler,
+            shuffle=False,
+            num_workers=num_workers,
+            pin_memory=pin_memory
+        )
+    else:
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=BATCH_SIZE,
+            shuffle=True,
+            num_workers=num_workers,
+            pin_memory=pin_memory
+        )
 
     val_loader = DataLoader(
         val_dataset,
@@ -467,13 +544,25 @@ def main():
         "weight_decay": WEIGHT_DECAY,
         "patience": PATIENCE,
         "seed": SEED,
-        "max_class_weight": MAX_CLASS_WEIGHT,
         "warmup_ratio": WARMUP_RATIO,
         "label_smoothing": LABEL_SMOOTHING,
         "dropout_rate": DROPOUT_RATE,
-        "weighted_sampler": False,
+        "weighted_sampler": USE_WEIGHTED_SAMPLER,
+        "class_weights_enabled": USE_CLASS_WEIGHTS,
         "mixed_precision": torch.cuda.is_available(),
-        "split_requirement": "dialogue_id_group_split_no_leakage"
+        "split_requirement": "dialogue_id_group_split_no_leakage",
+        "output_structure": {
+            "metrics_dir": METRICS_DIR,
+            "plots_dir": PLOTS_DIR,
+            "classification_report_txt": CLASSIFICATION_REPORT_PATH,
+            "classification_report_csv": CLASSIFICATION_REPORT_CSV_PATH,
+            "confusion_matrix_csv": CONFUSION_MATRIX_PATH,
+            "text_metrics_json": TEXT_METRICS_PATH,
+            "training_metrics_csv": TRAINING_METRICS_PATH,
+            "training_curve_png": TRAINING_CURVE_PATH,
+            "confusion_matrix_png": CONFUSION_MATRIX_PLOT_PATH,
+            "class_distribution_png": CLASS_DISTRIBUTION_PLOT_PATH
+        }
     }
 
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
@@ -493,7 +582,7 @@ def main():
         "val_weighted_f1": []
     }
 
-    print("\nStarting optimized text emotion training...\n")
+    print("\nStarting optimized text emotion training with sampler-only balancing...\n")
 
     for epoch in range(EPOCHS):
         model.train()
@@ -519,7 +608,6 @@ def main():
                 loss = criterion(logits, labels)
 
             scaler.scale(loss).backward()
-
             scaler.unscale_(optimizer)
 
             nn.utils.clip_grad_norm_(
@@ -672,10 +760,10 @@ def main():
         "max_length": MAX_LENGTH,
         "batch_size": BATCH_SIZE,
         "learning_rate": LR,
-        "max_class_weight": MAX_CLASS_WEIGHT,
         "label_smoothing": LABEL_SMOOTHING,
         "dropout_rate": DROPOUT_RATE,
-        "weighted_sampler": False,
+        "weighted_sampler": USE_WEIGHTED_SAMPLER,
+        "class_weights_enabled": USE_CLASS_WEIGHTS,
         "mixed_precision": torch.cuda.is_available(),
         "leakage_check": "dialogue_id checked"
     }
@@ -690,6 +778,7 @@ def main():
 
     plot_training(history)
     plot_confusion_matrix(cm, CLASS_NAMES)
+    plot_class_distribution(train_df, val_df, test_df)
 
     print("\nSaved outputs:")
     print(MODEL_PATH)
@@ -701,6 +790,9 @@ def main():
     print(TRAINING_METRICS_PATH)
     print(TRAINING_CURVE_PATH)
     print(CONFUSION_MATRIX_PLOT_PATH)
+    print(CLASS_DISTRIBUTION_PLOT_PATH)
+
+    print("\nAll outputs saved successfully.")
 
 
 if __name__ == "__main__":
