@@ -1,0 +1,31 @@
+{
+    "dataset": "TESS",
+    "speech_model_name": "microsoft/wavlm-base",
+    "text_model_name": "distilbert-base-uncased",
+    "architecture": "WavLM + DistilBERT + Concat + MLP",
+    "best_epoch": 3,
+    "best_validation_macro_f1": 1.0,
+    "test_accuracy": 0.9967776584317938,
+    "test_uar": 0.9967776584317939,
+    "test_macro_f1": 0.9967776280702969,
+    "classes": [
+        "anger",
+        "disgust",
+        "fear",
+        "happiness",
+        "neutral",
+        "sadness",
+        "surprise"
+    ],
+    "split_strategy": "Speaker-aware split",
+    "base_train_speaker": "oaf",
+    "target_speaker": "yaf",
+    "adapt_ratio": 0.05,
+    "sr": 16000,
+    "duration": 3,
+    "max_text_len": 32,
+    "batch_size": 8,
+    "learning_rate": 2e-05,
+    "seed": 42,
+    "note": "Fusion model metrics"
+}

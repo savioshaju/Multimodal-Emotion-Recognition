@@ -1,0 +1,17 @@
+{
+    "model_speech": "microsoft/wavlm-base",
+    "model_text": "distilbert-base-uncased",
+    "num_classes": 7,
+    "emotions": [
+        "anger",
+        "disgust",
+        "fear",
+        "happiness",
+        "neutral",
+        "sadness",
+        "surprise"
+    ],
+    "sr": 16000,
+    "duration": 3,
+    "max_text_len": 32
+}

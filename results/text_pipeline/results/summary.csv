@@ -1,0 +1,2 @@
+test_accuracy,test_uar,test_macro_f1,model_name
+14.930182599355533,14.930182599355533,7.293154663271843,distilbert-base-uncased

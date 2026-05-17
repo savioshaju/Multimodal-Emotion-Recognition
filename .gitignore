@@ -12,4 +12,6 @@ models/speech_pipeline/processed_data
 dataset/
 metadata.csv
 models/speech_pipeline/saved_models/best_model.pth
-models/text_pipeline/saved_models/text_emotion_model.pth
+models/text_pipeline/saved_models/best_model.pth
+models/fusion_pipeline/saved_models/best_model.pth
+best_model.pth

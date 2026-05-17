@@ -1,268 +1,157 @@
 import os
-import re
-import json
 import pandas as pd
-from sklearn.model_selection import GroupShuffleSplit
-
+from tqdm import tqdm
 
 # =========================
 # PATH CONFIGURATION
 # =========================
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
 
-DATASET_DIR = os.path.join(PIPELINE_DIR, "data")
-PROCESSED_DIR = os.path.join(PIPELINE_DIR, "processed_data")
-
-TEXT_PATH = os.path.join(DATASET_DIR, "dialogues_text.txt")
-EMOTION_PATH = os.path.join(DATASET_DIR, "dialogues_emotion.txt")
-
-METADATA_PATH = os.path.join(PROCESSED_DIR, "metadata.csv")
-TRAIN_OUT = os.path.join(PROCESSED_DIR, "train.csv")
-VAL_OUT = os.path.join(PROCESSED_DIR, "val.csv")
-TEST_OUT = os.path.join(PROCESSED_DIR, "test.csv")
-SPLIT_INFO_PATH = os.path.join(PROCESSED_DIR, "split_info.json")
-
-os.makedirs(PROCESSED_DIR, exist_ok=True)
-
-
-# =========================
-# CONFIGURATION
-# =========================
-
-SEED = 42
+DATASET_PATH  = os.path.join(PROJECT_ROOT, "dataset")
+METADATA_PATH = os.path.join(PIPELINE_DIR, "metadata.csv")
 
 EMOTION_MAP = {
-    0: "neutral",
-    1: "anger",
-    2: "disgust",
-    3: "fear",
-    4: "happiness",
-    5: "sadness",
-    6: "surprise"
+    "angry":              "anger",
+    "disgust":            "disgust",
+    "fear":               "fear",
+    "happy":              "happiness",
+    "neutral":            "neutral",
+    "sad":                "sadness",
+    "pleasant_surprise":  "surprise",
+    "pleasant_surprised": "surprise",
+    "pleasant":           "surprise",
+    "surprise":           "surprise",
+    "ps":                 "surprise",
 }
 
-CLASS_NAMES = [
-    "anger",
-    "disgust",
-    "fear",
-    "happiness",
-    "neutral",
-    "sadness",
-    "surprise"
-]
+CLASS_NAMES = ["anger", "disgust", "fear", "happiness", "neutral", "sadness", "surprise"]
 
 
-# =========================
-# TEXT CLEANING
-# =========================
+def get_emotion_from_folder(folder):
+    folder_lower = folder.lower()
+    parts = folder_lower.split("_")
 
-def clean_text(text):
-    text = str(text).strip()
-    text = re.sub(r"http\S+|www\S+", "", text)
-    text = re.sub(r"\s+", " ", text)
+    speaker_id = parts[0]
+    raw_emotion = "_".join(parts[1:])
+
+    emotion = EMOTION_MAP.get(raw_emotion, None)
+    return speaker_id, raw_emotion, emotion
+
+
+def extract_text_from_filename(filename):
+    """
+    TESS filenames are usually like:
+    OAF_back_angry.wav
+    YAF_ditch_ps.wav
+
+    Here:
+    speaker = OAF/YAF
+    text/transcript word = back/ditch/etc.
+    emotion = angry/ps/etc.
+    """
+
+    name = os.path.splitext(filename)[0]
+    parts = name.split("_")
+
+    if len(parts) < 3:
+        return None
+
+    # Remove speaker prefix and emotion suffix
+    text_parts = parts[1:-1]
+
+    if len(text_parts) == 0:
+        return None
+
+    text = " ".join(text_parts)
+    text = text.replace("-", " ").replace("_", " ")
+    text = text.lower().strip()
+
     return text
 
 
-# =========================
-# FILE LOADING
-# =========================
-
-def load_lines(path):
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"File not found: {path}")
-
-    with open(path, "r", encoding="utf-8", errors="ignore") as f:
-        lines = f.readlines()
-
-    return [line.strip() for line in lines if line.strip()]
-
-
-# =========================
-# GROUP SPLIT
-# =========================
-
-def group_split(df):
-    """
-    Splits by dialogue_id to avoid data leakage.
-    Same dialogue will never appear in more than one split.
-    """
-
-    splitter_1 = GroupShuffleSplit(
-        n_splits=1,
-        test_size=0.30,
-        random_state=SEED
-    )
-
-    train_idx, temp_idx = next(
-        splitter_1.split(
-            df,
-            groups=df["dialogue_id"]
-        )
-    )
-
-    train_df = df.iloc[train_idx].reset_index(drop=True)
-    temp_df = df.iloc[temp_idx].reset_index(drop=True)
-
-    splitter_2 = GroupShuffleSplit(
-        n_splits=1,
-        test_size=0.50,
-        random_state=SEED
-    )
-
-    val_idx, test_idx = next(
-        splitter_2.split(
-            temp_df,
-            groups=temp_df["dialogue_id"]
-        )
-    )
-
-    val_df = temp_df.iloc[val_idx].reset_index(drop=True)
-    test_df = temp_df.iloc[test_idx].reset_index(drop=True)
-
-    return train_df, val_df, test_df
-
-
-def check_dialogue_leakage(train_df, val_df, test_df):
-    train_ids = set(train_df["dialogue_id"].unique())
-    val_ids = set(val_df["dialogue_id"].unique())
-    test_ids = set(test_df["dialogue_id"].unique())
-
-    train_val_overlap = train_ids.intersection(val_ids)
-    train_test_overlap = train_ids.intersection(test_ids)
-    val_test_overlap = val_ids.intersection(test_ids)
-
-    if train_val_overlap or train_test_overlap or val_test_overlap:
-        raise ValueError("Dialogue-level leakage detected.")
-
-    print("\nLeakage check passed: no dialogue_id overlap between train, validation, and test.")
-
-
-def print_distribution(name, df):
-    print(f"\n{name} samples: {len(df)}")
-    print(df["emotion"].value_counts().reindex(CLASS_NAMES, fill_value=0))
-
-
-# =========================
-# MAIN
-# =========================
-
 def main():
-    print("\nLoading DailyDialog files...")
-
-    text_lines = load_lines(TEXT_PATH)
-    emotion_lines = load_lines(EMOTION_PATH)
-
-    print(f"Text dialogue lines: {len(text_lines)}")
-    print(f"Emotion dialogue lines: {len(emotion_lines)}")
-
-    if len(text_lines) != len(emotion_lines):
-        raise ValueError(
-            f"Mismatch: text lines={len(text_lines)}, emotion lines={len(emotion_lines)}"
+    if not os.path.exists(DATASET_PATH):
+        raise FileNotFoundError(
+            f"Dataset folder not found: {DATASET_PATH}\n"
+            "Place the TESS dataset under the project-root 'dataset/' folder."
         )
 
-    rows = []
-    skipped_dialogues = 0
-    skipped_utterances = 0
+    if os.path.exists(METADATA_PATH):
+        os.remove(METADATA_PATH)
 
-    for dialogue_id, (text_line, emotion_line) in enumerate(zip(text_lines, emotion_lines)):
-        utterances = [
-            u.strip()
-            for u in text_line.split("__eou__")
-            if u.strip()
-        ]
+    metadata = []
+    all_files = []
 
-        emotion_ids = [
-            e.strip()
-            for e in emotion_line.split()
-            if e.strip()
-        ]
+    for folder in os.listdir(DATASET_PATH):
+        folder_path = os.path.join(DATASET_PATH, folder)
 
-        if len(utterances) != len(emotion_ids):
-            skipped_dialogues += 1
-            continue
+        if os.path.isdir(folder_path):
+            for file in os.listdir(folder_path):
+                if file.lower().endswith(".wav"):
+                    all_files.append((folder, file))
 
-        for utterance_id, (utterance, emotion_id) in enumerate(zip(utterances, emotion_ids)):
-            if not emotion_id.isdigit():
-                skipped_utterances += 1
+    print(f"\nFound {len(all_files)} wav files\n")
+
+    skipped = []
+
+    for folder, file in tqdm(all_files):
+        folder_path = os.path.join(DATASET_PATH, folder)
+        file_path = os.path.join(folder_path, file)
+
+        try:
+            speaker_id, raw_emotion, emotion = get_emotion_from_folder(folder)
+            text = extract_text_from_filename(file)
+
+            if emotion is None:
+                skipped.append((file_path, "Unknown emotion", raw_emotion))
                 continue
 
-            emotion_id = int(emotion_id)
-
-            if emotion_id not in EMOTION_MAP:
-                skipped_utterances += 1
+            if text is None or text == "":
+                skipped.append((file_path, "Text extraction failed", raw_emotion))
                 continue
 
-            text = clean_text(utterance)
-            emotion = EMOTION_MAP[emotion_id]
-
-            if len(text) <= 2:
-                skipped_utterances += 1
-                continue
-
-            rows.append({
-                "dialogue_id": dialogue_id,
-                "utterance_id": utterance_id,
+            metadata.append({
+                "file_path": file_path,
                 "text": text,
                 "emotion": emotion,
-                "emotion_id": emotion_id
+                "speaker_id": speaker_id,
+                "raw_emotion": raw_emotion,
+                "original_folder": folder,
+                "original_file": file,
+                "dataset": "TESS",
             })
 
-    df = pd.DataFrame(rows)
+        except Exception as e:
+            print(f"\nError Processing: {file_path}")
+            print(e)
 
-    if df.empty:
-        raise ValueError("No valid samples created. Check DailyDialog file format.")
+    df = pd.DataFrame(metadata)
 
-    df = df[df["emotion"].isin(CLASS_NAMES)].reset_index(drop=True)
-
-    before_duplicates = len(df)
-    df = df.drop_duplicates(subset=["dialogue_id", "utterance_id", "text", "emotion"]).reset_index(drop=True)
-    after_duplicates = len(df)
+    if len(df) == 0:
+        raise ValueError("No valid text samples found. Check your TESS folder structure.")
 
     df.to_csv(METADATA_PATH, index=False)
 
-    train_df, val_df, test_df = group_split(df)
-    check_dialogue_leakage(train_df, val_df, test_df)
-
-    train_df.to_csv(TRAIN_OUT, index=False)
-    val_df.to_csv(VAL_OUT, index=False)
-    test_df.to_csv(TEST_OUT, index=False)
-
-    print("\nPreprocessing completed.")
+    print("\nText Preprocessing Complete\n")
     print(f"Total valid samples: {len(df)}")
-    print(f"Skipped dialogues due to mismatch: {skipped_dialogues}")
-    print(f"Skipped utterances: {skipped_utterances}")
-    print(f"Duplicates removed: {before_duplicates - after_duplicates}")
 
-    print_distribution("Full dataset", df)
-    print_distribution("Train", train_df)
-    print_distribution("Validation", val_df)
-    print_distribution("Test", test_df)
+    print("\nClass counts:")
+    print(df["emotion"].value_counts().sort_index())
 
-    split_info = {
-        "dataset": "DailyDialog",
-        "split_type": "dialogue_id_group_split",
-        "seed": SEED,
-        "classes": CLASS_NAMES,
-        "total_samples": int(len(df)),
-        "train_samples": int(len(train_df)),
-        "val_samples": int(len(val_df)),
-        "test_samples": int(len(test_df)),
-        "train_dialogues": int(train_df["dialogue_id"].nunique()),
-        "val_dialogues": int(val_df["dialogue_id"].nunique()),
-        "test_dialogues": int(test_df["dialogue_id"].nunique()),
-        "leakage_check": "passed"
-    }
+    print("\nSpeaker IDs:")
+    print(df["speaker_id"].unique())
 
-    with open(SPLIT_INFO_PATH, "w", encoding="utf-8") as f:
-        json.dump(split_info, f, indent=4)
+    print("\nSample rows:")
+    print(df[["text", "emotion", "speaker_id", "original_file"]].head(10))
 
-    print("\nSaved files:")
-    print(METADATA_PATH)
-    print(TRAIN_OUT)
-    print(VAL_OUT)
-    print(TEST_OUT)
-    print(SPLIT_INFO_PATH)
+    if skipped:
+        print("\nSkipped files:")
+        for item in skipped[:20]:
+            print(item)
+
+    print(f"\nMetadata Saved -> {METADATA_PATH}")
 
 
 if __name__ == "__main__":
