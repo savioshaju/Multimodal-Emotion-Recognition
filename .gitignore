@@ -15,3 +15,4 @@ models/speech_pipeline/saved_models/best_model.pth
 models/text_pipeline/saved_models/best_model.pth
 models/fusion_pipeline/saved_models/best_model.pth
 best_model.pth
+models/Text_pipeline_2/saved_models/text_emotion_model.pth
