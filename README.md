@@ -5,7 +5,6 @@ This project performs emotion recognition using independent and combined machine
 The dataset utilized is the **Toronto Emotional Speech Set (TESS)**. The core objective of this project is to robustly compare unimodal methods (processing acoustic properties or semantic transcripts individually) against an multimodal method. 
 
 ## Table of Contents
-
 1. [How to Run the Project](#how-to-run-the-project)
 2. [Project Objective](#project-objective)
 3. [Dataset — TESS](#dataset--tess)
@@ -28,7 +27,7 @@ The dataset utilized is the **Toronto Emotional Speech Set (TESS)**. The core ob
 ### 1. Clone the Repository
 Clone the project to your local machine and open the project directory.
 ```powershell
-git clone <repository_url>
+git clone https://github.com/savioshaju/Multimodal-Emotion-Recognition.git
 cd "Multimodal Emotion Recognition"
 ```
 
@@ -791,7 +790,8 @@ This makes the text pipeline useful as an experimental baseline. It proves that 
 # Multimodal Fusion Emotion Recognition Pipeline
 
 ## Purpose
-This pipeline aggressively combines the acoustic representation with semantic text representation to generate a unified prediction.
+
+This pipeline combines acoustic speech representation and text representation to generate a unified emotion prediction. The objective is to evaluate whether multimodal fusion improves emotion recognition compared with using speech or text independently.
 
 ## Input
 * 16 kHz audio waveform.
@@ -952,7 +952,7 @@ On datasets with meaningful text transcripts (e.g., customer reviews, social med
 
 ---
 
-# FINAL COMPARISON SECTION
+## Final Comparison
 
 | Pipeline | Input | Architecture | Accuracy | UAR | Macro F1 | Main Inference |
 |---|---|---|---:|---:|---:|---|
@@ -962,7 +962,8 @@ On datasets with meaningful text transcripts (e.g., customer reviews, social med
 
 ---
 
-# GLOBAL RESULT IMAGE SECTION
+## Result Visualizations
+
 
 ## Speech Pipeline Visualizations
 ![Speech Training Curve](results/speech_pipeline/plots/training_curve.png)
@@ -989,7 +990,8 @@ On datasets with meaningful text transcripts (e.g., customer reviews, social med
 
 ---
 
-# LIMITATIONS SECTION
+
+## Limitations
 
 1. **Limited Speaker Coverage**: TESS contains only two female speakers (OAF and YAF). Generalization to male voices, different ages, and accents is completely untested.
 
@@ -1009,8 +1011,7 @@ On datasets with meaningful text transcripts (e.g., customer reviews, social med
 
 ---
 
-# FUTURE IMPROVEMENTS SECTION
-
+## Future Improvements
 1. **Multi-Dataset Evaluation**: Extend experiments to RAVDESS, CREMA-D, IEMOCAP, and SAVEE to assess cross-dataset generalization and identify domain-specific biases.
 
 2. **Meaningful Text Representation**: Replace TESS filename words with:
@@ -1052,7 +1053,7 @@ On datasets with meaningful text transcripts (e.g., customer reviews, social med
 
 ---
 
-# CONCLUSION SECTION
+## Conclusion
 
 This project comprehensively implements and evaluates three emotion recognition pipelines: speech-only, text-only, and multimodal fusion. The experiments reveal fundamental insights about the TESS dataset and multimodal emotion recognition:
 
