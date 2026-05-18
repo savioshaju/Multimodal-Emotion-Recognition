@@ -2,25 +2,104 @@
 
 This project performs emotion recognition using independent and combined machine learning pipelines focusing on speech, text, and multimodal fusion. 
 
-The dataset utilized is the **Toronto Emotional Speech Set (TESS)**. The core objective of this project is to robustly compare unimodal methods (processing acoustic properties or semantic transcripts individually) against an advanced multimodal method. 
-
-The capstone of the project is the fusion model, which dynamically combines the rich acoustic representations of **WavLM** with the contextual text representations of **DistilBERT** to predict the user's emotional state.
+The dataset utilized is the **Toronto Emotional Speech Set (TESS)**. The core objective of this project is to robustly compare unimodal methods (processing acoustic properties or semantic transcripts individually) against an multimodal method. 
 
 ## Table of Contents
 
-1. [Project Objective](#project-objective)
-2. [Dataset — TESS](#dataset--tess)
-3. [Overall Architecture](#overall-architecture)
-4. [Complete Project Folder Structure](#complete-project-folder-structure)
-5. [Speech Emotion Recognition Pipeline](#speech-emotion-recognition-pipeline)
-6. [Text Emotion Recognition Pipeline](#text-emotion-recognition-pipeline)
-7. [Multimodal Fusion Emotion Recognition Pipeline](#multimodal-fusion-emotion-recognition-pipeline)
-8. [Final Comparison Table](#final-comparison-table)
-9. [Result Visualizations](#result-visualizations)
-10. [Evaluation Metrics](#evaluation-metrics)
-11. [Limitations](#limitations)
-12. [Future Improvements](#future-improvements)
-13. [Conclusion](#conclusion)
+1. [How to Run the Project](#how-to-run-the-project)
+2. [Project Objective](#project-objective)
+3. [Dataset — TESS](#dataset--tess)
+4. [Overall Architecture](#overall-architecture)
+5. [Complete Project Folder Structure](#complete-project-folder-structure)
+6. [Speech Emotion Recognition Pipeline](#speech-emotion-recognition-pipeline)
+7. [Text Emotion Recognition Pipeline](#text-emotion-recognition-pipeline)
+8. [Multimodal Fusion Emotion Recognition Pipeline](#multimodal-fusion-emotion-recognition-pipeline)
+9. [Final Comparison Table](#final-comparison-table)
+10. [Result Visualizations](#result-visualizations)
+11. [Evaluation Metrics](#evaluation-metrics)
+12. [Limitations](#limitations)
+13. [Future Improvements](#future-improvements)
+14. [Conclusion](#conclusion)
+
+---
+
+## How to Run the Project
+
+### 1. Clone the Repository
+Clone the project to your local machine and open the project directory.
+```powershell
+git clone <repository_url>
+cd "Multimodal Emotion Recognition"
+```
+
+### 2. Setup the Environment
+The project requires Python 3.11.x. A setup script is provided to automatically create a virtual environment, activate it, upgrade pip, and install all dependencies.
+
+**Using `setup.bat` (Windows)**
+Run the following command from the project root:
+```powershell
+setup.bat
+```
+This script will:
+1. Verify that Python 3.11.x is installed.
+2. Create a virtual environment named `venv` if it does not exist.
+3. Activate the virtual environment.
+4. Upgrade `pip` to the latest version.
+5. Install all required dependencies from `requirements.txt`.
+
+**Manual Setup**
+If you prefer to set up the environment manually, run:
+```powershell
+python -m venv venv
+venv\Scripts\activate
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 3. Running the Pipelines
+
+This project is divided into three separate pipelines. Each must be run from its respective directory within `models/`.
+
+#### Speech Pipeline
+This pipeline predicts emotion from audio waveforms using WavLM.
+
+```powershell
+cd models\speech_pipeline
+python preprocess.py
+python train.py
+python test.py
+```
+* `python preprocess.py`: Generates the `metadata.csv` from the dataset.
+* `python train.py`: Trains the WavLM model, evaluates it, and generates results.
+* `python test.py`: Opens the graphical user interface (GUI) to test the model.
+* `python test.py path/to/audio.wav`: Runs a direct CLI prediction without opening the GUI.
+
+#### Text Pipeline
+This pipeline predicts emotion from text transcripts using DistilBERT.
+
+```powershell
+cd models\text_pipeline
+python preprocess.py
+python train.py
+python test.py
+```
+* `python preprocess.py`: Generates the text-focused `metadata.csv`.
+* `python train.py`: Trains the DistilBERT model, evaluates it, and generates results.
+* `python test.py`: Opens the graphical user interface (GUI) to test the text model. (This pipeline does not support CLI predictions).
+
+#### Fusion Pipeline
+This pipeline predicts emotion by fusing audio (WavLM) and text (DistilBERT).
+
+```powershell
+cd models\fusion_pipeline
+python preprocess.py
+python train.py
+python test.py
+```
+* `python preprocess.py`: Generates the dual-modal `metadata.csv`.
+* `python train.py`: Trains the multimodal fusion model, evaluates it, and generates results.
+* `python test.py`: Opens the graphical user interface (GUI) to test the fusion model.
+* `python test.py path/to/audio.wav "your transcript here"`: Runs a direct CLI prediction using both audio and text without opening the GUI.
 
 ---
 
@@ -107,7 +186,6 @@ Multimodal Emotion Recognition/
 │   │   ├── preprocess.py
 │   │   ├── train.py
 │   │   ├── test.py
-│   │   ├── app.py
 │   │   ├── metadata.csv
 │   │   ├── train_split.csv
 │   │   ├── val_split.csv
@@ -120,7 +198,6 @@ Multimodal Emotion Recognition/
 │   │   ├── preprocess.py
 │   │   ├── train.py
 │   │   ├── test.py
-│   │   ├── app.py
 │   │   ├── metadata.csv
 │   │   ├── train_split.csv
 │   │   ├── val_split.csv
@@ -137,7 +214,6 @@ Multimodal Emotion Recognition/
 │       ├── preprocess.py
 │       ├── train.py
 │       ├── test.py
-│       ├── app.py
 │       ├── metadata.csv
 │       ├── train_split.csv
 │       ├── val_split.csv
@@ -197,223 +273,574 @@ Multimodal Emotion Recognition/
 # Speech Emotion Recognition Pipeline
 
 ## Purpose
-This pipeline predicts emotion from audio only, isolating the effect of acoustic and prosodic signals.
+
+This pipeline predicts emotion from speech audio only. It isolates the effect of acoustic and prosodic cues such as pitch, tone, rhythm, intensity, and speaking style.
 
 ## Input
-Raw `.wav` audio files at 16 kHz from the TESS dataset.
+
+The input is `.wav` audio files from the TESS dataset. During model training and inference, each audio file is loaded using `librosa` and resampled to 16 kHz.
 
 ## Model Used
-* microsoft/wavlm-base
-* MLP classifier head
+
+| Component | Description |
+|---|---|
+| Base model | `microsoft/wavlm-base` |
+| Feature extractor | Hugging Face `AutoFeatureExtractor` |
+| Encoder | WavLM transformer encoder |
+| Temporal representation | Mean pooling over WavLM hidden states |
+| Classifier | MLP classifier head |
+| Output classes | `anger`, `disgust`, `fear`, `happiness`, `neutral`, `sadness`, `surprise` |
+
+## Speech Pipeline Architecture
+
+```mermaid
+flowchart BT
+    A[Speech Audio] --> B[Preprocessing]
+    B --> C[Feature Extraction]
+    C --> D[Temporal Modelling]
+    D --> E[Classifier]
+    E --> F[Emotion Label]
+```
+
+### Implementation Mapping
+
+| Diagram Block      | Code Implementation                                                 |
+| ------------------ | ------------------------------------------------------------------- |
+| Speech Audio       | TESS `.wav` files                                                   |
+| Preprocessing      | `librosa.load`, silence trimming, padding/truncation, normalization |
+| Feature Extraction | `AutoFeatureExtractor` for `microsoft/wavlm-base`                   |
+| Temporal Modelling | WavLM transformer encoder + mean pooling                            |
+| Classifier         | Dropout → Linear → ReLU → Dropout → Linear                          |
+| Emotion Label      | Predicted class among seven emotion labels                          |
 
 ## Preprocessing
-* Scans the dataset directory.
-* Extracts emotion labels directly from folder names.
-* Extracts speaker ID from the prefix.
-* Generates `metadata.csv`.
-* Audio is loaded via librosa, resampled to 16 kHz, trimmed for silence, and padded/truncated to a strict 3-second window.
-* Augmentation applied during training (noise, volume, pitch shifting).
+
+The `preprocess.py` script performs metadata preprocessing only. It scans the TESS dataset directory, extracts labels from folder names, and creates `metadata.csv`.
+
+It generates the following columns:
+
+| Column            | Description                                                   |
+| ----------------- | ------------------------------------------------------------- |
+| `file_path`       | Full path of the `.wav` audio file                            |
+| `emotion`         | Standardized emotion label                                    |
+| `speaker_id`      | Speaker ID extracted from folder name, such as `OAF` or `YAF` |
+| `raw_emotion`     | Original emotion name from the folder                         |
+| `original_folder` | Original TESS folder name                                     |
+| `dataset`         | Fixed value: `TESS`                                           |
+
+The actual waveform preprocessing happens inside `train.py` and `test.py`.
+
+### Audio Preprocessing Steps
+
+| Step                    | Description                                                  |
+| ----------------------- | ------------------------------------------------------------ |
+| Audio loading           | Loads the file using `librosa.load(path, sr=16000)`          |
+| Silence trimming        | Removes silence using `librosa.effects.trim(top_db=30)`      |
+| Fixed-length conversion | Pads or truncates each sample to 3 seconds                   |
+| Normalization           | Normalizes waveform amplitude using `librosa.util.normalize` |
+
+### Training-Time Augmentation
+
+| Augmentation    | Purpose                                     |
+| --------------- | ------------------------------------------- |
+| Noise injection | Improves robustness to background noise     |
+| Volume scaling  | Simulates loudness variation                |
+| Time shifting   | Reduces dependency on exact signal position |
+| Pitch shifting  | Simulates pitch variation                   |
+| Time stretching | Simulates speaking speed variation          |
 
 ## Training Method
-* Utilizes a strict speaker-aware split strategy: OAF is used as the base train speaker, and YAF is held out for testing (with a minor 5% adaptation ratio injected).
-* Optimizer: AdamW
-* Loss Function: CrossEntropyLoss
-* Batch size: 16
-* Epochs: 30
-* Early stopping based on validation Macro F1.
-* Output model is saved to `saved_models/best_model.pth`.
 
-## Testing Method
-* `test.py` initializes the model architecture and loads `best_model.pth`.
-* It evaluates exclusively on `test_split.csv`.
-* Generates comprehensive metrics: classification reports, confusion matrix tables, and JSON summaries.
+The training script uses a speaker-aware split strategy.
 
-## GUI / App Usage
-* `app.py` spins up a CustomTkinter graphical interface.
-* Accepts direct audio upload or live microphone recording.
-* Generates live prediction confidences.
-* Provides interface buttons to view plots, reports, and matrices interactively.
+| Setting                 | Value               |
+| ----------------------- | ------------------- |
+| Base train speaker      | `oaf`               |
+| Target speaker          | `yaf`               |
+| Adaptation ratio        | `0.05`              |
+| Sampling rate           | `16000` Hz          |
+| Duration                | `3` seconds         |
+| Maximum length          | `48000` samples     |
+| Batch size              | `16`                |
+| Epochs                  | `30`                |
+| Learning rate           | `2e-5`              |
+| Optimizer               | `AdamW`             |
+| Loss function           | `CrossEntropyLoss`  |
+| Label smoothing         | `0.03`              |
+| Early stopping patience | `5`                 |
+| Best model criterion    | Validation Macro F1 |
+
+The `train.py` script also handles evaluating the model on the test split generated during training and producing the final results.
+
+The test data is stored in:
+
+```text
+models/speech_pipeline/test_split.csv
+```
+
+The evaluation produces:
+
+| Output                | Description                                |
+| --------------------- | ------------------------------------------ |
+| Accuracy              | Overall correct predictions                |
+| UAR                   | Macro recall across all classes            |
+| Macro F1              | Average F1-score across all classes        |
+| Classification report | Class-wise precision, recall, and F1-score |
+| Confusion matrix      | Actual-vs-predicted class distribution     |
+
+The best model is saved as:
+
+```text
+models/speech_pipeline/saved_models/best_model.pth
+```
+
+The model configuration is saved as:
+
+```text
+models/speech_pipeline/saved_models/model_config.json
+```
+
+## Testing and Inference Method
+
+The GUI and CLI prediction functionalities are implemented inside `test.py`.
+
+The script loads:
+
+```text
+models/speech_pipeline/saved_models/best_model.pth
+```
+
+and uses:
+
+```text
+models/speech_pipeline/saved_models/model_config.json
+```
+
+The script supports both Graphical User Interface (GUI) and Command-Line Interface (CLI) usage:
+
+### GUI Usage
+
+Running `python test.py` without any arguments opens the CustomTkinter GUI. The GUI supports:
+
+| Feature               | Description                                                  |
+| --------------------- | ------------------------------------------------------------ |
+| Audio upload          | Upload `.wav`, `.mp3`, `.flac`, `.ogg`, or `.m4a` files      |
+| Emotion prediction    | Displays predicted emotion and confidence                    |
+| Classification Report | Opens saved classification report table                      |
+| Confusion Matrix      | Opens saved confusion matrix table                           |
+| Metrics Summary       | Opens saved summary metrics                                  |
+| View Plots            | Displays saved training curve and confusion matrix images    |
+
+### CLI Usage
+
+Running `python test.py path/to/audio.wav` performs a direct prediction on the specified audio file directly in the terminal, completely bypassing the GUI.
 
 ## How to Run Speech Pipeline
+
+Run the commands from the project root:
+
 ```powershell
 cd "models\speech_pipeline"
 python preprocess.py
 python train.py
 python test.py
-python app.py
 ```
-* `preprocess.py` creates the required dataset metadata mappings.
-* `train.py` handles the main training loop and serialization of best weights.
-* `test.py` strictly evaluates the saved weights on unseen data.
-* `app.py` boots the interactive GUI dashboard.
 
-## Speech Pipeline Generated Files
+Command purpose:
 
-| File/Folder | Created By | Purpose |
-|---|---|---|
-| metadata.csv | preprocess.py | Stores audio paths, emotion labels, speaker IDs |
-| train_split.csv | train.py | Training split data |
-| val_split.csv | train.py | Validation split data |
-| test_split.csv | train.py | Test split data |
-| saved_models/ | train.py | Stores trained model weights (`best_model.pth`) and config |
-| results/speech_pipeline/metrics/ | train.py/test.py | Stores JSON metrics |
-| results/speech_pipeline/plots/ | train.py/test.py | Stores training convergence and confusion matrix images |
-| results/speech_pipeline/results/ | test.py/train.py | Stores CSV reports, summary, and confusion matrix tables |
+| Command                               | Purpose                                                                          |
+| ------------------------------------- | -------------------------------------------------------------------------------- |
+| `python preprocess.py`                | Creates `metadata.csv` from the TESS folder structure                            |
+| `python train.py`                     | Trains the model, evaluates it on the test split, and saves metrics/results      |
+| `python test.py`                      | Opens the CustomTkinter GUI for prediction and viewing reports                   |
+| `python test.py path/to/audio.wav`    | Performs CLI emotion prediction on a specific audio file                         |
+                
 
 ## Speech Pipeline Results
 
-| Metric | Value |
-|---|---:|
-| Test Accuracy | 99.89% |
-| Test UAR | 99.89% |
-| Test Macro F1 | 99.89% |
-| Model Name | microsoft/wavlm-base |
+| Metric        |                  Value |
+| ------------- | ---------------------: |
+| Test Accuracy |                 99.89% |
+| Test UAR      |                 99.89% |
+| Test Macro F1 |                 99.89% |
+| Model Name    | `microsoft/wavlm-base` |
 
 ## Speech Classification Report
 
-| Emotion | Precision | Recall | F1-score | Support |
-|---|---:|---:|---:|---:|
-| anger | 1.00 | 1.00 | 1.00 | 133 |
-| disgust | 1.00 | 0.99 | 1.00 | 133 |
-| fear | 1.00 | 1.00 | 1.00 | 133 |
-| happiness | 1.00 | 1.00 | 1.00 | 133 |
-| neutral | 1.00 | 1.00 | 1.00 | 133 |
-| sadness | 1.00 | 1.00 | 1.00 | 133 |
-| surprise | 0.99 | 1.00 | 1.00 | 133 |
+| Emotion   | Precision | Recall | F1-score | Support |
+| --------- | --------: | -----: | -------: | ------: |
+| anger     |      1.00 |   1.00 |     1.00 |     133 |
+| disgust   |      1.00 |   0.99 |     1.00 |     133 |
+| fear      |      1.00 |   1.00 |     1.00 |     133 |
+| happiness |      1.00 |   1.00 |     1.00 |     133 |
+| neutral   |      1.00 |   1.00 |     1.00 |     133 |
+| sadness   |      1.00 |   1.00 |     1.00 |     133 |
+| surprise  |      0.99 |   1.00 |     1.00 |     133 |
 
 ## Speech Confusion Matrix
 
 | Actual \ Predicted | anger | disgust | fear | happiness | neutral | sadness | surprise |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| anger | 133 | 0 | 0 | 0 | 0 | 0 | 0 |
-| disgust | 0 | 132 | 0 | 0 | 0 | 0 | 1 |
-| fear | 0 | 0 | 133 | 0 | 0 | 0 | 0 |
-| happiness | 0 | 0 | 0 | 133 | 0 | 0 | 0 |
-| neutral | 0 | 0 | 0 | 0 | 133 | 0 | 0 |
-| sadness | 0 | 0 | 0 | 0 | 0 | 133 | 0 |
-| surprise | 0 | 0 | 0 | 0 | 0 | 0 | 133 |
+| ------------------ | ----: | ------: | ---: | --------: | ------: | ------: | -------: |
+| anger              |   133 |       0 |    0 |         0 |       0 |       0 |        0 |
+| disgust            |     0 |     132 |    0 |         0 |       0 |       0 |        1 |
+| fear               |     0 |       0 |  133 |         0 |       0 |       0 |        0 |
+| happiness          |     0 |       0 |    0 |       133 |       0 |       0 |        0 |
+| neutral            |     0 |       0 |    0 |         0 |     133 |       0 |        0 |
+| sadness            |     0 |       0 |    0 |         0 |       0 |     133 |        0 |
+| surprise           |     0 |       0 |    0 |         0 |       0 |       0 |      133 |
 
 ## Speech Result Images
+
 ![Speech Training Curve](results/speech_pipeline/plots/training_curve.png)
+
 ![Speech Confusion Matrix](results/speech_pipeline/plots/confusion_matrix.png)
 
 ## Speech Result Interpretation
-* The metrics show near-perfect performance (99.89%).
-* Speech works incredibly well for TESS because the emotional signal is vividly present in the vocal tone, pitch, and prosody.
-* The confusion matrix indicates exactly one misclassified sample (Disgust predicted as Surprise).
-* Speech is highly dominant because WavLM's robust pre-training efficiently clusters the acoustic variance of the acted performances.
-* **Limitations:** The model operates on entirely clean, high-fidelity studio recordings with only two actors. It is highly likely over-fitted to these specific vocal traits and lacks real-world noise resilience.
+
+The speech pipeline achieves near-perfect performance on the TESS test split. This indicates that acoustic information is highly discriminative for this dataset.
+
+The confusion matrix shows that almost all samples are correctly classified. The only visible error is one `disgust` sample predicted as `surprise`. This means the model has learned strong class separation for the controlled TESS recordings.
+
+The result is strong because TESS is an acted emotional speech dataset. Emotional cues are clearly expressed through pitch, tone, energy, rhythm, and prosody. WavLM is effective for this task because it provides pretrained speech representations that capture temporal and acoustic patterns.
+
+However, this result should not be overclaimed. TESS is clean, studio-recorded, acted, and limited to two speakers. Real-world speech contains background noise, spontaneous emotion, accent variation, overlapping speech, microphone variation, and weaker emotional expression. Performance on real-world data is expected to be lower.
 
 ---
 
 # Text Emotion Recognition Pipeline
 
 ## Purpose
-This pipeline predicts emotion purely from semantic text alone, completely ignoring acoustic audio.
+
+This pipeline predicts emotion from text only. It is designed to test whether the spoken word content extracted from the TESS filenames contains enough semantic information to identify emotion without using the audio signal.
+
 
 ## Input
-Text transcripts extracted from TESS filenames.
-Example: `OAF_back_angry.wav` → text = `back`
+
+The input is text extracted from TESS audio filenames.
+
+Example:
+
+```text
+OAF_back_angry.wav
+```
+
+is converted into:
+
+```text
+back
+```
+
+The extracted word is used as the text input, and the emotion label is extracted from the folder name.
 
 ## Model Used
-* distilbert-base-uncased
-* MLP classifier head
+
+| Component           | Description                                                               |
+| ------------------- | ------------------------------------------------------------------------- |
+| Base model          | `distilbert-base-uncased`                                                 |
+| Tokenizer           | Hugging Face `AutoTokenizer`                                              |
+| Encoder             | DistilBERT transformer encoder                                            |
+| Text representation | CLS token representation                                                  |
+| Classifier          | MLP classification head                                                   |
+| Output classes      | `anger`, `disgust`, `fear`, `happiness`, `neutral`, `sadness`, `surprise` |
+
+## Text Pipeline Architecture
+
+```mermaid
+flowchart BT
+    A[Text Input] --> B[Preprocessing]
+    B --> C[Feature Extraction]
+    C --> D[Contextual Modelling]
+    D --> E[Classifier]
+    E --> F[Emotion Label]
+```
+
+## Implementation Mapping
+
+| Diagram Block        | Code Implementation                                                      |
+| -------------------- | ------------------------------------------------------------------------ |
+| Text Input           | Word extracted from TESS filename                                        |
+| Preprocessing        | Filename parsing, lowercasing, text cleaning, metadata generation        |
+| Feature Extraction   | DistilBERT tokenizer converts text into `input_ids` and `attention_mask` |
+| Contextual Modelling | DistilBERT transformer encoder                                           |
+| Classifier           | Dropout → Linear → ReLU → Dropout → Linear                               |
+| Emotion Label        | Predicted class among seven emotion labels                               |
 
 ## Preprocessing
-* Scans the dataset.
-* Parses filenames dynamically to extract the literal spoken word.
-* Generates a text-focused `metadata.csv`.
-* Tokenizes words using Hugging Face's DistilBERT Tokenizer with a fixed max sequence length.
+
+The `preprocess.py` script scans the TESS dataset directory and creates a text-focused `metadata.csv`.
+
+The script extracts:
+
+| Field             | Source                                |
+| ----------------- | ------------------------------------- |
+| `file_path`       | Full path of the `.wav` file          |
+| `text`            | Spoken word extracted from filename   |
+| `emotion`         | Standardized emotion label            |
+| `speaker_id`      | Speaker prefix such as `OAF` or `YAF` |
+| `raw_emotion`     | Original emotion string               |
+| `original_folder` | Original TESS folder name             |
+| `original_file`   | Original `.wav` filename              |
+| `dataset`         | Fixed value: `TESS`                   |
+
+Example filename parsing:
+
+```text
+OAF_back_angry.wav
+```
+
+| Part    | Meaning           |
+| ------- | ----------------- |
+| `OAF`   | Speaker ID        |
+| `back`  | Extracted text    |
+| `angry` | Raw emotion label |
+
+The preprocessing script maps raw emotion labels into seven standard classes:
+
+| Raw Label                                                               | Standard Label |
+| ----------------------------------------------------------------------- | -------------- |
+| `angry`                                                                 | `anger`        |
+| `disgust`                                                               | `disgust`      |
+| `fear`                                                                  | `fear`         |
+| `happy`                                                                 | `happiness`    |
+| `neutral`                                                               | `neutral`      |
+| `sad`                                                                   | `sadness`      |
+| `pleasant_surprise`, `pleasant_surprised`, `pleasant`, `surprise`, `ps` | `surprise`     |
+
+The preprocessing stage does not perform model training. It only creates the metadata required by the training script.
 
 ## Training Method
-* Speaker-aware split strategy matching the speech pipeline.
-* Optimizer: AdamW
-* Loss: CrossEntropyLoss
-* Batch Size: 16
-* Epochs: 20
-* Early stopping based on validation metrics.
-* Serializes both the optimal model weights and tokenizer artifacts locally.
 
-## Testing Method
-* `test.py` loads the model alongside its paired tokenizer.
-* Evaluates on the held-out `test_split.csv`.
-* Automatically outputs detailed reports and CSV-based confusion matrices.
+The `train.py` script trains a DistilBERT-based text emotion classifier.
 
-## GUI / App Usage
-* `app.py` prompts the user for text input.
-* Instantly predicts emotion on pressing Enter.
-* Integrates cleanly with the saved tokenizer.
+Training uses a speaker-aware split strategy:
+
+| Setting                 | Value                                                              |
+| ----------------------- | ------------------------------------------------------------------ |
+| Dataset                 | TESS                                                               |
+| Split strategy          | Speaker-aware                                                      |
+| Base train speaker      | `oaf`                                                              |
+| Target speaker          | `yaf`                                                              |
+| Adaptation ratio        | `0.05`                                                             |
+| Model                   | `distilbert-base-uncased`                                          |
+| Architecture            | DistilBERT Transformer Encoder + CLS Pooling + Classification Head |
+| Maximum sequence length | `32`                                                               |
+| Batch size              | `16`                                                               |
+| Epochs                  | `20`                                                               |
+| Learning rate           | `2e-5`                                                             |
+| Optimizer               | AdamW                                                              |
+| Loss function           | CrossEntropyLoss                                                   |
+| Label smoothing         | `0.03`                                                             |
+| Weight decay            | `1e-4`                                                             |
+| Early stopping patience | `5`                                                                |
+| Seed                    | `42`                                                               |
+
+The model uses the CLS token representation from DistilBERT:
+
+```text
+outputs.last_hidden_state[:, 0, :]
+```
+
+This CLS representation is passed into an MLP classifier head:
+
+```text
+Dropout(0.3)
+Linear(hidden_size, 256)
+ReLU
+Dropout(0.3)
+Linear(256, num_classes)
+```
+
+The `train.py` script also evaluates the trained model on the held-out `test_split.csv` and produces the final test results.
+
+The evaluation produces:
+
+| Output                | Description                                         |
+| --------------------- | --------------------------------------------------- |
+| Accuracy              | Overall percentage of correct predictions           |
+| UAR                   | Macro recall across all classes                     |
+| Macro F1              | Average F1-score across all emotion classes         |
+| Classification report | Class-wise precision, recall, F1-score, and support |
+| Confusion matrix      | Actual-vs-predicted class distribution              |
+| Training curve        | Training loss and validation Macro F1 across epochs |
+
+## Testing and Inference Method
+
+The GUI prediction functionality is implemented inside `test.py`.
+
+The script loads:
+
+```text
+models/text_pipeline/saved_models/best_model.pth
+```
+
+and uses:
+
+```text
+models/text_pipeline/saved_models/model_config.json
+```
+
+Running `python test.py` opens the CustomTkinter GUI. The GUI supports:
+
+| Feature               | Description                                          |
+| --------------------- | ---------------------------------------------------- |
+| Text input            | User enters text manually                            |
+| Predict Emotion       | Runs model inference on the entered text             |
+| Classification Report | Opens the saved classification report                |
+| Confusion Matrix      | Opens the saved confusion matrix                     |
+| Metrics Summary       | Opens the saved metrics JSON                         |
+| View Plots            | Opens the training curve and confusion matrix images |
 
 ## How to Run Text Pipeline
+
+Run the following commands from the project root:
+
 ```powershell
 cd "models\text_pipeline"
 python preprocess.py
 python train.py
 python test.py
-python app.py
 ```
 
-## Text Pipeline Generated Files
+Command purpose:
 
-| File/Folder | Created By | Purpose |
-|---|---|---|
-| metadata.csv | preprocess.py | Stores extracted text and labels |
-| train_split.csv | train.py | Training split |
-| val_split.csv | train.py | Validation split |
-| test_split.csv | train.py | Test split |
-| saved_models/best_model.pth | train.py | Trained text model weights |
-| saved_models/model_config.json | train.py | Model configuration mapping |
-| saved_models/tokenizer.json | train.py | Tokenizer dictionary state |
-| saved_models/vocab.txt | train.py | Vocabulary mappings |
-| results/text_pipeline/metrics/ | train.py/test.py | JSON Metrics |
-| results/text_pipeline/plots/ | train.py/test.py | Performance plots |
-| results/text_pipeline/results/ | train.py/test.py | Evaluation CSV reports |
+| Command                | Purpose                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------- |
+| `python preprocess.py` | Extracts text from TESS filenames and creates `metadata.csv`                    |
+| `python train.py`      | Trains the DistilBERT text emotion classifier, evaluates it, and saves outputs  |
+| `python test.py`       | Opens the CustomTkinter GUI for text emotion prediction and viewing reports     |
+
 
 ## Text Pipeline Results
 
-| Metric | Value |
-|---|---:|
-| Test Accuracy | 14.93% |
-| Test UAR | 14.93% |
-| Test Macro F1 | 7.29% |
-| Model Name | distilbert-base-uncased |
+| Metric                   |                     Value |
+| ------------------------ | ------------------------: |
+| Test Accuracy            |                    14.93% |
+| Test UAR                 |                    14.93% |
+| Test Macro F1            |                     7.29% |
+| Best Epoch               |                         5 |
+| Best Validation Macro F1 |                     6.18% |
+| Model Name               | `distilbert-base-uncased` |
+
+## Text Training Metrics
+
+| Epoch | Train Loss | Val Accuracy | Val UAR | Val Macro F1 |
+| ----: | ---------: | -----------: | ------: | -----------: |
+|     1 |     1.9528 |       14.29% |  14.29% |        3.57% |
+|     2 |     1.9543 |       15.04% |  15.04% |        5.95% |
+|     3 |     1.9522 |       14.29% |  14.29% |        3.60% |
+|     4 |     1.9522 |       14.29% |  14.29% |        3.64% |
+|     5 |     1.9493 |       12.78% |  12.78% |        6.18% |
+|     6 |     1.9486 |       14.29% |  14.29% |        3.57% |
+|     7 |     1.9486 |       14.29% |  14.29% |        3.57% |
+|     8 |     1.9470 |       14.29% |  14.29% |        3.57% |
+|     9 |     1.9503 |       14.54% |  14.54% |        4.07% |
+|    10 |     1.9490 |       14.29% |  14.29% |        3.57% |
 
 ## Text Classification Report
 
-| Emotion | Precision | Recall | F1-score | Support |
-|---|---:|---:|---:|---:|
-| anger | 0.15 | 0.68 | 0.24 | 133 |
-| disgust | 0.15 | 0.32 | 0.21 | 133 |
-| fear | 0.14 | 0.04 | 0.06 | 133 |
-| happiness | 0.00 | 0.00 | 0.00 | 133 |
-| neutral | 0.00 | 0.00 | 0.00 | 133 |
-| sadness | 0.00 | 0.00 | 0.00 | 133 |
-| surprise | 0.00 | 0.00 | 0.00 | 133 |
+| Emotion      | Precision | Recall | F1-score | Support |
+| ------------ | --------: | -----: | -------: | ------: |
+| anger        |      0.15 |   0.68 |     0.24 |     133 |
+| disgust      |      0.15 |   0.32 |     0.21 |     133 |
+| fear         |      0.14 |   0.04 |     0.06 |     133 |
+| happiness    |      0.00 |   0.00 |     0.00 |     133 |
+| neutral      |      0.00 |   0.00 |     0.00 |     133 |
+| sadness      |      0.00 |   0.00 |     0.00 |     133 |
+| surprise     |      0.00 |   0.00 |     0.00 |     133 |
+| accuracy     |      0.15 |   0.15 |     0.15 |     931 |
+| macro avg    |      0.06 |   0.15 |     0.07 |     931 |
+| weighted avg |      0.06 |   0.15 |     0.07 |     931 |
 
 ## Text Confusion Matrix
 
 | Actual \ Predicted | anger | disgust | fear | happiness | neutral | sadness | surprise |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| anger | 91 | 37 | 5 | 0 | 0 | 0 | 0 |
-| disgust | 85 | 43 | 5 | 0 | 0 | 0 | 0 |
-| fear | 90 | 38 | 5 | 0 | 0 | 0 | 0 |
-| happiness | 85 | 43 | 5 | 0 | 0 | 0 | 0 |
-| neutral | 88 | 40 | 5 | 0 | 0 | 0 | 0 |
-| sadness | 88 | 40 | 5 | 0 | 0 | 0 | 0 |
-| surprise | 86 | 40 | 7 | 0 | 0 | 0 | 0 |
+| ------------------ | ----: | ------: | ---: | --------: | ------: | ------: | -------: |
+| anger              |    91 |      37 |    5 |         0 |       0 |       0 |        0 |
+| disgust            |    85 |      43 |    5 |         0 |       0 |       0 |        0 |
+| fear               |    90 |      38 |    5 |         0 |       0 |       0 |        0 |
+| happiness          |    85 |      43 |    5 |         0 |       0 |       0 |        0 |
+| neutral            |    88 |      40 |    5 |         0 |       0 |       0 |        0 |
+| sadness            |    88 |      40 |    5 |         0 |       0 |       0 |        0 |
+| surprise           |    86 |      40 |    7 |         0 |       0 |       0 |        0 |
 
 ## Text Result Images
+
 ![Text Training Curve](results/text_pipeline/plots/training_curve.png)
+
 ![Text Confusion Matrix](results/text_pipeline/plots/confusion_matrix.png)
 
 ## Text Result Interpretation
-* The text result is unequivocally poor.
-* However, this is fully expected for the TESS dataset.
-* Seven-class random chance is exactly 14.28%. Because the model accuracy is ~14.93%, it is operating statistically at random chance.
-* TESS text consists of short neutral words (e.g., "bar", "goose"). 
-* The same target word appears across all seven emotions. Therefore, emotion is mainly expressed through audio/prosody, not text semantics. 
-* DistilBERT receives the identical prompt for conflicting labels and fails to converge safely. 
-* **Crucially:** DistilBERT is structurally valid, but the dataset text simply does not contain enough emotional information. This must be interpreted as a rigid experimental finding on the limits of TESS, not a code failure.
+
+The text pipeline performs poorly on the TESS dataset.
+
+The test accuracy is 14.93%, while random chance for seven balanced classes is approximately 14.28%. This means the model is performing almost at random-chance level.
+
+The Macro F1-score is only 7.29%, which confirms that the model is not learning meaningful class separation across all seven emotion categories.
+
+The confusion matrix shows that the model predicts mostly `anger`, `disgust`, and a small number of `fear` samples. It completely fails to predict `happiness`, `neutral`, `sadness`, and `surprise`. This is why the precision, recall, and F1-score for those classes are all zero.
+
+This result is expected because TESS is primarily an audio emotion dataset. The emotional information in TESS is carried mainly by vocal tone, pitch, energy, rhythm, and prosody. The extracted text is only a short spoken word such as `back`, `bar`, `goose`, or `ditch`.
+
+The same word appears across multiple emotion classes. For example, the word `back` can appear as angry, happy, sad, neutral, fearful, disgusted, or surprised depending on how it is spoken. When audio is removed, the text alone does not contain enough emotional information for reliable classification.
+
+Therefore, the low performance is not necessarily a coding failure. It is an experimental finding showing that TESS is not suitable for strong text-only emotion recognition when text is extracted only from filenames/transcripts.
+
+## Why Performance Is Low When TESS Is Used for Text
+
+TESS is designed for speech emotion recognition, not natural-language emotion recognition.
+
+In normal text emotion datasets, emotion is often expressed through sentence meaning. For example:
+
+```text
+I am so happy today.
+```
+
+or:
+
+```text
+I feel terrible and disappointed.
+```
+
+In TESS, the text is usually only a neutral word:
+
+```text
+back
+goose
+ditch
+bar
+```
+
+These words do not carry emotional meaning by themselves. The emotion exists in the way the word is spoken, not in the word itself.
+
+This creates a label conflict problem:
+
+| Same Text | Possible Labels                                             |
+| --------- | ----------------------------------------------------------- |
+| `back`    | anger, disgust, fear, happiness, neutral, sadness, surprise |
+| `goose`   | anger, disgust, fear, happiness, neutral, sadness, surprise |
+| `ditch`   | anger, disgust, fear, happiness, neutral, sadness, surprise |
+
+Because the same input text maps to multiple different labels, the text-only model receives contradictory training signals. DistilBERT cannot reliably infer emotion when the semantic input is almost identical across classes.
+
+## Limitations
+
+| Limitation                     | Explanation                                                                  |
+| ------------------------------ | ---------------------------------------------------------------------------- |
+| Short text input               | Each sample contains only one or very few words                              |
+| Weak semantic emotion          | The extracted words are mostly neutral and do not express emotion directly   |
+| Repeated text across labels    | The same word appears in multiple emotion categories                         |
+| Dataset mismatch               | TESS is built for audio emotion recognition, not text emotion recognition    |
+| No acoustic cues               | Pitch, tone, rhythm, and intensity are removed                               |
+| Poor real-world generalization | This model should not be treated as a strong general text emotion classifier |
+| Low class coverage             | The model fails to predict several classes completely                        |
+
+## Key Inference
+
+The text pipeline demonstrates that text-only emotion recognition is ineffective on TESS when the text is extracted from filenames or short transcripts.
+
+The result supports the main multimodal conclusion: for TESS, speech carries the dominant emotional signal, while text contributes very little because the textual content is semantically weak.
+
+This makes the text pipeline useful as an experimental baseline. It proves that the poor text result is caused by dataset limitations, not simply by model architecture.
 
 ---
 
@@ -452,8 +879,8 @@ This pipeline aggressively combines the acoustic representation with semantic te
 * Evaluates on test_split.csv.
 * Writes deep cross-modal reports, metrics, and plots.
 
-## GUI / App Usage
-* `app.py` accepts both a literal audio upload and corresponding text transcript box.
+## GUI / Inference Usage
+* `test.py` accepts both a literal audio upload and corresponding text transcript box.
 * Generates the multi-modal confidence array.
 * Provides report buttons: Classification Report, Confusion Matrix, Metrics Summary, View Plots.
 
@@ -463,7 +890,6 @@ cd "models\fusion_pipeline"
 python preprocess.py
 python train.py
 python test.py
-python app.py
 ```
 
 ## Fusion Pipeline Generated Files
