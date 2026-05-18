@@ -1,9 +1,10 @@
 {
     "dataset": "TESS (Toronto Emotional Speech Set)",
-    "model_name": "microsoft/wavlm-base",
-    "architecture": "WavLM Transformer Encoder + Mean Pooling + Classification Head",
-    "best_epoch": 6,
+    "model_name": "CNN_BiLSTM_Attention_MelDeltaMFCC",
+    "architecture": "Mel Spectrogram + Delta + MFCC + Residual CNN + BiLSTM + Attention + Classification Head",
+    "best_epoch": 8,
     "best_validation_macro_f1": 100.0,
+    "test_loss": 0.1785561184761888,
     "test_accuracy": 99.89258861439313,
     "test_uar": 99.89258861439313,
     "test_macro_f1": 99.89258709631828,
@@ -16,14 +17,13 @@
         "sadness",
         "surprise"
     ],
-    "split_strategy": "speaker_aware",
+    "split_strategy": "speaker_aware_adaptation",
     "base_train_speaker": "oaf",
     "target_speaker": "yaf",
     "adapt_ratio": 0.05,
-    "sr": 16000,
-    "duration": 3,
     "batch_size": 16,
-    "learning_rate": 2e-05,
+    "learning_rate": 0.0001,
+    "weight_decay": 0.0001,
     "seed": 42,
-    "note": "Results are specific to the TESS controlled dataset. Performance on spontaneous real-world speech is expected to be lower."
+    "note": "This is a feature-based non-transformer speech emotion model. It uses Mel spectrogram, delta, and MFCC features with a CNN, BiLSTM, and attention classifier. The evaluation uses speaker-aware adaptation, not strict zero-shot unseen-speaker testing."
 }

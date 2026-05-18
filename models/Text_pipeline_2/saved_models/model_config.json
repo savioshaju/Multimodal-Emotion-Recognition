@@ -12,9 +12,9 @@
         "surprise"
     ],
     "max_length": 96,
-    "batch_size": 32,
+    "batch_size": 16,
     "epochs": 8,
-    "learning_rate": 1.2e-05,
+    "learning_rate": 1e-05,
     "weight_decay": 0.01,
     "patience": 2,
     "seed": 42,
@@ -26,15 +26,15 @@
     "mixed_precision": true,
     "split_requirement": "dialogue_id_group_split_no_leakage",
     "output_structure": {
-        "metrics_dir": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline\\metrics",
-        "plots_dir": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline\\plots",
-        "classification_report_txt": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline\\metrics\\classification_report.txt",
-        "classification_report_csv": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline\\metrics\\classification_report.csv",
-        "confusion_matrix_csv": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline\\metrics\\confusion_matrix.csv",
-        "text_metrics_json": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline\\metrics\\text_metrics.json",
-        "training_metrics_csv": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline\\metrics\\training_metrics.csv",
-        "training_curve_png": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline\\plots\\training_curve.png",
-        "confusion_matrix_png": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline\\plots\\confusion_matrix.png",
-        "class_distribution_png": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline\\plots\\class_distribution.png"
+        "metrics_dir": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline_2\\metrics",
+        "plots_dir": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline_2\\plots",
+        "classification_report_txt": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline_2\\metrics\\classification_report.txt",
+        "classification_report_csv": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline_2\\metrics\\classification_report.csv",
+        "confusion_matrix_csv": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline_2\\metrics\\confusion_matrix.csv",
+        "text_metrics_json": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline_2\\metrics\\text_metrics.json",
+        "training_metrics_csv": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline_2\\metrics\\training_metrics.csv",
+        "training_curve_png": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline_2\\plots\\training_curve.png",
+        "confusion_matrix_png": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline_2\\plots\\confusion_matrix.png",
+        "class_distribution_png": "D:\\Savio Shaju\\Multimodal Emotion Recognition\\results\\text_pipeline_2\\plots\\class_distribution.png"
     }
 }

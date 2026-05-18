@@ -63,10 +63,10 @@ for d in [SAVED_MODELS_DIR, METRICS_DIR, PLOTS_DIR]:
 MODEL_NAME = "roberta-base"
 
 MAX_LENGTH = 96
-BATCH_SIZE = 32
+BATCH_SIZE = 16
 EPOCHS = 8
 
-LR = 1.2e-5
+LR = 1e-5
 WEIGHT_DECAY = 0.01
 PATIENCE = 2
 SEED = 42
@@ -458,8 +458,8 @@ def main():
     val_dataset = EncodedTextDataset(val_encodings, val_labels)
     test_dataset = EncodedTextDataset(test_encodings, test_labels)
 
-    num_workers = 2 if os.name == "nt" else 4
-    pin_memory = torch.cuda.is_available()
+    num_workers = 0
+    pin_memory = False
 
     if USE_WEIGHTED_SAMPLER:
         train_sampler = create_weighted_sampler(train_df, label_encoder)

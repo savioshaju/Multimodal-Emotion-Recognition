@@ -274,166 +274,98 @@ Multimodal Emotion Recognition/
 
 ## Purpose
 
-This pipeline predicts emotion from speech audio only. It isolates the effect of acoustic and prosodic cues such as pitch, tone, rhythm, intensity, and speaking style.
+This pipeline predicts emotion from speech audio only. It isolates the effect of acoustic cues and assesses whether a dedicated feature-extraction approach is effective on the TESS dataset.
 
-## Input
+## Dataset and Input
 
-The input is `.wav` audio files from the TESS dataset. During model training and inference, each audio file is loaded using `librosa` and resampled to 16 kHz.
+The input originates from `.wav` audio files in the TESS dataset.
 
-## Model Used
+The dataset directory is structured into subfolders based on speaker and emotion:
+```text
+dataset/
+├── OAF_angry/
+├── YAF_happy/
+└── ...
+```
+
+The script scans these folders for `.wav` files and extracts the `speaker_id` (e.g., `oaf`, `yaf`) and the `raw_emotion` (e.g., `angry`, `happy`) directly from the folder names. The raw emotions are then mapped to seven standardized emotion labels.
+
+## Preprocessing
+
+The `preprocess.py` script performs audio processing, feature extraction, and metadata generation.
+
+1. **Audio Loading**: Files are loaded at 16 kHz using `librosa`, silence is trimmed, and the waveform is fixed to a length of 3 seconds.
+2. **Feature Extraction**: It extracts three distinct acoustic features:
+   - Mel Spectrogram (in dB)
+   - Delta Mel Spectrogram
+   - MFCCs (expanded to match the Mel frequency dimension)
+3. **Saving Features**: These three channels are stacked into a 3D NumPy array of shape `(3, 128, time_frames)` and saved as `.npy` files in the `models/speech_pipeline/processed_data/` directory.
+
+The script creates `models/speech_pipeline/metadata.csv` with the following columns:
+- `file_path`: Original `.wav` path
+- `feature_path`: Path to the extracted `.npy` file
+- `emotion`: Standardized emotion label
+- `speaker_id`: Speaker identifier (`oaf` or `yaf`)
+- `raw_emotion`: Original TESS emotion string
+- `original_folder`: TESS folder name
+- `original_file`: TESS filename
+- `dataset`: Fixed as `TESS`
+- `sample_rate`: Sampling rate (`16000`)
+- `duration`: Duration in seconds (`3`)
+- `feature_type`: Type of feature (`mel_delta_mfcc`)
+- `feature_shape`: Shape of the saved feature array
+
+## Model Architecture
+
+The `train.py` script implements a **CNN + BiLSTM + Attention** model (`CNN_BiLSTM_Attention_MelDeltaMFCC`).
 
 | Component | Description |
 |---|---|
-| Base model | `microsoft/wavlm-base` |
-| Feature extractor | Hugging Face `AutoFeatureExtractor` |
-| Encoder | WavLM transformer encoder |
-| Temporal representation | Mean pooling over WavLM hidden states |
-| Classifier | MLP classifier head |
-| Output classes | `anger`, `disgust`, `fear`, `happiness`, `neutral`, `sadness`, `surprise` |
+| CNN Feature Extraction | 4 Residual Blocks (`ResBlock`) with `MaxPool2d` to extract spatial and frequency features from the 3-channel input. |
+| Temporal Modelling | A 2-layer Bidirectional LSTM (`BiLSTM`) to capture temporal dynamics across time frames. |
+| Attention Pooling | An attention mechanism using `Tanh` and `Softmax` to compute context weights and pool the LSTM outputs into a single context vector. |
+| Classifier | An MLP classifier head using `LayerNorm`, `Linear`, `ReLU`, and `Dropout` layers mapping to the 7 emotion classes. |
 
 ## Speech Pipeline Architecture
 
 ```mermaid
 flowchart BT
-    A[Speech Audio] --> B[Preprocessing]
-    B --> C[Feature Extraction]
-    C --> D[Temporal Modelling]
-    D --> E[Classifier]
-    E --> F[Emotion Label]
+    A[Speech Audio] --> B[Preprocessing & Feature Extraction]
+    B --> C[CNN Feature Extraction]
+    C --> D[BiLSTM Temporal Modelling]
+    D --> E[Attention Pooling]
+    E --> F[Classifier]
+    F --> G[Emotion Label]
 ```
 
-### Implementation Mapping
+## Training Strategy
 
-| Diagram Block      | Code Implementation                                                 |
-| ------------------ | ------------------------------------------------------------------- |
-| Speech Audio       | TESS `.wav` files                                                   |
-| Preprocessing      | `librosa.load`, silence trimming, padding/truncation, normalization |
-| Feature Extraction | `AutoFeatureExtractor` for `microsoft/wavlm-base`                   |
-| Temporal Modelling | WavLM transformer encoder + mean pooling                            |
-| Classifier         | Dropout → Linear → ReLU → Dropout → Linear                          |
-| Emotion Label      | Predicted class among seven emotion labels                          |
+The model uses a **Speaker-Aware Adaptation** split strategy to ensure realistic evaluation across speakers.
 
-## Preprocessing
+- **Base Train Speaker**: All samples from `oaf` are used for training.
+- **Target Speaker Adaptation**: A small portion (`ADAPT_RATIO = 0.05`) of the `yaf` speaker's data is included in the training set for adaptation.
+- **Validation/Test**: The remaining target speaker data is split into validation (30%) and testing (70%).
 
-The `preprocess.py` script performs metadata preprocessing only. It scans the TESS dataset directory, extracts labels from folder names, and creates `metadata.csv`.
+The splits are explicitly saved to:
+- `models/speech_pipeline/train_split.csv`
+- `models/speech_pipeline/val_split.csv`
+- `models/speech_pipeline/test_split.csv`
 
-It generates the following columns:
+**Training Hyperparameters:**
+- **Optimizer**: `AdamW` (Learning Rate: 1e-4, Weight Decay: 1e-4)
+- **Loss Function**: `CrossEntropyLoss` with label smoothing (0.03)
+- **Batch Size**: 16
+- **Epochs**: 40
+- **Early Stopping**: Patience of 7 epochs based on Validation Macro F1.
+- **Best Model Saving**: The model with the highest Validation Macro F1 is saved to `models/speech_pipeline/saved_models/best_model.pth`.
 
-| Column            | Description                                                   |
-| ----------------- | ------------------------------------------------------------- |
-| `file_path`       | Full path of the `.wav` audio file                            |
-| `emotion`         | Standardized emotion label                                    |
-| `speaker_id`      | Speaker ID extracted from folder name, such as `OAF` or `YAF` |
-| `raw_emotion`     | Original emotion name from the folder                         |
-| `original_folder` | Original TESS folder name                                     |
-| `dataset`         | Fixed value: `TESS`                                           |
+## Testing / GUI
 
-The actual waveform preprocessing happens inside `train.py` and `test.py`.
+The testing and inference module is located in `test.py`. It supports both Graphical User Interface (GUI) and Command-Line Interface (CLI) workflows.
 
-### Audio Preprocessing Steps
+Running `python test.py` directly opens the CustomTkinter GUI. The GUI allows you to upload audio files, visualize predictions and confidence scores, and open tables for the classification report, confusion matrix, and metrics summary.
 
-| Step                    | Description                                                  |
-| ----------------------- | ------------------------------------------------------------ |
-| Audio loading           | Loads the file using `librosa.load(path, sr=16000)`          |
-| Silence trimming        | Removes silence using `librosa.effects.trim(top_db=30)`      |
-| Fixed-length conversion | Pads or truncates each sample to 3 seconds                   |
-| Normalization           | Normalizes waveform amplitude using `librosa.util.normalize` |
-
-### Training-Time Augmentation
-
-| Augmentation    | Purpose                                     |
-| --------------- | ------------------------------------------- |
-| Noise injection | Improves robustness to background noise     |
-| Volume scaling  | Simulates loudness variation                |
-| Time shifting   | Reduces dependency on exact signal position |
-| Pitch shifting  | Simulates pitch variation                   |
-| Time stretching | Simulates speaking speed variation          |
-
-## Training Method
-
-The training script uses a speaker-aware split strategy.
-
-| Setting                 | Value               |
-| ----------------------- | ------------------- |
-| Base train speaker      | `oaf`               |
-| Target speaker          | `yaf`               |
-| Adaptation ratio        | `0.05`              |
-| Sampling rate           | `16000` Hz          |
-| Duration                | `3` seconds         |
-| Maximum length          | `48000` samples     |
-| Batch size              | `16`                |
-| Epochs                  | `30`                |
-| Learning rate           | `2e-5`              |
-| Optimizer               | `AdamW`             |
-| Loss function           | `CrossEntropyLoss`  |
-| Label smoothing         | `0.03`              |
-| Early stopping patience | `5`                 |
-| Best model criterion    | Validation Macro F1 |
-
-The `train.py` script also handles evaluating the model on the test split generated during training and producing the final results.
-
-The test data is stored in:
-
-```text
-models/speech_pipeline/test_split.csv
-```
-
-The evaluation produces:
-
-| Output                | Description                                |
-| --------------------- | ------------------------------------------ |
-| Accuracy              | Overall correct predictions                |
-| UAR                   | Macro recall across all classes            |
-| Macro F1              | Average F1-score across all classes        |
-| Classification report | Class-wise precision, recall, and F1-score |
-| Confusion matrix      | Actual-vs-predicted class distribution     |
-
-The best model is saved as:
-
-```text
-models/speech_pipeline/saved_models/best_model.pth
-```
-
-The model configuration is saved as:
-
-```text
-models/speech_pipeline/saved_models/model_config.json
-```
-
-## Testing and Inference Method
-
-The GUI and CLI prediction functionalities are implemented inside `test.py`.
-
-The script loads:
-
-```text
-models/speech_pipeline/saved_models/best_model.pth
-```
-
-and uses:
-
-```text
-models/speech_pipeline/saved_models/model_config.json
-```
-
-The script supports both Graphical User Interface (GUI) and Command-Line Interface (CLI) usage:
-
-### GUI Usage
-
-Running `python test.py` without any arguments opens the CustomTkinter GUI. The GUI supports:
-
-| Feature               | Description                                                  |
-| --------------------- | ------------------------------------------------------------ |
-| Audio upload          | Upload `.wav`, `.mp3`, `.flac`, `.ogg`, or `.m4a` files      |
-| Emotion prediction    | Displays predicted emotion and confidence                    |
-| Classification Report | Opens saved classification report table                      |
-| Confusion Matrix      | Opens saved confusion matrix table                           |
-| Metrics Summary       | Opens saved summary metrics                                  |
-| View Plots            | Displays saved training curve and confusion matrix images    |
-
-### CLI Usage
-
-Running `python test.py path/to/audio.wav` performs a direct prediction on the specified audio file directly in the terminal, completely bypassing the GUI.
+Running `python test.py path/to/audio.wav` bypasses the GUI entirely and outputs the emotion prediction directly in the terminal (CLI prediction).
 
 ## How to Run Speech Pipeline
 
@@ -446,15 +378,12 @@ python train.py
 python test.py
 ```
 
-Command purpose:
-
-| Command                               | Purpose                                                                          |
-| ------------------------------------- | -------------------------------------------------------------------------------- |
-| `python preprocess.py`                | Creates `metadata.csv` from the TESS folder structure                            |
-| `python train.py`                     | Trains the model, evaluates it on the test split, and saves metrics/results      |
-| `python test.py`                      | Opens the CustomTkinter GUI for prediction and viewing reports                   |
-| `python test.py path/to/audio.wav`    | Performs CLI emotion prediction on a specific audio file                         |
-                
+| Command | Purpose |
+|---|---|
+| `python preprocess.py` | Extracts acoustic features into `.npy` files and creates `metadata.csv` |
+| `python train.py` | Trains the CNN-BiLSTM-Attention model, evaluates it, and saves results |
+| `python test.py` | Opens the CustomTkinter GUI for prediction and viewing reports |
+| `python test.py path/to/audio.wav` | Performs CLI emotion prediction on a specific audio file |
 
 ## Speech Pipeline Results
 
@@ -463,26 +392,26 @@ Command purpose:
 | Test Accuracy |                 99.89% |
 | Test UAR      |                 99.89% |
 | Test Macro F1 |                 99.89% |
-| Model Name    | `microsoft/wavlm-base` |
+| Model Name    | `CNN_BiLSTM_Attention` |
 
 ## Speech Classification Report
 
 | Emotion   | Precision | Recall | F1-score | Support |
 | --------- | --------: | -----: | -------: | ------: |
-| anger     |      1.00 |   1.00 |     1.00 |     133 |
-| disgust   |      1.00 |   0.99 |     1.00 |     133 |
+| anger     |      1.00 |   0.99 |     1.00 |     133 |
+| disgust   |      1.00 |   1.00 |     1.00 |     133 |
 | fear      |      1.00 |   1.00 |     1.00 |     133 |
 | happiness |      1.00 |   1.00 |     1.00 |     133 |
 | neutral   |      1.00 |   1.00 |     1.00 |     133 |
-| sadness   |      1.00 |   1.00 |     1.00 |     133 |
-| surprise  |      0.99 |   1.00 |     1.00 |     133 |
+| sadness   |      0.99 |   1.00 |     1.00 |     133 |
+| surprise  |      1.00 |   1.00 |     1.00 |     133 |
 
 ## Speech Confusion Matrix
 
 | Actual \ Predicted | anger | disgust | fear | happiness | neutral | sadness | surprise |
 | ------------------ | ----: | ------: | ---: | --------: | ------: | ------: | -------: |
-| anger              |   133 |       0 |    0 |         0 |       0 |       0 |        0 |
-| disgust            |     0 |     132 |    0 |         0 |       0 |       0 |        1 |
+| anger              |   132 |       0 |    0 |         0 |       0 |       1 |        0 |
+| disgust            |     0 |     133 |    0 |         0 |       0 |       0 |        0 |
 | fear               |     0 |       0 |  133 |         0 |       0 |       0 |        0 |
 | happiness          |     0 |       0 |    0 |       133 |       0 |       0 |        0 |
 | neutral            |     0 |       0 |    0 |         0 |     133 |       0 |        0 |
@@ -497,13 +426,13 @@ Command purpose:
 
 ## Speech Result Interpretation
 
-The speech pipeline achieves near-perfect performance on the TESS test split. This indicates that acoustic information is highly discriminative for this dataset.
+The speech pipeline achieves near-perfect performance on the TESS test split, with a test accuracy of 99.89%. This indicates that acoustic information is highly discriminative for this dataset and that the extracted features (Mel Spectrogram, Delta, MFCC) coupled with the CNN-BiLSTM-Attention architecture are extremely effective.
 
-The confusion matrix shows that almost all samples are correctly classified. The only visible error is one `disgust` sample predicted as `surprise`. This means the model has learned strong class separation for the controlled TESS recordings.
+The confusion matrix shows that almost all samples are correctly classified. The only error is a single `anger` sample predicted as `sadness`. The model has learned strong class separation for the controlled TESS recordings.
 
-The result is strong because TESS is an acted emotional speech dataset. Emotional cues are clearly expressed through pitch, tone, energy, rhythm, and prosody. WavLM is effective for this task because it provides pretrained speech representations that capture temporal and acoustic patterns.
+The result is strong because TESS is an acted emotional speech dataset where emotional cues are clearly expressed through pitch, tone, energy, rhythm, and prosody. 
 
-However, this result should not be overclaimed. TESS is clean, studio-recorded, acted, and limited to two speakers. Real-world speech contains background noise, spontaneous emotion, accent variation, overlapping speech, microphone variation, and weaker emotional expression. Performance on real-world data is expected to be lower.
+However, this result should not be overclaimed. TESS is clean, studio-recorded, acted, and limited to two speakers. Performance on real-world data with background noise and spontaneous emotion is expected to be lower.
 
 ---
 

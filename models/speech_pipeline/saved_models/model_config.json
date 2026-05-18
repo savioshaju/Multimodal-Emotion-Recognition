@@ -1,1 +1,26 @@
-{"model_name": "microsoft/wavlm-base", "classes": ["anger", "disgust", "fear", "happiness", "neutral", "sadness", "surprise"], "sr": 16000, "duration": 3}
+{
+    "dataset": "TESS (Toronto Emotional Speech Set)",
+    "model_name": "CNN_BiLSTM_Attention_MelDeltaMFCC",
+    "architecture": "Mel Spectrogram + Delta + MFCC + Residual CNN + BiLSTM + Attention + Classification Head",
+    "classes": [
+        "anger",
+        "disgust",
+        "fear",
+        "happiness",
+        "neutral",
+        "sadness",
+        "surprise"
+    ],
+    "input_feature": "3-channel feature tensor",
+    "feature_channels": [
+        "mel_spectrogram_db",
+        "delta_mel",
+        "mfcc_expanded"
+    ],
+    "base_train_speaker": "oaf",
+    "target_speaker": "yaf",
+    "adapt_ratio": 0.05,
+    "batch_size": 16,
+    "learning_rate": 0.0001,
+    "seed": 42
+}

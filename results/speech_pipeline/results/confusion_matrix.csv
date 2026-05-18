@@ -1,6 +1,6 @@
 ,anger,disgust,fear,happiness,neutral,sadness,surprise
-anger,133,0,0,0,0,0,0
-disgust,0,132,0,0,0,0,1
+anger,132,0,0,0,0,1,0
+disgust,0,133,0,0,0,0,0
 fear,0,0,133,0,0,0,0
 happiness,0,0,0,133,0,0,0
 neutral,0,0,0,0,133,0,0

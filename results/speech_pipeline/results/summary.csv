@@ -1,2 +1,2 @@
-test_accuracy,test_uar,test_macro_f1,model_name
-99.89258861439313,99.89258861439313,99.89258709631828,microsoft/wavlm-base
+test_accuracy,test_uar,test_macro_f1,model_name,best_epoch,best_validation_macro_f1,split_strategy,base_train_speaker,target_speaker,adapt_ratio
+99.89258861439313,99.89258861439313,99.89258709631828,CNN_BiLSTM_Attention_MelDeltaMFCC,8,100.0,speaker_aware_adaptation,oaf,yaf,0.05
