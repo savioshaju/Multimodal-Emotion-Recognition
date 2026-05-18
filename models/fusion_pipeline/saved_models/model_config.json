@@ -1,8 +1,11 @@
 {
-    "model_speech": "microsoft/wavlm-base",
-    "model_text": "distilbert-base-uncased",
+    "dataset": "TESS",
+    "architecture": "CNN + BiLSTM + Attention speech branch + DistilBERT text branch + Concatenation + MLP",
+    "speech_branch": "Mel Spectrogram + Delta + MFCC -> CNN -> BiLSTM -> Attention",
+    "text_branch": "distilbert-base-uncased",
+    "fusion_method": "Concatenation + MLP classifier",
     "num_classes": 7,
-    "emotions": [
+    "classes": [
         "anger",
         "disgust",
         "fear",
@@ -11,7 +14,12 @@
         "sadness",
         "surprise"
     ],
-    "sr": 16000,
-    "duration": 3,
-    "max_text_len": 32
+    "base_train_speaker": "oaf",
+    "target_speaker": "yaf",
+    "adapt_ratio": 0.05,
+    "max_text_len": 32,
+    "batch_size": 16,
+    "learning_rate": 2e-05,
+    "weight_decay": 0.0001,
+    "seed": 42
 }

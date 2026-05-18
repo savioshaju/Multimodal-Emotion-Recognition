@@ -1,13 +1,14 @@
 {
     "dataset": "TESS",
-    "speech_model_name": "microsoft/wavlm-base",
-    "text_model_name": "distilbert-base-uncased",
-    "architecture": "WavLM + DistilBERT + Concat + MLP",
-    "best_epoch": 3,
-    "best_validation_macro_f1": 1.0,
-    "test_accuracy": 0.9967776584317938,
-    "test_uar": 0.9967776584317939,
-    "test_macro_f1": 0.9967776280702969,
+    "architecture": "CNN + BiLSTM + Attention speech branch + DistilBERT text branch + Concatenation + MLP",
+    "speech_branch": "Mel Spectrogram + Delta + MFCC -> CNN -> BiLSTM -> Attention",
+    "text_branch": "distilbert-base-uncased",
+    "fusion_method": "Concatenation",
+    "best_epoch": 14,
+    "best_validation_macro_f1": 0.96991662709302,
+    "test_accuracy": 0.9473684210526315,
+    "test_uar": 0.9473684210526316,
+    "test_macro_f1": 0.9467248323699017,
     "classes": [
         "anger",
         "disgust",
@@ -17,15 +18,13 @@
         "sadness",
         "surprise"
     ],
-    "split_strategy": "Speaker-aware split",
+    "split_strategy": "speaker_aware",
     "base_train_speaker": "oaf",
     "target_speaker": "yaf",
     "adapt_ratio": 0.05,
-    "sr": 16000,
-    "duration": 3,
     "max_text_len": 32,
-    "batch_size": 8,
+    "batch_size": 16,
     "learning_rate": 2e-05,
     "seed": 42,
-    "note": "Fusion model metrics"
+    "note": "Lightweight fusion model using CNN-BiLSTM-Attention speech features and DistilBERT text representation."
 }

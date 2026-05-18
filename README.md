@@ -359,9 +359,9 @@ The splits are explicitly saved to:
 - **Early Stopping**: Patience of 7 epochs based on Validation Macro F1.
 - **Best Model Saving**: The model with the highest Validation Macro F1 is saved to `models/speech_pipeline/saved_models/best_model.pth`.
 
-## Testing / GUI
+## Testing 
 
-The testing and inference module is located in `test.py`. It supports both Graphical User Interface (GUI) and Command-Line Interface (CLI) workflows.
+The testing and inference module is located in `test.py`. It supports both Graphical User Interface and Command-Line Interface (CLI) workflows.
 
 Running `python test.py` directly opens the CustomTkinter GUI. The GUI allows you to upload audio files, visualize predictions and confidence scores, and open tables for the classification report, confusion matrix, and metrics summary.
 
