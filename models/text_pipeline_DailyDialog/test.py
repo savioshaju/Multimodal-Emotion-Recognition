@@ -24,7 +24,7 @@ ctk.set_default_color_theme("blue")
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
 
-OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "results", "text_pipeline_2")
+OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "results", "text_pipeline_DailyDialog")
 
 MODEL_PATH = os.path.join(PIPELINE_DIR, "saved_models", "text_emotion_model.pth")
 CONFIG_PATH = os.path.join(PIPELINE_DIR, "saved_models", "model_config.json")

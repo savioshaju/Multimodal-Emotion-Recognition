@@ -1,26 +1,28 @@
 # Multimodal Emotion Recognition
 
-This project performs emotion recognition using independent and combined machine learning pipelines focusing on speech, text, and multimodal fusion. 
+This project implements a comparative emotion recognition system using three core pipelines: speech-only emotion recognition, text-only emotion recognition, and multimodal speech-text fusion.
 
-The dataset utilized is the **Toronto Emotional Speech Set (TESS)**. The core objective of this project is to robustly compare unimodal methods (processing acoustic properties or semantic transcripts individually) against an multimodal method. 
+The primary dataset used for the core implementation is the Toronto Emotional Speech Set (TESS). The core pipelines are designed to evaluate how acoustic information, textual information, and combined multimodal information contribute to emotion classification.
+
 
 ## Table of Contents
+
 1. [How to Run the Project](#how-to-run-the-project)
 2. [Project Objective](#project-objective)
-3. [Dataset — TESS](#dataset--tess)
+3. [Dataset Usage](#dataset-usage)
 4. [Overall Architecture](#overall-architecture)
 5. [Complete Project Folder Structure](#complete-project-folder-structure)
 6. [Speech Emotion Recognition Pipeline](#speech-emotion-recognition-pipeline)
-7. [Text Emotion Recognition Pipeline (TESS)](#text-emotion-recognition-pipeline)
-8. [Text Emotion Recognition Pipeline (DailyDialog)](#text-emotion-recognition-pipeline-dailydialog)
-9. [Multimodal Fusion Pipeline (TESS)](#multimodal-fusion-pipeline-tess)
-10. [Multimodal Fusion Pipeline (MELD)](#multimodal-fusion-pipeline-meld)
-11. [Final Comparison Table](#final-comparison-table)
-12. [Result Visualizations](#result-visualizations)
-13. [Evaluation Metrics](#evaluation-metrics)
-14. [Limitations](#limitations)
-15. [Future Improvements](#future-improvements)
-16. [Conclusion](#conclusion)
+7. [Text Emotion Recognition Pipeline](#text-emotion-recognition-pipeline)
+   - [Additional Text Experiment: DailyDialog](#additional-text-experiment-dailydialog)
+8. [Multimodal Fusion Pipeline](#multimodal-fusion-pipeline)
+   - [Additional Fusion Experiment: MELD](#additional-fusion-experiment-meld)
+9. [Final Comparison Table](#final-comparison-table)
+10. [Result Visualizations](#result-visualizations)
+11. [Evaluation Metrics](#evaluation-metrics)
+12. [Limitations](#limitations)
+13. [Future Improvements](#future-improvements)
+14. [Conclusion](#conclusion)
 
 ---
 
@@ -59,7 +61,7 @@ pip install -r requirements.txt
 
 ### 3. Running the Pipelines
 
-This project is divided into three separate pipelines. Each must be run from its respective directory within `models/`.
+The project contains three core TESS pipelines and two additional experimental pipelines. Each pipeline must be run from its respective directory inside `models/`.
 
 #### Speech Pipeline
 This pipeline predicts emotion from audio waveforms using acoustic features (Mel Spectrogram, Delta, MFCC) with a CNN + BiLSTM + Attention architecture.
@@ -86,7 +88,7 @@ python test.py
 ```
 * `python preprocess.py`: Generates the text-focused `metadata.csv`.
 * `python train.py`: Trains the DistilBERT model, evaluates it, and generates results.
-* `python test.py`: Opens the graphical user interface (GUI) to test the text model. (This pipeline does not support CLI predictions).
+* `python test.py`: Opens the graphical user interface (GUI) to test the text model.
 
 #### Fusion Pipeline
 This pipeline predicts emotion by fusing acoustic features (Mel Spectrogram, Delta, MFCC via CNN-BiLSTM-Attention) with text (DistilBERT) using concatenation.
@@ -101,6 +103,36 @@ python test.py
 * `python train.py`: Trains the multimodal fusion model (CNN-BiLSTM-Attention + DistilBERT), evaluates it, and generates results.
 * `python test.py`: Opens the graphical user interface (GUI) to test the fusion model.
 * `python test.py path/to/audio.wav "your transcript here"`: Runs a direct CLI prediction using both audio and text without opening the GUI.
+
+#### DailyDialog Text Pipeline
+
+This pipeline evaluates text emotion recognition on realistic conversational text using DailyDialog.
+
+```powershell
+cd models\text_pipeline_DailyDialog
+python preprocess.py
+python train.py
+python test.py
+```
+
+* `python preprocess.py`: Parses DailyDialog files, cleans utterances, maps labels, creates metadata, and generates dialogue-level train/validation/test splits.
+* `python train.py`: Trains the RoBERTa-based text emotion classifier and saves metrics, plots, and reports.
+* `python test.py`: Opens the GUI or evaluation interface if implemented in the pipeline.
+
+#### MELD Fusion Pipeline
+
+This pipeline evaluates multimodal emotion recognition on realistic dialogue data using MELD.
+
+```powershell
+cd models\fusion_pipeline_MELD
+python preprocess.py
+python train.py
+python test.py
+```
+
+* `python preprocess.py`: Processes MELD train/dev/test metadata, extracts acoustic features from video/audio files, and aligns them with text utterances.
+* `python train.py`: Trains the CNN-BiLSTM-Attention + DistilBERT fusion model using class-weighted loss.
+* `python test.py`: Runs final evaluation or inference if implemented in the pipeline.
 
 ---
 
@@ -121,51 +153,27 @@ The project fundamentally compares speech, text, and fusion methods to isolate w
 
 ---
 
-## Datasets Used
+## Dataset Usage
 
-This project utilizes three distinct datasets to evaluate the models across different modalities and conditions.
+### Primary Dataset: TESS
 
-### 1. Toronto Emotional Speech Set (TESS)
-- **Primary Use:** Speech Pipeline, Text Pipeline (baseline), Fusion Pipeline (baseline)
-- **Characteristics:** Acted emotional speech recordings.
-- **Speakers:** Two female speakers (OAF and YAF).
-- **Structure:** Audio files organized by speaker and emotion folders.
-- **Text Extraction:** Transcript text is extracted by parsing the raw audio filenames (e.g., `OAF_back_angry.wav` extracts the word `back`).
-- **Important Note:** TESS is incredibly strong for speech emotion recognition because the actors project emotions clearly. However, TESS is inherently weak for text/fusion evaluation because the spoken words are emotionally neutral target words (such as "bar", "ditch", "jar") that repeat identically across every emotional state.
+TESS is the primary dataset used for the three core pipelines:
 
-### 2. DailyDialog
-- **Primary Use:** Text Pipeline 2 (Real conversational text evaluation)
-- **Characteristics:** Human-written multi-turn dialogues reflecting daily communication.
-- **Structure:** Text grouped by `dialogue_id` with corresponding emotion labels.
-- **Important Note:** This dataset provides realistic semantic emotion data, avoiding the label-conflict issue found in TESS text.
+| Pipeline | Dataset | Purpose |
+|---|---|---|
+| Speech Pipeline | TESS | Required speech-only emotion recognition |
+| Text Pipeline | TESS | Required text-only baseline using filename-derived transcript words |
+| Fusion Pipeline | TESS | Required multimodal speech + text fusion |
 
-### 3. Multimodal EmotionLines Dataset (MELD)
-- **Primary Use:** Multimodal Fusion Pipeline MELD (Real-world fusion evaluation)
-- **Characteristics:** Multimodal dataset containing audio and text from the TV show Friends.
-- **Structure:** Pre-split into Train, Dev, and Test sets.
-- **Important Note:** MELD provides a realistic environment for multimodal fusion, featuring multiple speakers, background noise, spontaneous speech, and semantically rich transcripts.
+TESS is suitable for speech emotion recognition because it contains clean, acted emotional speech. However, it is weak for text-only emotion recognition because the spoken words are short neutral target words that repeat across emotion classes.
 
-### TESS Folder Structure
-```text
-dataset/
-├── OAF_angry/
-├── OAF_disgust/
-├── OAF_Fear/
-├── OAF_happy/
-├── OAF_neutral/
-├── OAF_Pleasant_surprise/
-├── OAF_Sad/
-├── YAF_angry/
-├── YAF_disgust/
-├── YAF_fear/
-├── YAF_happy/
-├── YAF_neutral/
-├── YAF_pleasant_surprised/
-└── YAF_sad/
-```
+### Supporting Dataset: DailyDialog
 
----
+DailyDialog is used only as an additional text experiment under the text pipeline. It is not the main required text pipeline. It is included to test the text model on meaningful conversational sentences.
 
+### Supporting Dataset: MELD
+
+MELD is used only as an additional fusion experiment under the fusion pipeline. It is not the main required fusion pipeline. It is included to test multimodal fusion on realistic dialogue data with aligned audio and text.
 ## Overall Architecture
 
 ```mermaid
@@ -226,7 +234,7 @@ Multimodal Emotion Recognition/
 │   │       ├── special_tokens_map.json
 │   │       └── vocab.txt
 │   │
-│   ├── Text_pipeline_2/
+│   ├── text_pipeline_DailyDialog/
 │   │   ├── preprocess.py
 │   │   ├── train.py
 │   │   ├── data/
@@ -234,23 +242,23 @@ Multimodal Emotion Recognition/
 │   │   └── saved_models/
 │   │
 │   ├── fusion_pipeline/
-│       ├── preprocess.py
-│       ├── train.py
-│       ├── test.py
-│       ├── metadata.csv
-│       ├── train_split.csv
-│       ├── val_split.csv
-│       ├── test_split.csv
-│       └── saved_models/
-│           ├── best_model.pth
-│           ├── model_config.json
-│           ├── tokenizer_config.json
-│           ├── tokenizer.json
-│           ├── special_tokens_map.json
-│           └── vocab.txt
+│   │   ├── preprocess.py
+│   │   ├── train.py
+│   │   ├── test.py
+│   │   ├── metadata.csv
+│   │   ├── train_split.csv
+│   │   ├── val_split.csv
+│   │   ├── test_split.csv
+│   │   └── saved_models/
+│   │       ├── best_model.pth
+│   │       ├── model_config.json
+│   │       ├── tokenizer_config.json
+│   │       ├── tokenizer.json
+│   │       ├── special_tokens_map.json
+│   │       └── vocab.txt
 │   │
 │   └── fusion_pipeline_MELD/
-│       ├── preprocess.py
+│   │   ├── preprocess.py
 │       ├── train.py
 │       ├── processed_data/
 │       └── saved_models/
@@ -280,29 +288,29 @@ Multimodal Emotion Recognition/
 │   │       ├── confusion_matrix.csv
 │   │       └── summary.csv
 │   │
-│   ├── text_pipeline_2/
+│   ├── text_pipeline_DailyDialog/
 │   │   ├── metrics/
 │   │   ├── plots/
 │   │   └── results/
 │   │
 │   ├── fusion_pipeline/
-│       ├── metrics/
-│       │   ├── fusion_metrics.json
-│       │   └── training_metrics.csv
-│       ├── plots/
-│       │   ├── confusion_matrix.png
-│       │   ├── confusion_matrix_test.png
-│       │   └── training_curve.png
-│       └── results/
-│           ├── classification_report.csv
-│           ├── classification_report.txt
-│           ├── confusion_matrix.csv
-│           └── summary.csv
+│   │   ├── metrics/
+│   │   │   ├── fusion_metrics.json
+│   │   │   └── training_metrics.csv
+│   │   ├── plots/
+│   │   │   ├── confusion_matrix.png
+│   │   │   ├── confusion_matrix_test.png
+│   │   │   └── training_curve.png
+│   │   └── results/
+│   │       ├── classification_report.csv
+│   │       ├── classification_report.txt
+│   │       ├── confusion_matrix.csv
+│   │       └── summary.csv
 │   │
 │   └── fusion_pipeline_MELD/
-│       ├── metrics/
-│       ├── plots/
-│       └── results/
+│   │   ├── metrics/
+│   │   ├── plots/
+│   │   └── results/
 │
 └── README.md
 ```
@@ -825,7 +833,38 @@ This makes the text pipeline useful as an experimental baseline. It proves that 
 
 ---
 
-# Multimodal Fusion Emotion Recognition Pipeline
+
+## Additional Text Experiment: DailyDialog
+
+DailyDialog was added as a supporting text-only experiment because the TESS text pipeline has a structural limitation. In TESS, the extracted text is usually a single neutral word such as `back`, `bar`, `goose`, or `ditch`. These words repeat across all emotion classes, so they do not contain enough semantic information for reliable text emotion recognition.
+
+DailyDialog provides natural conversational utterances where emotion can be expressed through sentence meaning. This makes it more suitable for evaluating whether the text model architecture can learn emotion-related language patterns.
+
+This experiment is not a replacement for the required TESS text pipeline. It is included only as a secondary validation experiment.
+
+| Item | Description |
+|---|---|
+| Dataset | DailyDialog |
+| Modality | Text only |
+| Model | RoBERTa-based text classifier |
+| Split Strategy | Dialogue-level split to avoid leakage |
+| Imbalance Handling | WeightedRandomSampler |
+
+### DailyDialog Text Results
+
+| Metric | Value |
+|---|---:|
+| Test Accuracy | 77.34% |
+| Test UAR | 59.31% |
+| Test Macro F1 | 46.49% |
+| Test Weighted F1 | 79.93% |
+
+### DailyDialog Interpretation
+
+The DailyDialog result shows that the text model performs much better when the input text contains meaningful emotional semantics. This supports the conclusion that the poor TESS text result is caused by the dataset structure, not by a failure of the text model itself.
+
+
+# Multimodal Fusion Pipeline
 
 ## Purpose
 
@@ -990,17 +1029,50 @@ On datasets with meaningful text transcripts (e.g., customer reviews, social med
 
 ---
 
-## Final Comparison
 
-| Pipeline | Dataset | Input | Architecture | Accuracy | UAR | Macro F1 | Main Inference |
-|---|---|---|---|---:|---:|---:|---|
-| Speech Pipeline | TESS | Audio | CNN + BiLSTM + Attention | 99.89% | 99.89% | 99.89% | Acoustic features are highly discriminative for TESS. Clean, acted recordings with clear emotional vocal cues enable near-perfect classification. |
-| Text Pipeline | TESS | Text (words) | DistilBERT | 14.93% | 14.93% | 7.29% | Text-only emotion recognition fails on TESS because extracted words are emotionally neutral. Proves TESS is fundamentally an audio emotion dataset. |
-| Text Pipeline 2 | DailyDialog | Text (dialogue) | RoBERTa | 77.34% | 59.31% | 46.49% | Validates text architecture on real conversational data. Shows realistic baseline for NLP emotion recognition on imbalanced classes. |
-| Fusion Pipeline | TESS | Audio + Text | CNN-BiLSTM-Attention + DistilBERT | 94.74% | 94.74% | 94.67% | Fusion performs well but is lower than speech alone because TESS text is noisy/neutral. |
-| Fusion Pipeline MELD | MELD | Audio + Text | CNN-BiLSTM-Attention + DistilBERT | (TBD) | (TBD) | (TBD) | Designed for true multimodal fusion on real-world conversational data. Metrics to be evaluated. |
+## Additional Fusion Experiment: MELD
 
----
+MELD was added as a supporting multimodal fusion experiment because TESS has limited text semantics. In the TESS fusion pipeline, the speech branch dominates because the text branch receives only short neutral words extracted from filenames.
+
+MELD provides aligned audio and text from realistic multi-speaker dialogue. This makes it more suitable for testing whether speech and text can contribute together in a true multimodal setting.
+
+This experiment is not a replacement for the required TESS fusion pipeline. It is included only as a secondary validation experiment.
+
+| Item | Description |
+|---|---|
+| Dataset | MELD |
+| Modality | Audio + Text |
+| Split Strategy | Official train/dev/test split |
+| Speech Branch | CNN-BiLSTM-Attention acoustic encoder |
+| Text Branch | DistilBERT |
+| Fusion Method | Concatenation + MLP classifier |
+| Imbalance Handling | Class-weighted cross-entropy loss |
+
+### MELD Fusion Results
+
+| Metric | Value |
+|---|---:|
+| Test Accuracy | 59.50% |
+| Test UAR | 42.23% |
+| Test Macro F1 | 41.36% |
+| Test Weighted F1 | 59.91% |
+
+### MELD Interpretation
+
+The MELD result is lower than the TESS result because MELD is more realistic and more difficult. It contains multiple speakers, natural dialogue, background variation, short utterances, and strong class imbalance.
+
+The result is still useful because it shows how the fusion architecture behaves outside the clean TESS environment. It also gives a more realistic estimate of multimodal emotion recognition performance.
+
+
+## Final Comparison Table
+
+| Pipeline | Dataset | Modality | Architecture | Accuracy | UAR | Macro F1 | Weighted F1 | Interpretation |
+|---|---|---|---|---:|---:|---:|---:|---|
+| Speech Pipeline | TESS | Audio | Mel/Delta/MFCC + CNN-BiLSTM-Attention | 99.89% | 99.89% | 99.89% | Not reported | Strongest core pipeline; TESS speech contains clear acoustic emotion cues. |
+| Text Pipeline | TESS | Text | DistilBERT | 14.93% | 14.93% | 7.29% | Not reported | Performs near random chance because TESS text is semantically weak. |
+| Fusion Pipeline | TESS | Audio + Text | CNN-BiLSTM-Attention + DistilBERT | 94.74% | 94.74% | 94.67% | Not reported | Strong performance, but lower than speech-only because weak text adds noise. |
+| Additional Text Experiment | DailyDialog | Text | RoBERTa | 77.34% | 59.31% | 46.49% | 79.93% | Shows text model works when sentence semantics contain emotional cues. |
+| Additional Fusion Experiment | MELD | Audio + Text | CNN-BiLSTM-Attention + DistilBERT | 59.50% | 42.23% | 41.36% | 59.91% | More realistic fusion benchmark with noisy, imbalanced, multi-speaker dialogue. |
 
 ## Result Visualizations
 

@@ -31,9 +31,10 @@ PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
 PROCESSED_DIR = os.path.join(PIPELINE_DIR, "processed_data")
 SAVED_MODELS_DIR = os.path.join(PIPELINE_DIR, "saved_models")
 
-OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "results", "text_pipeline_2")
+OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "results", "text_pipeline_DailyDialog")
 METRICS_DIR = os.path.join(OUTPUT_ROOT, "metrics")
 PLOTS_DIR = os.path.join(OUTPUT_ROOT, "plots")
+RESULTS_DIR = os.path.join(OUTPUT_ROOT, "results")
 
 TRAIN_PATH = os.path.join(PROCESSED_DIR, "train.csv")
 VAL_PATH = os.path.join(PROCESSED_DIR, "val.csv")
@@ -42,9 +43,10 @@ TEST_PATH = os.path.join(PROCESSED_DIR, "test.csv")
 MODEL_PATH = os.path.join(SAVED_MODELS_DIR, "text_emotion_model.pth")
 CONFIG_PATH = os.path.join(SAVED_MODELS_DIR, "model_config.json")
 
-CLASSIFICATION_REPORT_PATH = os.path.join(METRICS_DIR, "classification_report.txt")
-CLASSIFICATION_REPORT_CSV_PATH = os.path.join(METRICS_DIR, "classification_report.csv")
-CONFUSION_MATRIX_PATH = os.path.join(METRICS_DIR, "confusion_matrix.csv")
+CLASSIFICATION_REPORT_PATH = os.path.join(RESULTS_DIR, "classification_report.txt")
+CLASSIFICATION_REPORT_CSV_PATH = os.path.join(RESULTS_DIR, "classification_report.csv")
+CONFUSION_MATRIX_PATH = os.path.join(RESULTS_DIR, "confusion_matrix.csv")
+SUMMARY_PATH = os.path.join(RESULTS_DIR, "summary.csv")
 TEXT_METRICS_PATH = os.path.join(METRICS_DIR, "text_metrics.json")
 TRAINING_METRICS_PATH = os.path.join(METRICS_DIR, "training_metrics.csv")
 
@@ -52,7 +54,7 @@ TRAINING_CURVE_PATH = os.path.join(PLOTS_DIR, "training_curve.png")
 CONFUSION_MATRIX_PLOT_PATH = os.path.join(PLOTS_DIR, "confusion_matrix.png")
 CLASS_DISTRIBUTION_PLOT_PATH = os.path.join(PLOTS_DIR, "class_distribution.png")
 
-for d in [SAVED_MODELS_DIR, METRICS_DIR, PLOTS_DIR]:
+for d in [SAVED_MODELS_DIR, METRICS_DIR, PLOTS_DIR, RESULTS_DIR]:
     os.makedirs(d, exist_ok=True)
 
 
@@ -772,6 +774,17 @@ def main():
         TRAINING_METRICS_PATH,
         index=False
     )
+
+    summary_df = pd.DataFrame([{
+        "dataset": "DailyDialog",
+        "model_name": MODEL_NAME,
+        "test_loss": test_loss,
+        "test_accuracy": test_acc,
+        "test_uar": test_uar,
+        "test_macro_f1": test_f1,
+        "test_weighted_f1": test_weighted_f1
+    }])
+    summary_df.to_csv(SUMMARY_PATH, index=False)
 
     plot_training(history)
     plot_confusion_matrix(cm, CLASS_NAMES)
