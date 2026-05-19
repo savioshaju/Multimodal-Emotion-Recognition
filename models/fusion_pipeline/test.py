@@ -21,7 +21,7 @@ except Exception:
 
 
 # =========================
-# UI CONFIG
+# UI CONFIGURATION
 # =========================
 
 ctk.set_appearance_mode("dark")
@@ -35,7 +35,6 @@ EMOTION_COLORS = {
     "neutral": "#90a4ae",
     "sadness": "#42a5f5",
     "surprise": "#ffa726",
-    "uncertain": "#bdbdbd",
 }
 
 EMOTION_EMOJIS = {
@@ -46,7 +45,6 @@ EMOTION_EMOJIS = {
     "neutral": "😐",
     "sadness": "😢",
     "surprise": "😲",
-    "uncertain": "❓",
 }
 
 DEFAULT_CLASS_NAMES = [
@@ -69,7 +67,8 @@ N_MFCC = 40
 
 
 # =========================
-# AUDIO FEATURE PREPROCESSING
+# AUDIO PREPROCESSING
+# Must match fusion preprocess.py
 # =========================
 
 def normalize_feature(x):
@@ -133,7 +132,8 @@ def extract_audio_features(audio, sr=DEFAULT_SR):
 
 
 # =========================
-# FUSION MODEL
+# MODEL ARCHITECTURE
+# Must match train.py
 # =========================
 
 class AttentionPooling(nn.Module):
@@ -189,7 +189,6 @@ class SpeechCNNBiLSTMAttention(nn.Module):
     def forward(self, x):
         x = self.cnn(x)
 
-        # x: [batch, channels, freq, time]
         x = x.permute(0, 3, 1, 2)
 
         batch_size, time_steps, channels, freq_bins = x.shape
@@ -204,7 +203,7 @@ class SpeechCNNBiLSTMAttention(nn.Module):
 
 
 class LightweightFusionModel(nn.Module):
-    def __init__(self, num_classes, model_text_name):
+    def __init__(self, num_classes, model_text_name=DEFAULT_TEXT_MODEL):
         super().__init__()
 
         self.speech_branch = SpeechCNNBiLSTMAttention(embedding_dim=256)
@@ -247,7 +246,7 @@ class LightweightFusionModel(nn.Module):
 
 
 # =========================
-# GUI APP
+# APP
 # =========================
 
 class FusionEmotionApp:
@@ -270,6 +269,12 @@ class FusionEmotionApp:
         self.model_path = os.path.join(self.models_dir, "best_model.pth")
         self.config_path = os.path.join(self.models_dir, "model_config.json")
 
+        self.report_txt = os.path.join(self.output_root, "results", "classification_report.txt")
+        self.cm_csv = os.path.join(self.output_root, "results", "confusion_matrix.csv")
+        self.metrics_json = os.path.join(self.output_root, "metrics", "fusion_metrics.json")
+        self.plot_cm = os.path.join(self.output_root, "plots", "confusion_matrix.png")
+        self.plot_curve = os.path.join(self.output_root, "plots", "training_curve.png")
+
         self.classes = DEFAULT_CLASS_NAMES
         self.sr = DEFAULT_SR
         self.duration = DEFAULT_DURATION
@@ -283,273 +288,211 @@ class FusionEmotionApp:
         self.current_audio = None
         self.current_audio_path = None
 
-        self.load_config()
-
         self.tokenizer = None
         self.model = None
 
+        self.load_config()
         self.build_ui()
         self.load_model()
 
-    # =========================
-    # CONFIG + MODEL LOADING
-    # =========================
-
     def load_config(self):
         if not os.path.exists(self.config_path):
+            print("Config file not found. Using default config.")
             return
 
         try:
-            with open(self.config_path, "r") as f:
+            with open(self.config_path, "r", encoding="utf-8") as f:
                 config = json.load(f)
 
-            self.classes = (
-                config.get("classes")
-                or config.get("emotions")
-                or DEFAULT_CLASS_NAMES
-            )
+            self.classes = config.get("classes", DEFAULT_CLASS_NAMES)
+            self.max_text_len = int(config.get("max_text_len", DEFAULT_MAX_TEXT_LEN))
 
-            self.sr = config.get("sr", DEFAULT_SR)
-            self.duration = config.get("duration", DEFAULT_DURATION)
-            self.max_audio_len = self.sr * self.duration
-            self.max_text_len = config.get("max_text_len", DEFAULT_MAX_TEXT_LEN)
+            text_branch = config.get("text_branch", DEFAULT_TEXT_MODEL)
 
-            self.text_model_name = (
-                config.get("model_text")
-                or config.get("text_model_name")
-                or config.get("model_text_name")
-                or config.get("text_branch")
-                or DEFAULT_TEXT_MODEL
-            )
-
-            if self.text_model_name != DEFAULT_TEXT_MODEL and "distilbert" not in self.text_model_name.lower():
+            if isinstance(text_branch, str) and "distilbert" in text_branch.lower():
+                self.text_model_name = text_branch
+            else:
                 self.text_model_name = DEFAULT_TEXT_MODEL
 
-        except Exception as e:
-            messagebox.showwarning("Config Warning", f"Could not load config:\n{e}")
-
-    def load_model(self):
-        if not os.path.exists(self.model_path):
-            self.set_status("Model Missing", "#b71c1c", "#ff5252")
-            messagebox.showerror(
-                "Model Missing",
-                f"best_model.pth not found:\n{self.model_path}\n\nRun train.py first."
-            )
-            return
-
-        try:
-            self.set_status("Loading Model...", "#f57f17", "#ffee58")
-            self.root.update()
-
-            self.tokenizer = AutoTokenizer.from_pretrained(self.models_dir)
-
-            self.model = LightweightFusionModel(
-                num_classes=len(self.classes),
-                model_text_name=self.text_model_name,
-            ).to(self.device)
-
-            state_dict = torch.load(self.model_path, map_location=self.device)
-            self.model.load_state_dict(state_dict)
-            self.model.eval()
-
-            self.set_status("Model Loaded", "#1b5e20", "#69f0ae")
+            print("Fusion config loaded successfully.")
+            print("Classes:", self.classes)
+            print("Max text length:", self.max_text_len)
+            print("Text model:", self.text_model_name)
 
         except Exception as e:
-            self.set_status("Model Error", "#b71c1c", "#ff5252")
-            messagebox.showerror(
-                "Model Error",
-                f"{e}\n\nThis usually means best_model.pth was trained with a different architecture.\n"
-                f"Use the checkpoint trained with CNN + BiLSTM + Attention + DistilBERT."
-            )
-
-    # =========================
-    # UI BUILD
-    # =========================
+            print("Failed to load config. Using default config.")
+            print(e)
 
     def build_ui(self):
         self.header_frame = ctk.CTkFrame(self.root, fg_color="transparent")
-        self.header_frame.pack(fill="x", pady=(20, 10), padx=35)
+        self.header_frame.pack(fill="x", pady=(25, 15), padx=35)
 
         self.title_label = ctk.CTkLabel(
             self.header_frame,
             text="Multimodal Fusion Emotion Recognition",
-            font=ctk.CTkFont(family="Helvetica", size=30, weight="bold"),
+            font=ctk.CTkFont(size=30, weight="bold")
         )
         self.title_label.pack(side="left")
 
         self.status_badge = ctk.CTkFrame(
             self.header_frame,
             corner_radius=15,
-            fg_color="#263238",
+            fg_color="#1b5e20"
         )
         self.status_badge.pack(side="right", pady=5)
 
         self.status_label = ctk.CTkLabel(
             self.status_badge,
-            text="Starting...",
-            text_color="#ffffff",
-            font=ctk.CTkFont(size=14, weight="bold"),
+            text="Loading...",
+            text_color="#69f0ae",
+            font=ctk.CTkFont(size=14, weight="bold")
         )
         self.status_label.pack(padx=15, pady=5)
 
-        self.body_frame = ctk.CTkFrame(self.root, fg_color="transparent")
-        self.body_frame.pack(fill="both", expand=True, padx=35, pady=(0, 30))
+        self.main_frame = ctk.CTkFrame(self.root, fg_color="transparent")
+        self.main_frame.pack(fill="both", expand=True, padx=35, pady=(0, 25))
 
-        self.body_frame.columnconfigure(0, weight=2)
-        self.body_frame.columnconfigure(1, weight=3)
-        self.body_frame.rowconfigure(0, weight=1)
+        self.main_frame.columnconfigure(0, weight=1)
+        self.main_frame.columnconfigure(1, weight=1)
+        self.main_frame.rowconfigure(0, weight=1)
 
-        self.controls_card = ctk.CTkScrollableFrame(
-            self.body_frame,
+        self.input_card = ctk.CTkFrame(
+            self.main_frame,
             corner_radius=20,
-            fg_color="#212121",
+            fg_color="#212121"
         )
-        self.controls_card.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
+        self.input_card.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
 
-        self.controls_title = ctk.CTkLabel(
-            self.controls_card,
-            text="Speech + Transcript Input",
-            font=ctk.CTkFont(size=21, weight="bold"),
+        self.input_title = ctk.CTkLabel(
+            self.input_card,
+            text="Fusion Input",
+            font=ctk.CTkFont(size=22, weight="bold")
         )
-        self.controls_title.pack(pady=(18, 10))
+        self.input_title.pack(pady=(30, 15))
 
-        self.upload_btn = ctk.CTkButton(
-            self.controls_card,
-            text="Upload Audio File",
-            height=42,
-            corner_radius=10,
-            font=ctk.CTkFont(size=15, weight="bold"),
-            command=self.upload_audio,
-        )
-        self.upload_btn.pack(padx=28, pady=(5, 7), fill="x")
-
-        self.record_btn = ctk.CTkButton(
-            self.controls_card,
-            text="Hold To Record",
-            height=42,
-            corner_radius=10,
-            fg_color="#d32f2f",
-            hover_color="#b71c1c",
-            font=ctk.CTkFont(size=15, weight="bold"),
-        )
-        self.record_btn.pack(padx=28, pady=7, fill="x")
-
-        if sd is not None:
-            self.record_btn.bind("<ButtonPress-1>", self.start_recording)
-            self.record_btn.bind("<ButtonRelease-1>", self.stop_recording)
-        else:
-            self.record_btn.configure(state="disabled", text="sounddevice Missing")
-
-        self.text_label = ctk.CTkLabel(
-            self.controls_card,
-            text="Transcript Extracted From Filename",
-            font=ctk.CTkFont(size=16, weight="bold"),
-        )
-        self.text_label.pack(anchor="w", padx=30, pady=(10, 5))
-
-        self.text_box = ctk.CTkTextbox(
-            self.controls_card,
-            height=65,
-            corner_radius=10,
+        self.audio_label = ctk.CTkLabel(
+            self.input_card,
+            text="No audio selected",
             font=ctk.CTkFont(size=14),
+            text_color="gray75"
         )
-        self.text_box.pack(padx=28, pady=(0, 8), fill="x")
-        self.text_box.insert("1.0", "Upload a TESS audio file to auto-fill transcript")
-        self.text_box.configure(state="disabled")
+        self.audio_label.pack(padx=30, pady=(0, 10), fill="x")
 
-        self.predict_btn = ctk.CTkButton(
-            self.controls_card,
-            text="Predict Emotion",
+        self.upload_audio_btn = ctk.CTkButton(
+            self.input_card,
+            text="Upload WAV Audio",
             height=45,
             corner_radius=10,
-            fg_color="#1565c0",
-            hover_color="#0d47a1",
-            font=ctk.CTkFont(size=16, weight="bold"),
-            command=self.predict_from_current_input,
+            command=self.upload_audio
         )
-        self.predict_btn.pack(padx=28, pady=(6, 10), fill="x")
+        self.upload_audio_btn.pack(padx=30, pady=8, fill="x")
 
-        self.audio_file_label = ctk.CTkLabel(
-            self.controls_card,
-            text="No audio selected",
-            text_color="gray70",
-            font=ctk.CTkFont(size=12),
+        self.record_btn = ctk.CTkButton(
+            self.input_card,
+            text="Record 3 Seconds",
+            height=45,
+            corner_radius=10,
+            fg_color="#455a64",
+            hover_color="#607d8b",
+            command=self.record_audio
         )
-        self.audio_file_label.pack(padx=30, pady=(0, 6))
+        self.record_btn.pack(padx=30, pady=8, fill="x")
+
+        self.text_label = ctk.CTkLabel(
+            self.input_card,
+            text="Input Text / Transcript",
+            font=ctk.CTkFont(size=16, weight="bold")
+        )
+        self.text_label.pack(padx=30, pady=(25, 8), anchor="w")
+
+        self.textbox = ctk.CTkTextbox(
+            self.input_card,
+            height=120,
+            corner_radius=10,
+            font=ctk.CTkFont(size=14)
+        )
+        self.textbox.pack(padx=30, pady=(0, 15), fill="x")
+
+        self.predict_btn = ctk.CTkButton(
+            self.input_card,
+            text="Predict Fusion Emotion",
+            height=50,
+            corner_radius=10,
+            font=ctk.CTkFont(size=16, weight="bold"),
+            command=self.predict_emotion
+        )
+        self.predict_btn.pack(padx=30, pady=10, fill="x")
+
+        self.clear_btn = ctk.CTkButton(
+            self.input_card,
+            text="Clear",
+            height=40,
+            corner_radius=10,
+            fg_color="#424242",
+            hover_color="#616161",
+            command=self.clear_input
+        )
+        self.clear_btn.pack(padx=30, pady=8, fill="x")
 
         self.reports_title = ctk.CTkLabel(
-            self.controls_card,
+            self.input_card,
             text="Reports & Metrics",
-            font=ctk.CTkFont(size=18, weight="bold"),
+            font=ctk.CTkFont(size=16, weight="bold")
         )
-        self.reports_title.pack(pady=(5, 5))
+        self.reports_title.pack(pady=(25, 10))
 
-        self.reports_grid = ctk.CTkFrame(self.controls_card, fg_color="transparent")
-        self.reports_grid.pack(padx=28, pady=(0, 10), fill="x")
+        self.reports_grid = ctk.CTkFrame(self.input_card, fg_color="transparent")
+        self.reports_grid.pack(padx=30, pady=(0, 20), fill="x")
 
         ctk.CTkButton(
             self.reports_grid,
             text="Classification Report",
-            height=34,
-            command=self.show_classification_report,
+            height=35,
+            command=self.show_classification_report
         ).grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         ctk.CTkButton(
             self.reports_grid,
             text="Confusion Matrix",
-            height=34,
-            command=self.show_confusion_matrix,
+            height=35,
+            command=self.show_confusion_matrix
         ).grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
         ctk.CTkButton(
             self.reports_grid,
             text="Metrics Summary",
-            height=34,
-            command=self.show_metrics_summary,
+            height=35,
+            command=self.show_metrics_summary
         ).grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
         ctk.CTkButton(
             self.reports_grid,
-            text="Training Metrics",
-            height=34,
-            command=self.show_training_metrics,
-        ).grid(row=1, column=1, padx=5, pady=5, sticky="ew")
-
-        ctk.CTkButton(
-            self.reports_grid,
-            text="Fusion JSON",
-            height=34,
-            command=self.show_fusion_metrics_json,
-        ).grid(row=2, column=0, padx=5, pady=5, sticky="ew")
-
-        ctk.CTkButton(
-            self.reports_grid,
             text="View Plots",
-            height=34,
-            command=self.show_plots,
-        ).grid(row=2, column=1, padx=5, pady=5, sticky="ew")
+            height=35,
+            command=self.show_plots
+        ).grid(row=1, column=1, padx=5, pady=5, sticky="ew")
 
         self.reports_grid.columnconfigure(0, weight=1)
         self.reports_grid.columnconfigure(1, weight=1)
 
         self.result_card = ctk.CTkFrame(
-            self.body_frame,
+            self.main_frame,
             corner_radius=20,
-            fg_color="#263238",
+            fg_color="#263238"
         )
         self.result_card.grid(row=0, column=1, sticky="nsew", padx=(12, 0))
 
         self.result_emoji = ctk.CTkLabel(
             self.result_card,
-            text="🔀",
-            font=ctk.CTkFont(size=115),
+            text="🎧",
+            font=ctk.CTkFont(size=120)
         )
-        self.result_emoji.pack(pady=(55, 18), expand=True)
+        self.result_emoji.pack(pady=(60, 20), expand=True)
 
         self.result_text = ctk.CTkLabel(
             self.result_card,
             text="Ready for Fusion Input",
-            font=ctk.CTkFont(size=36, weight="bold"),
+            font=ctk.CTkFont(size=36, weight="bold")
         )
         self.result_text.pack(pady=(0, 10))
 
@@ -558,192 +501,154 @@ class FusionEmotionApp:
             text="Confidence: --",
             font=ctk.CTkFont(size=18),
             text_color="gray70",
+            justify="center"
         )
         self.confidence_text.pack(pady=(0, 20))
 
         self.progress = ctk.CTkProgressBar(
             self.result_card,
-            width=430,
+            width=400,
             height=15,
             progress_color="#00e676",
-            fg_color="#37474f",
+            fg_color="#37474f"
         )
-        self.progress.pack(pady=(0, 25))
+        self.progress.pack(pady=(0, 60))
         self.progress.set(0)
-
-        self.all_probs_label = ctk.CTkLabel(
-            self.result_card,
-            text="",
-            justify="left",
-            font=ctk.CTkFont(size=14),
-            text_color="gray85",
-        )
-        self.all_probs_label.pack(pady=(0, 45))
 
     def set_status(self, text, badge_color="#1b5e20", text_color="#69f0ae"):
         self.status_label.configure(text=text, text_color=text_color)
         self.status_badge.configure(fg_color=badge_color)
 
-    # =========================
-    # TEXTBOX HELPER
-    # =========================
+    def load_model(self):
+        if not os.path.exists(self.model_path):
+            messagebox.showerror(
+                "Model Missing",
+                f"Model file not found:\n{self.model_path}\n\nRun train.py first."
+            )
+            self.set_status("Model Missing", badge_color="#b71c1c", text_color="#ff5252")
+            self.predict_btn.configure(state="disabled")
+            return
 
-    def set_transcript_text(self, text):
-        self.text_box.configure(state="normal")
-        self.text_box.delete("1.0", "end")
-        self.text_box.insert("1.0", text)
-        self.text_box.configure(state="disabled")
+        try:
+            if os.path.exists(os.path.join(self.models_dir, "tokenizer_config.json")):
+                self.tokenizer = AutoTokenizer.from_pretrained(self.models_dir)
+            else:
+                self.tokenizer = AutoTokenizer.from_pretrained(self.text_model_name)
 
-    # =========================
-    # AUDIO INPUT
-    # =========================
+            self.model = LightweightFusionModel(
+                num_classes=len(self.classes),
+                model_text_name=self.text_model_name
+            )
+
+            checkpoint = torch.load(
+                self.model_path,
+                map_location=self.device
+            )
+
+            if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
+                self.model.load_state_dict(checkpoint["model_state_dict"])
+            else:
+                self.model.load_state_dict(checkpoint)
+
+            self.model.to(self.device)
+            self.model.eval()
+
+            self.set_status(f"Model Loaded: {self.device}")
+            self.predict_btn.configure(state="normal")
+
+            print("Fusion model loaded successfully.")
+            print("Device:", self.device)
+
+        except Exception as e:
+            messagebox.showerror(
+                "Model Error",
+                f"Failed to load fusion model:\n{e}"
+            )
+            self.set_status("Model Error", badge_color="#b71c1c", text_color="#ff5252")
+            self.predict_btn.configure(state="disabled")
 
     def upload_audio(self):
-        filepath = filedialog.askopenfilename(
-            filetypes=[("Audio Files", "*.wav *.mp3 *.flac *.ogg *.m4a")]
+        path = filedialog.askopenfilename(
+            title="Select WAV Audio",
+            filetypes=[
+                ("Audio Files", "*.wav *.mp3 *.flac *.ogg"),
+                ("WAV Files", "*.wav"),
+                ("All Files", "*.*")
+            ]
         )
 
-        if not filepath:
+        if not path:
             return
 
         try:
-            self.set_status("Loading Audio...", "#f57f17", "#ffee58")
+            audio, sr = librosa.load(path, sr=self.sr)
+            audio = preprocess_audio_array(audio, sr=self.sr, max_audio_len=self.max_audio_len)
+
+            self.current_audio = audio
+            self.current_audio_path = path
+
+            self.audio_label.configure(text=f"Selected: {os.path.basename(path)}")
+            self.set_status("Audio Loaded")
+
+        except Exception as e:
+            messagebox.showerror("Audio Error", f"Failed to load audio:\n{e}")
+
+    def record_audio(self):
+        if sd is None:
+            messagebox.showerror(
+                "Recording Error",
+                "sounddevice is not installed.\n\nInstall it using:\npip install sounddevice"
+            )
+            return
+
+        try:
+            self.set_status("Recording...", badge_color="#f57f17", text_color="#ffee58")
             self.root.update()
 
-            audio_np, _ = librosa.load(filepath, sr=self.sr, mono=True)
-            self.current_audio = audio_np
-            self.current_audio_path = filepath
-
-            filename = os.path.basename(filepath)
-            self.audio_file_label.configure(text=f"Selected: {filename}")
-
-            extracted_text = self.extract_text_from_filename(filename)
-
-            if extracted_text:
-                self.set_transcript_text(extracted_text)
-            else:
-                self.set_transcript_text("unknown")
-
-            self.set_status("Audio Ready", "#1b5e20", "#69f0ae")
-
-        except Exception as e:
-            self.set_status("Audio Error", "#b71c1c", "#ff5252")
-            messagebox.showerror("Audio Error", str(e))
-
-    def extract_text_from_filename(self, filename):
-        try:
-            name = os.path.splitext(filename)[0]
-            parts = name.split("_")
-
-            if len(parts) >= 3:
-                text_parts = parts[1:-1]
-                text = " ".join(text_parts).replace("-", " ").replace("_", " ")
-                text = text.lower().strip()
-
-                if text:
-                    return text
-
-            return None
-
-        except Exception:
-            return None
-
-    def start_recording(self, event):
-        if sd is None:
-            return
-
-        self.recording = True
-        self.audio_data = []
-
-        self.set_status("Recording...", "#b71c1c", "#ff5252")
-        self.record_btn.configure(text="Recording...", fg_color="#b71c1c")
-
-        def callback(indata, frames, time, status):
-            if self.recording:
-                self.audio_data.append(indata.copy())
-
-        try:
-            self.stream = sd.InputStream(
+            recording = sd.rec(
+                int(self.duration * self.sr),
                 samplerate=self.sr,
                 channels=1,
-                dtype="float32",
-                callback=callback,
+                dtype="float32"
             )
-            self.stream.start()
+            sd.wait()
+
+            audio = recording.flatten()
+            audio = preprocess_audio_array(audio, sr=self.sr, max_audio_len=self.max_audio_len)
+
+            self.current_audio = audio
+            self.current_audio_path = None
+
+            self.audio_label.configure(text="Recorded audio loaded")
+            self.set_status("Recording Complete")
 
         except Exception as e:
-            self.recording = False
-            self.set_status("Recording Error", "#b71c1c", "#ff5252")
-            self.record_btn.configure(text="Hold To Record", fg_color="#d32f2f")
-            messagebox.showerror("Recording Error", str(e))
+            messagebox.showerror("Recording Error", f"Failed to record audio:\n{e}")
+            self.set_status("Recording Error", badge_color="#b71c1c", text_color="#ff5252")
 
-    def stop_recording(self, event):
-        if sd is None:
-            return
-
-        self.recording = False
-
-        try:
-            if self.stream is not None:
-                self.stream.stop()
-                self.stream.close()
-                self.stream = None
-        except Exception:
-            pass
-
-        self.record_btn.configure(text="Hold To Record", fg_color="#d32f2f")
-
-        if len(self.audio_data) == 0:
-            self.set_status("No Audio", "#b71c1c", "#ff5252")
-            return
-
-        audio_np = np.concatenate(self.audio_data, axis=0).flatten()
-        self.current_audio = audio_np
-        self.current_audio_path = None
-        self.audio_file_label.configure(text="Recorded audio ready")
-
-        self.set_transcript_text("unknown")
-        self.set_status("Audio Ready", "#1b5e20", "#69f0ae")
-
-    # =========================
-    # PREDICTION
-    # =========================
-
-    def predict_from_current_input(self):
+    def predict_emotion(self):
         if self.model is None or self.tokenizer is None:
             messagebox.showerror("Model Error", "Model is not loaded.")
             return
 
         if self.current_audio is None:
-            messagebox.showwarning("Missing Audio", "Upload or record audio first.")
+            messagebox.showwarning("Input Error", "Please upload or record audio first.")
             return
 
-        text = self.text_box.get("1.0", "end").strip()
+        text = self.textbox.get("1.0", "end-1c").strip()
 
         if not text:
-            messagebox.showwarning("Missing Text", "Transcript is empty.")
+            messagebox.showwarning("Input Error", "Please enter transcript/text.")
             return
 
-        self.predict(self.current_audio, text)
-
-    def predict(self, audio_np, text):
         try:
-            self.set_status("Predicting...", "#f57f17", "#ffee58")
+            self.set_status("Processing...", badge_color="#f57f17", text_color="#ffee58")
             self.root.update()
 
-            audio_np = preprocess_audio_array(
-                audio_np,
-                sr=self.sr,
-                max_audio_len=self.max_audio_len,
-            )
+            features = extract_audio_features(self.current_audio, sr=self.sr)
+            speech_features = torch.tensor(features, dtype=torch.float32).unsqueeze(0).to(self.device)
 
-            speech_features = extract_audio_features(audio_np, sr=self.sr)
-            speech_features = torch.tensor(
-                speech_features,
-                dtype=torch.float32,
-            ).unsqueeze(0).to(self.device)
-
-            text_inputs = self.tokenizer(
+            encoded = self.tokenizer(
                 text,
                 max_length=self.max_text_len,
                 padding="max_length",
@@ -751,49 +656,90 @@ class FusionEmotionApp:
                 return_tensors="pt",
             )
 
-            input_ids = text_inputs["input_ids"].to(self.device)
-            attention_mask = text_inputs["attention_mask"].to(self.device)
+            input_ids = encoded["input_ids"].to(self.device)
+            attention_mask = encoded["attention_mask"].to(self.device)
 
             with torch.no_grad():
                 logits = self.model(speech_features, input_ids, attention_mask)
-                probabilities = torch.softmax(logits, dim=1).squeeze(0)
+                probs = torch.softmax(logits, dim=1)
 
-                pred_idx = torch.argmax(probabilities).item()
-                pred_emotion = self.classes[pred_idx]
-                confidence = probabilities[pred_idx].item() * 100
+            top_probs, top_indices = torch.topk(probs, k=3, dim=1)
 
-            display_emotion = pred_emotion if confidence >= 55 else "uncertain"
-            self.update_ui(display_emotion, confidence, probabilities)
+            top3_results = []
+
+            for i in range(3):
+                emotion = self.classes[top_indices[0][i].item()]
+                score = top_probs[0][i].item() * 100
+                top3_results.append((emotion, score))
+
+            prediction = top3_results[0][0]
+            confidence = top3_results[0][1]
+
+            second_confidence = top3_results[1][1]
+            confidence_gap = confidence - second_confidence
+
+            is_low_confidence = confidence < 60 or confidence_gap < 10
+
+            self.update_ui(prediction, confidence, top3_results, is_low_confidence)
 
         except Exception as e:
-            self.set_status("Prediction Error", "#b71c1c", "#ff5252")
-            messagebox.showerror("Prediction Error", str(e))
+            messagebox.showerror("Prediction Error", f"Failed to predict:\n{e}")
+            self.set_status("Prediction Error", badge_color="#b71c1c", text_color="#ff5252")
 
-    def update_ui(self, emotion, confidence, probabilities):
+    def update_ui(self, emotion, confidence, top3_results=None, is_low_confidence=False):
         color = EMOTION_COLORS.get(emotion, "#00e676")
-        emoji = EMOTION_EMOJIS.get(emotion, "🔀")
+        emoji = EMOTION_EMOJIS.get(emotion, "🎧")
 
         self.result_emoji.configure(text=emoji)
         self.result_text.configure(text=emotion.upper(), text_color=color)
-        self.confidence_text.configure(text=f"Confidence: {confidence:.2f}%")
+
+        top_text = " | ".join(
+            [f"{emo}: {score:.2f}%" for emo, score in (top3_results or [])]
+        )
+
+        if is_low_confidence:
+            self.confidence_text.configure(
+                text=f"Confidence: {confidence:.2f}%\nStatus: Low confidence\nTop predictions: {top_text}"
+            )
+        else:
+            self.confidence_text.configure(
+                text=f"Confidence: {confidence:.2f}%\nTop predictions: {top_text}"
+            )
+
         self.progress.configure(progress_color=color)
         self.progress.set(confidence / 100)
 
-        lines = []
+        self.set_status("Prediction Complete")
 
-        for i, cls in enumerate(self.classes):
-            lines.append(f"{cls:<10}: {probabilities[i].item() * 100:.2f}%")
+    def clear_input(self):
+        self.textbox.delete("1.0", "end")
+        self.current_audio = None
+        self.current_audio_path = None
+        self.audio_label.configure(text="No audio selected")
 
-        self.all_probs_label.configure(text="\n".join(lines))
-        self.set_status("Prediction Complete", "#1b5e20", "#69f0ae")
+        self.result_emoji.configure(text="🎧")
+        self.result_text.configure(text="Ready for Fusion Input", text_color="white")
+        self.confidence_text.configure(text="Confidence: --")
+        self.progress.configure(progress_color="#00e676")
+        self.progress.set(0)
 
-    # =========================
-    # REPORT VIEWERS
-    # =========================
+        self.set_status("Model Loaded")
 
-    def format_cell_value(self, value):
-        if pd.isna(value):
+    def safe_value_to_string(self, value):
+        if value is None:
             return ""
+
+        if isinstance(value, (list, tuple)):
+            return ", ".join(map(str, value))
+
+        if isinstance(value, dict):
+            return json.dumps(value, indent=2)
+
+        try:
+            if pd.isna(value):
+                return ""
+        except Exception:
+            pass
 
         try:
             float_val = float(value)
@@ -806,19 +752,7 @@ class FusionEmotionApp:
         except Exception:
             return str(value)
 
-    def show_csv_table(self, title, csv_relative_path, table_type):
-        filepath = os.path.join(self.output_root, csv_relative_path)
-
-        if not os.path.exists(filepath):
-            messagebox.showinfo("Not Found", f"{title} not found at:\n{filepath}")
-            return
-
-        try:
-            df = pd.read_csv(filepath).fillna("")
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to load {csv_relative_path}:\n{e}")
-            return
-
+    def create_table_popup(self, title, df, table_type):
         top = ctk.CTkToplevel(self.root)
         top.title(title)
         top.geometry("950x620")
@@ -827,7 +761,7 @@ class FusionEmotionApp:
         title_label = ctk.CTkLabel(
             top,
             text=title,
-            font=ctk.CTkFont(size=24, weight="bold"),
+            font=ctk.CTkFont(size=24, weight="bold")
         )
         title_label.pack(pady=(20, 10))
 
@@ -842,14 +776,14 @@ class FusionEmotionApp:
             foreground="white",
             rowheight=35,
             fieldbackground="#2b2b2b",
-            font=("Helvetica", 12),
+            font=("Helvetica", 12)
         )
         style.map("Treeview", background=[("selected", "#1f538d")])
         style.configure(
             "Treeview.Heading",
             background="#1f538d",
             foreground="white",
-            font=("Helvetica", 13, "bold"),
+            font=("Helvetica", 13, "bold")
         )
 
         y_scroll = ttk.Scrollbar(table_frame, orient="vertical")
@@ -860,8 +794,9 @@ class FusionEmotionApp:
 
         tree = ttk.Treeview(
             table_frame,
+            style="Treeview",
             yscrollcommand=y_scroll.set,
-            xscrollcommand=x_scroll.set,
+            xscrollcommand=x_scroll.set
         )
         tree.pack(side="left", fill="both", expand=True)
 
@@ -876,14 +811,14 @@ class FusionEmotionApp:
             tree.heading(col, text=str(col))
 
             if table_type == "summary":
-                tree.column(col, anchor="center", width=180)
+                tree.column(col, anchor="w" if col == columns[0] else "center", width=320)
             elif table_type == "classification":
-                tree.column(col, anchor="center", width=140)
+                tree.column(col, anchor="w" if col == columns[0] else "center", width=140)
             else:
                 tree.column(col, anchor="center", width=120)
 
         for _, row in df.iterrows():
-            formatted_row = [self.format_cell_value(val) for val in row]
+            formatted_row = [self.safe_value_to_string(val) for val in row]
             tree.insert("", "end", values=formatted_row)
 
         close_btn = ctk.CTkButton(
@@ -891,105 +826,131 @@ class FusionEmotionApp:
             text="Close",
             command=top.destroy,
             width=150,
-            height=40,
+            height=40
         )
         close_btn.pack(pady=(0, 20))
 
     def show_classification_report(self):
-        self.show_csv_table(
-            "Fusion Classification Report",
-            os.path.join("results", "classification_report.csv"),
-            "classification",
-        )
-
-    def show_confusion_matrix(self):
-        self.show_csv_table(
-            "Fusion Confusion Matrix",
-            os.path.join("results", "confusion_matrix.csv"),
-            "confusion",
-        )
-
-    def show_metrics_summary(self):
-        self.show_csv_table(
-            "Fusion Metrics Summary",
-            os.path.join("results", "summary.csv"),
-            "summary",
-        )
-
-    def show_training_metrics(self):
-        self.show_csv_table(
-            "Fusion Training Metrics",
-            os.path.join("metrics", "training_metrics.csv"),
-            "summary",
-        )
-
-    def show_fusion_metrics_json(self):
-        filepath = os.path.join(self.output_root, "metrics", "fusion_metrics.json")
-
-        if not os.path.exists(filepath):
-            messagebox.showinfo("Not Found", f"fusion_metrics.json not found at:\n{filepath}")
+        if not os.path.exists(self.report_txt):
+            messagebox.showinfo(
+                "Not Found",
+                f"Classification Report not found at:\n{self.report_txt}"
+            )
             return
 
         try:
-            with open(filepath, "r") as f:
-                data = json.load(f)
+            with open(self.report_txt, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+
+            data = []
+            columns = ["Class", "Precision", "Recall", "F1-Score", "Support"]
+
+            for line in lines:
+                parts = line.split()
+
+                if not parts:
+                    continue
+
+                if parts[0] == "precision":
+                    continue
+
+                if len(parts) >= 5 and parts[0] not in ["macro", "weighted", "accuracy"]:
+                    data.append(parts[:5])
+
+                elif len(parts) >= 6 and parts[1] == "avg":
+                    data.append([
+                        f"{parts[0]} {parts[1]}",
+                        parts[2],
+                        parts[3],
+                        parts[4],
+                        parts[5]
+                    ])
+
+                elif len(parts) >= 3 and parts[0] == "accuracy":
+                    data.append([
+                        "accuracy",
+                        "",
+                        "",
+                        parts[1],
+                        parts[2]
+                    ])
+
+            if not data:
+                raise ValueError("Could not parse classification report.")
+
+            df = pd.DataFrame(data, columns=columns)
+            self.create_table_popup("Classification Report", df, "classification")
+
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to load fusion_metrics.json:\n{e}")
+            messagebox.showerror(
+                "Parse Error",
+                f"Failed to load classification report:\n{e}"
+            )
+
+    def show_confusion_matrix(self):
+        if not os.path.exists(self.cm_csv):
+            messagebox.showinfo(
+                "Not Found",
+                f"Confusion Matrix not found at:\n{self.cm_csv}"
+            )
             return
 
-        top = ctk.CTkToplevel(self.root)
-        top.title("Fusion Metrics JSON")
-        top.geometry("900x680")
-        top.transient(self.root)
+        try:
+            df = pd.read_csv(self.cm_csv)
+            df = df.fillna("")
+            self.create_table_popup("Confusion Matrix", df, "confusion")
 
-        title_label = ctk.CTkLabel(
-            top,
-            text="Fusion Metrics JSON",
-            font=ctk.CTkFont(size=24, weight="bold"),
-        )
-        title_label.pack(pady=(20, 10))
+        except Exception as e:
+            messagebox.showerror(
+                "Error",
+                f"Failed to load confusion matrix:\n{e}"
+            )
 
-        text_frame = ctk.CTkFrame(top, corner_radius=10)
-        text_frame.pack(fill="both", expand=True, padx=25, pady=(10, 20))
+    def show_metrics_summary(self):
+        if not os.path.exists(self.metrics_json):
+            messagebox.showinfo(
+                "Not Found",
+                f"Fusion metrics not found at:\n{self.metrics_json}"
+            )
+            return
 
-        textbox = ctk.CTkTextbox(
-            text_frame,
-            font=ctk.CTkFont(family="Consolas", size=13),
-            wrap="none",
-        )
-        textbox.pack(fill="both", expand=True, padx=12, pady=12)
+        try:
+            with open(self.metrics_json, "r", encoding="utf-8") as f:
+                data = json.load(f)
 
-        pretty_json = json.dumps(data, indent=4)
-        textbox.insert("1.0", pretty_json)
-        textbox.configure(state="disabled")
+            rows = []
 
-        close_btn = ctk.CTkButton(
-            top,
-            text="Close",
-            command=top.destroy,
-            width=150,
-            height=40,
-        )
-        close_btn.pack(pady=(0, 20))
+            for key, value in data.items():
+                metric_name = key.replace("_", " ").title()
+                metric_value = self.safe_value_to_string(value)
+                rows.append([metric_name, metric_value])
+
+            df = pd.DataFrame(rows, columns=["Metric", "Value"])
+            self.create_table_popup("Fusion Metrics Summary", df, "summary")
+
+        except Exception as e:
+            messagebox.showerror(
+                "Error",
+                f"Failed to load fusion metrics:\n{e}"
+            )
 
     def show_plots(self):
-        plot_curve = os.path.join(self.output_root, "plots", "training_curve.png")
-        plot_cm = os.path.join(self.output_root, "plots", "confusion_matrix.png")
-        plot_cm_test = os.path.join(self.output_root, "plots", "confusion_matrix_test.png")
-
-        if not os.path.exists(plot_curve) and not os.path.exists(plot_cm) and not os.path.exists(plot_cm_test):
-            messagebox.showinfo("Not Found", "No plots found in the plots/ directory.")
+        if not os.path.exists(self.plot_cm) and not os.path.exists(self.plot_curve):
+            messagebox.showinfo(
+                "Not Found",
+                "No plots found in the fusion_pipeline plots directory."
+            )
             return
 
         top = ctk.CTkToplevel(self.root)
         top.title("Fusion Plots")
-        top.geometry("1000x800")
+        top.geometry("1050x820")
         top.transient(self.root)
 
         title_label = ctk.CTkLabel(
             top,
-            text="Fusion Training & Evaluation Plots",
-            font=ctk.CTkFont(size=24, weight="bold"),
+            text="Fusion Dataset & Evaluation Plots",
+            font=ctk.CTkFont(size=24, weight="bold")
         )
         title_label.pack(pady=(20, 10))
 
@@ -997,26 +958,23 @@ class FusionEmotionApp:
         scroll_frame.pack(fill="both", expand=True, padx=20, pady=10)
 
         def add_image(frame, title, path):
-            if not os.path.exists(path):
-                return
-
             lbl_title = ctk.CTkLabel(
                 frame,
                 text=title,
-                font=ctk.CTkFont(size=18, weight="bold"),
+                font=ctk.CTkFont(size=18, weight="bold")
             )
             lbl_title.pack(pady=(30, 10))
 
             try:
                 img = Image.open(path)
                 w, h = img.size
-                ratio = 850 / w if w > 850 else 1
+                ratio = 900 / w if w > 900 else 1
                 new_size = (int(w * ratio), int(h * ratio))
 
                 ctk_img = ctk.CTkImage(
                     light_image=img,
                     dark_image=img,
-                    size=new_size,
+                    size=new_size
                 )
 
                 img_lbl = ctk.CTkLabel(frame, text="", image=ctk_img)
@@ -1027,97 +985,80 @@ class FusionEmotionApp:
                 err_lbl = ctk.CTkLabel(
                     frame,
                     text=f"Error loading image: {e}",
-                    text_color="red",
+                    text_color="red"
                 )
                 err_lbl.pack()
 
-        add_image(scroll_frame, "Training Curve", plot_curve)
-        add_image(scroll_frame, "Confusion Matrix", plot_cm)
-        add_image(scroll_frame, "Confusion Matrix Test", plot_cm_test)
+        if os.path.exists(self.plot_curve):
+            add_image(scroll_frame, "Training Curve", self.plot_curve)
+
+        if os.path.exists(self.plot_cm):
+            add_image(scroll_frame, "Confusion Matrix", self.plot_cm)
 
         close_btn = ctk.CTkButton(
             top,
             text="Close",
             command=top.destroy,
             width=150,
-            height=40,
+            height=40
         )
         close_btn.pack(pady=(20, 20))
 
 
 # =========================
-# CLI PREDICTION
+# CLI PREDICTION SUPPORT
 # =========================
 
 def predict_cli(audio_path, text):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
     base_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(base_dir, "..", ".."))
     models_dir = os.path.join(base_dir, "saved_models")
+
     model_path = os.path.join(models_dir, "best_model.pth")
     config_path = os.path.join(models_dir, "model_config.json")
 
-    if not os.path.exists(model_path):
-        print(f"Model file not found:\n{model_path}")
-        return
-
-    if not os.path.exists(audio_path):
-        print(f"Audio file not found:\n{audio_path}")
-        return
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     classes = DEFAULT_CLASS_NAMES
-    sr = DEFAULT_SR
-    duration = DEFAULT_DURATION
     max_text_len = DEFAULT_MAX_TEXT_LEN
     text_model_name = DEFAULT_TEXT_MODEL
 
     if os.path.exists(config_path):
-        with open(config_path, "r") as f:
+        with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
 
-        classes = config.get("classes") or config.get("emotions") or DEFAULT_CLASS_NAMES
-        sr = config.get("sr", DEFAULT_SR)
-        duration = config.get("duration", DEFAULT_DURATION)
-        max_text_len = config.get("max_text_len", DEFAULT_MAX_TEXT_LEN)
+        classes = config.get("classes", DEFAULT_CLASS_NAMES)
+        max_text_len = int(config.get("max_text_len", DEFAULT_MAX_TEXT_LEN))
 
-        text_model_name = (
-            config.get("model_text")
-            or config.get("text_model_name")
-            or config.get("model_text_name")
-            or config.get("text_branch")
-            or DEFAULT_TEXT_MODEL
-        )
+        text_branch = config.get("text_branch", DEFAULT_TEXT_MODEL)
+        if isinstance(text_branch, str) and "distilbert" in text_branch.lower():
+            text_model_name = text_branch
 
-        if text_model_name != DEFAULT_TEXT_MODEL and "distilbert" not in text_model_name.lower():
-            text_model_name = DEFAULT_TEXT_MODEL
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model not found: {model_path}")
 
-    max_audio_len = sr * duration
-
-    tokenizer = AutoTokenizer.from_pretrained(models_dir)
+    if os.path.exists(os.path.join(models_dir, "tokenizer_config.json")):
+        tokenizer = AutoTokenizer.from_pretrained(models_dir)
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(text_model_name)
 
     model = LightweightFusionModel(
         num_classes=len(classes),
-        model_text_name=text_model_name,
-    ).to(device)
-
-    model.load_state_dict(torch.load(model_path, map_location=device))
-    model.eval()
-
-    audio_np, _ = librosa.load(audio_path, sr=sr, mono=True)
-
-    audio_np = preprocess_audio_array(
-        audio_np,
-        sr=sr,
-        max_audio_len=max_audio_len,
+        model_text_name=text_model_name
     )
 
-    speech_features = extract_audio_features(audio_np, sr=sr)
-    speech_features = torch.tensor(
-        speech_features,
-        dtype=torch.float32,
-    ).unsqueeze(0).to(device)
+    checkpoint = torch.load(model_path, map_location=device)
+    model.load_state_dict(checkpoint)
+    model.to(device)
+    model.eval()
 
-    text_inputs = tokenizer(
+    audio, _ = librosa.load(audio_path, sr=DEFAULT_SR)
+    audio = preprocess_audio_array(audio, sr=DEFAULT_SR, max_audio_len=DEFAULT_SR * DEFAULT_DURATION)
+    features = extract_audio_features(audio, sr=DEFAULT_SR)
+
+    speech_features = torch.tensor(features, dtype=torch.float32).unsqueeze(0).to(device)
+
+    encoded = tokenizer(
         text,
         max_length=max_text_len,
         padding="max_length",
@@ -1125,28 +1066,29 @@ def predict_cli(audio_path, text):
         return_tensors="pt",
     )
 
-    input_ids = text_inputs["input_ids"].to(device)
-    attention_mask = text_inputs["attention_mask"].to(device)
+    input_ids = encoded["input_ids"].to(device)
+    attention_mask = encoded["attention_mask"].to(device)
 
     with torch.no_grad():
         logits = model(speech_features, input_ids, attention_mask)
-        probabilities = torch.softmax(logits, dim=1).squeeze(0)
+        probs = torch.softmax(logits, dim=1)
 
-    pred_idx = torch.argmax(probabilities).item()
-    pred_emotion = classes[pred_idx]
-    confidence = probabilities[pred_idx].item() * 100
+    top_probs, top_indices = torch.topk(probs, k=3, dim=1)
 
-    print(f"\nPredicted Emotion: {pred_emotion.upper()}")
-    print(f"Confidence Score: {confidence:.2f}%")
-    print("\nConfidence for all classes:")
+    print("\nFusion Prediction")
+    print("-----------------")
 
-    for i, cls in enumerate(classes):
-        print(f"{cls}: {probabilities[i].item() * 100:.2f}%")
+    for i in range(3):
+        emotion = classes[top_indices[0][i].item()]
+        score = top_probs[0][i].item() * 100
+        print(f"{i + 1}. {emotion}: {score:.2f}%")
 
+    prediction = classes[top_indices[0][0].item()]
+    confidence = top_probs[0][0].item() * 100
 
-# =========================
-# MAIN
-# =========================
+    print(f"\nFinal Prediction: {prediction.upper()}")
+    print(f"Confidence: {confidence:.2f}%")
+
 
 if __name__ == "__main__":
     if len(sys.argv) >= 3:

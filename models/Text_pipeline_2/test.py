@@ -24,12 +24,11 @@ ctk.set_default_color_theme("blue")
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
 
-OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "results", "text_pipeline")
+OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "results", "text_pipeline_2")
 
 MODEL_PATH = os.path.join(PIPELINE_DIR, "saved_models", "text_emotion_model.pth")
 CONFIG_PATH = os.path.join(PIPELINE_DIR, "saved_models", "model_config.json")
 
-# FIXED PATHS
 REPORT_TXT = os.path.join(OUTPUT_ROOT, "metrics", "classification_report.txt")
 CM_CSV = os.path.join(OUTPUT_ROOT, "metrics", "confusion_matrix.csv")
 METRICS_JSON = os.path.join(OUTPUT_ROOT, "metrics", "text_metrics.json")
@@ -49,8 +48,7 @@ EMOTION_COLORS = {
     "happiness": "#ffee58",
     "neutral": "#90a4ae",
     "sadness": "#42a5f5",
-    "surprise": "#ffa726",
-    "uncertain": "#bdbdbd"
+    "surprise": "#ffa726"
 }
 
 EMOTION_EMOJIS = {
@@ -60,8 +58,7 @@ EMOTION_EMOJIS = {
     "happiness": "😄",
     "neutral": "😐",
     "sadness": "😢",
-    "surprise": "😲",
-    "uncertain": "❓"
+    "surprise": "😲"
 }
 
 
@@ -409,35 +406,33 @@ class TextEmotionApp:
             second_confidence = top3_results[1][1]
             confidence_gap = confidence - second_confidence
 
-            if confidence < 50 or confidence_gap < 8:
-                display_prediction = "uncertain"
-            else:
-                display_prediction = prediction
+            is_low_confidence = confidence < 60 or confidence_gap < 10
 
-            self.update_ui(display_prediction, confidence, top3_results)
+            self.update_ui(
+                prediction,
+                confidence,
+                top3_results,
+                is_low_confidence
+            )
 
         except Exception as e:
             messagebox.showerror("Prediction Error", f"Failed to predict:\n{e}")
             self.set_status("Prediction Error", badge_color="#b71c1c", text_color="#ff5252")
 
-    def update_ui(self, emotion, confidence, top3_results=None):
+    def update_ui(self, emotion, confidence, top3_results=None, is_low_confidence=False):
         color = EMOTION_COLORS.get(emotion, "#00e676")
         emoji = EMOTION_EMOJIS.get(emotion, "💬")
 
         self.result_emoji.configure(text=emoji)
-
-        if emotion == "uncertain":
-            self.result_text.configure(text="UNCERTAIN", text_color=color)
-        else:
-            self.result_text.configure(text=emotion.upper(), text_color=color)
+        self.result_text.configure(text=emotion.upper(), text_color=color)
 
         top_text = " | ".join(
             [f"{emo}: {score:.2f}%" for emo, score in (top3_results or [])]
         )
 
-        if emotion == "uncertain":
+        if is_low_confidence:
             self.confidence_text.configure(
-                text=f"Low confidence: {confidence:.2f}%\nTop predictions: {top_text}"
+                text=f"Confidence: {confidence:.2f}%\nStatus: Low confidence\nTop predictions: {top_text}"
             )
         else:
             self.confidence_text.configure(

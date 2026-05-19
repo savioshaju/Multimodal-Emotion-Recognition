@@ -1,0 +1,3 @@
+missing_video_path,split,dialogue_id,utterance_id,raw_emotion,reason
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset1\train\train_splits\dia125_utt3.mp4,train,125,3,neutral,
+D:\Savio Shaju\Multimodal Emotion Recognition\dataset1\dev\dev_splits_complete\dia110_utt7.mp4,dev,110,7,neutral,video_not_found

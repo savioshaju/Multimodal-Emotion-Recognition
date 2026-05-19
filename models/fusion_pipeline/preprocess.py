@@ -6,9 +6,7 @@ import pandas as pd
 import librosa
 from tqdm import tqdm
 
-# =========================
-# PATH CONFIGURATION
-# =========================
+# Resolve project paths
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
@@ -17,9 +15,7 @@ DATASET_PATH = os.path.join(PROJECT_ROOT, "dataset")
 METADATA_PATH = os.path.join(PIPELINE_DIR, "metadata.csv")
 PROCESSED_DIR = os.path.join(PIPELINE_DIR, "processed_data")
 
-# =========================
-# AUDIO CONFIGURATION
-# =========================
+# Configure audio settings
 
 SR = 16000
 DURATION = 3
@@ -27,9 +23,7 @@ MAX_LEN = SR * DURATION
 N_MELS = 128
 N_MFCC = 40
 
-# =========================
-# EMOTION MAPPING
-# =========================
+# Map raw labels to standard emotion names
 
 EMOTION_MAP = {
     "angry": "anger",
@@ -55,10 +49,7 @@ CLASS_NAMES = [
     "surprise",
 ]
 
-
-# =========================
-# UTILITY FUNCTIONS
-# =========================
+# Utility functions
 
 def reset_outputs():
     if os.path.exists(METADATA_PATH):
@@ -69,10 +60,8 @@ def reset_outputs():
 
     os.makedirs(PROCESSED_DIR, exist_ok=True)
 
-
 def normalize_feature(x):
     return (x - x.mean()) / (x.std() + 1e-8)
-
 
 def get_emotion_from_folder(folder_name):
     folder_lower = folder_name.lower()
@@ -87,17 +76,8 @@ def get_emotion_from_folder(folder_name):
 
     return speaker_id, raw_emotion, emotion
 
-
 def extract_text_from_filename(filename):
-    """
-    TESS filename examples:
-    OAF_back_angry.wav
-    YAF_ditch_ps.wav
-
-    Extracted text:
-    back
-    ditch
-    """
+    """Extract transcript text from TESS filename."""
 
     name = os.path.splitext(filename)[0]
     parts = name.split("_")
@@ -119,7 +99,6 @@ def extract_text_from_filename(filename):
 
     return text
 
-
 def preprocess_audio(file_path):
     audio, _ = librosa.load(file_path, sr=SR)
     audio, _ = librosa.effects.trim(audio, top_db=30)
@@ -132,7 +111,6 @@ def preprocess_audio(file_path):
     audio = librosa.util.normalize(audio)
 
     return audio.astype(np.float32)
-
 
 def extract_audio_features(audio):
     mel = librosa.feature.melspectrogram(
@@ -171,10 +149,7 @@ def extract_audio_features(audio):
 
     return features.astype(np.float32)
 
-
-# =========================
-# MAIN PREPROCESSING
-# =========================
+# Main preprocessing logic
 
 def main():
     print(f"Scanning dataset at: {DATASET_PATH}")
@@ -267,7 +242,6 @@ def main():
 
     print(f"\nMetadata saved to: {METADATA_PATH}")
     print(f"Processed features saved to: {PROCESSED_DIR}")
-
 
 if __name__ == "__main__":
     main()

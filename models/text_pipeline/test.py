@@ -26,12 +26,11 @@ PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
 
 OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "results", "text_pipeline")
 
-MODEL_PATH = os.path.join(PIPELINE_DIR, "saved_models", "text_emotion_model.pth")
+MODEL_PATH = os.path.join(PIPELINE_DIR, "saved_models", "best_model.pth")
 CONFIG_PATH = os.path.join(PIPELINE_DIR, "saved_models", "model_config.json")
 
-# FIXED PATHS
-REPORT_TXT = os.path.join(OUTPUT_ROOT, "metrics", "classification_report.txt")
-CM_CSV = os.path.join(OUTPUT_ROOT, "metrics", "confusion_matrix.csv")
+REPORT_TXT = os.path.join(OUTPUT_ROOT, "results", "classification_report.txt")
+CM_CSV = os.path.join(OUTPUT_ROOT, "results", "confusion_matrix.csv")
 METRICS_JSON = os.path.join(OUTPUT_ROOT, "metrics", "text_metrics.json")
 
 PLOT_CM = os.path.join(OUTPUT_ROOT, "plots", "confusion_matrix.png")
@@ -49,8 +48,7 @@ EMOTION_COLORS = {
     "happiness": "#ffee58",
     "neutral": "#90a4ae",
     "sadness": "#42a5f5",
-    "surprise": "#ffa726",
-    "uncertain": "#bdbdbd"
+    "surprise": "#ffa726"
 }
 
 EMOTION_EMOJIS = {
@@ -60,8 +58,7 @@ EMOTION_EMOJIS = {
     "happiness": "😄",
     "neutral": "😐",
     "sadness": "😢",
-    "surprise": "😲",
-    "uncertain": "❓"
+    "surprise": "😲"
 }
 
 
@@ -77,15 +74,19 @@ def clean_text(text):
 
 
 # =========================
-# MODEL CLASS
+# MODEL ARCHITECTURE
+# IMPORTANT:
+# This matches your training code:
+# self.bert = AutoModel.from_pretrained(model_name)
+# CLS token pooling
 # =========================
 
 class TextEmotionModel(nn.Module):
     def __init__(self, model_name, num_classes, dropout_rate=0.30):
         super().__init__()
 
-        self.encoder = AutoModel.from_pretrained(model_name)
-        hidden_size = self.encoder.config.hidden_size
+        self.bert = AutoModel.from_pretrained(model_name)
+        hidden_size = self.bert.config.hidden_size
 
         self.classifier = nn.Sequential(
             nn.Dropout(dropout_rate),
@@ -95,24 +96,15 @@ class TextEmotionModel(nn.Module):
             nn.Linear(256, num_classes)
         )
 
-    def mean_pooling(self, last_hidden_state, attention_mask):
-        mask = attention_mask.unsqueeze(-1).float()
-        summed = torch.sum(last_hidden_state * mask, dim=1)
-        counts = torch.clamp(mask.sum(dim=1), min=1e-9)
-        return summed / counts
-
     def forward(self, input_ids, attention_mask):
-        outputs = self.encoder(
+        outputs = self.bert(
             input_ids=input_ids,
             attention_mask=attention_mask
         )
 
-        pooled_output = self.mean_pooling(
-            outputs.last_hidden_state,
-            attention_mask
-        )
+        cls_output = outputs.last_hidden_state[:, 0, :]
+        logits = self.classifier(cls_output)
 
-        logits = self.classifier(pooled_output)
         return logits
 
 
@@ -321,15 +313,28 @@ class TextEmotionApp:
             with open(CONFIG_PATH, "r", encoding="utf-8") as f:
                 self.config = json.load(f)
 
-            self.model_name = self.config.get("model_name", "roberta-base")
+            self.model_name = self.config.get("model_name", "distilbert-base-uncased")
+
             self.class_names = self.config.get(
                 "classes",
                 ["anger", "disgust", "fear", "happiness", "neutral", "sadness", "surprise"]
             )
-            self.max_length = int(self.config.get("max_length", 96))
+
+            self.max_length = int(
+                self.config.get(
+                    "max_len",
+                    self.config.get("max_length", 32)
+                )
+            )
+
             dropout_rate = float(self.config.get("dropout_rate", 0.30))
 
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+            tokenizer_path = os.path.join(PIPELINE_DIR, "saved_models")
+
+            if os.path.exists(os.path.join(tokenizer_path, "tokenizer_config.json")):
+                self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
+            else:
+                self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
 
             self.model = TextEmotionModel(
                 self.model_name,
@@ -384,6 +389,7 @@ class TextEmotionApp:
                 max_length=self.max_length,
                 padding="max_length",
                 truncation=True,
+                return_attention_mask=True,
                 return_tensors="pt"
             )
 
@@ -409,35 +415,33 @@ class TextEmotionApp:
             second_confidence = top3_results[1][1]
             confidence_gap = confidence - second_confidence
 
-            if confidence < 50 or confidence_gap < 8:
-                display_prediction = "uncertain"
-            else:
-                display_prediction = prediction
+            is_low_confidence = confidence < 60 or confidence_gap < 10
 
-            self.update_ui(display_prediction, confidence, top3_results)
+            self.update_ui(
+                prediction,
+                confidence,
+                top3_results,
+                is_low_confidence
+            )
 
         except Exception as e:
             messagebox.showerror("Prediction Error", f"Failed to predict:\n{e}")
             self.set_status("Prediction Error", badge_color="#b71c1c", text_color="#ff5252")
 
-    def update_ui(self, emotion, confidence, top3_results=None):
+    def update_ui(self, emotion, confidence, top3_results=None, is_low_confidence=False):
         color = EMOTION_COLORS.get(emotion, "#00e676")
         emoji = EMOTION_EMOJIS.get(emotion, "💬")
 
         self.result_emoji.configure(text=emoji)
-
-        if emotion == "uncertain":
-            self.result_text.configure(text="UNCERTAIN", text_color=color)
-        else:
-            self.result_text.configure(text=emotion.upper(), text_color=color)
+        self.result_text.configure(text=emotion.upper(), text_color=color)
 
         top_text = " | ".join(
             [f"{emo}: {score:.2f}%" for emo, score in (top3_results or [])]
         )
 
-        if emotion == "uncertain":
+        if is_low_confidence:
             self.confidence_text.configure(
-                text=f"Low confidence: {confidence:.2f}%\nTop predictions: {top_text}"
+                text=f"Confidence: {confidence:.2f}%\nStatus: Low confidence\nTop predictions: {top_text}"
             )
         else:
             self.confidence_text.configure(

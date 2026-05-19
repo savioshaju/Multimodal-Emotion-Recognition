@@ -1,0 +1,33 @@
+{
+    "dataset": "MELD",
+    "architecture": "CNN + BiLSTM + Attention speech branch + DistilBERT text branch + Concatenation + MLP",
+    "speech_branch": "Mel Spectrogram + Delta + MFCC -> CNN -> BiLSTM -> Attention",
+    "text_branch": "distilbert-base-uncased",
+    "fusion_method": "Concatenation",
+    "best_epoch": 6,
+    "best_validation_macro_f1": 0.40500300627515884,
+    "test_accuracy": 0.5950191570881226,
+    "test_uar": 0.42226530763341186,
+    "test_macro_f1": 0.4135579890870379,
+    "test_weighted_f1": 0.5991216422403307,
+    "classes": [
+        "anger",
+        "disgust",
+        "fear",
+        "happiness",
+        "neutral",
+        "sadness",
+        "surprise"
+    ],
+    "split_strategy": "official MELD train/dev/test split",
+    "max_text_len": 64,
+    "batch_size": 8,
+    "speech_learning_rate": 0.0001,
+    "text_learning_rate": 1e-05,
+    "head_learning_rate": 2e-05,
+    "class_weighted_loss": true,
+    "weighted_sampler": false,
+    "freeze_text_encoder_epochs": 1,
+    "seed": 42,
+    "note": "MELD fusion model using class-weighted loss instead of weighted sampling."
+}

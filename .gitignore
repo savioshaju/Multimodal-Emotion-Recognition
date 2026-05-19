@@ -6,10 +6,10 @@ checkpoints/
 logs/
 cache/
 processed_dataset/
-models/speech_pipeline/processed_data
+processed_data
 .idea/
 .vscode/
-dataset/
+dataset*
 models/text_pipeline/saved_models/best_model.pth
 models/fusion_pipeline/saved_models/best_model.pth
 best_model.pth

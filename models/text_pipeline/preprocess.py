@@ -2,9 +2,7 @@ import os
 import pandas as pd
 from tqdm import tqdm
 
-# =========================
-# PATH CONFIGURATION
-# =========================
+# Resolve project paths
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
@@ -28,7 +26,6 @@ EMOTION_MAP = {
 
 CLASS_NAMES = ["anger", "disgust", "fear", "happiness", "neutral", "sadness", "surprise"]
 
-
 def get_emotion_from_folder(folder):
     folder_lower = folder.lower()
     parts = folder_lower.split("_")
@@ -39,18 +36,8 @@ def get_emotion_from_folder(folder):
     emotion = EMOTION_MAP.get(raw_emotion, None)
     return speaker_id, raw_emotion, emotion
 
-
 def extract_text_from_filename(filename):
-    """
-    TESS filenames are usually like:
-    OAF_back_angry.wav
-    YAF_ditch_ps.wav
-
-    Here:
-    speaker = OAF/YAF
-    text/transcript word = back/ditch/etc.
-    emotion = angry/ps/etc.
-    """
+    """Extract transcript text from TESS filename."""
 
     name = os.path.splitext(filename)[0]
     parts = name.split("_")
@@ -58,7 +45,6 @@ def extract_text_from_filename(filename):
     if len(parts) < 3:
         return None
 
-    # Remove speaker prefix and emotion suffix
     text_parts = parts[1:-1]
 
     if len(text_parts) == 0:
@@ -69,7 +55,6 @@ def extract_text_from_filename(filename):
     text = text.lower().strip()
 
     return text
-
 
 def main():
     if not os.path.exists(DATASET_PATH):
@@ -152,7 +137,6 @@ def main():
             print(item)
 
     print(f"\nMetadata Saved -> {METADATA_PATH}")
-
 
 if __name__ == "__main__":
     main()

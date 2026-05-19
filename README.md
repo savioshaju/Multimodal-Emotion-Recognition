@@ -11,14 +11,16 @@ The dataset utilized is the **Toronto Emotional Speech Set (TESS)**. The core ob
 4. [Overall Architecture](#overall-architecture)
 5. [Complete Project Folder Structure](#complete-project-folder-structure)
 6. [Speech Emotion Recognition Pipeline](#speech-emotion-recognition-pipeline)
-7. [Text Emotion Recognition Pipeline](#text-emotion-recognition-pipeline)
-8. [Multimodal Fusion Emotion Recognition Pipeline](#multimodal-fusion-emotion-recognition-pipeline)
-9. [Final Comparison Table](#final-comparison-table)
-10. [Result Visualizations](#result-visualizations)
-11. [Evaluation Metrics](#evaluation-metrics)
-12. [Limitations](#limitations)
-13. [Future Improvements](#future-improvements)
-14. [Conclusion](#conclusion)
+7. [Text Emotion Recognition Pipeline (TESS)](#text-emotion-recognition-pipeline)
+8. [Text Emotion Recognition Pipeline (DailyDialog)](#text-emotion-recognition-pipeline-dailydialog)
+9. [Multimodal Fusion Pipeline (TESS)](#multimodal-fusion-pipeline-tess)
+10. [Multimodal Fusion Pipeline (MELD)](#multimodal-fusion-pipeline-meld)
+11. [Final Comparison Table](#final-comparison-table)
+12. [Result Visualizations](#result-visualizations)
+13. [Evaluation Metrics](#evaluation-metrics)
+14. [Limitations](#limitations)
+15. [Future Improvements](#future-improvements)
+16. [Conclusion](#conclusion)
 
 ---
 
@@ -119,16 +121,29 @@ The project fundamentally compares speech, text, and fusion methods to isolate w
 
 ---
 
-## Dataset — TESS
+## Datasets Used
 
-The primary dataset is the **Toronto Emotional Speech Set (TESS)**.
-- It contains acted emotional speech recordings.
-- It features two female speakers: OAF and YAF.
-- Audio files are organized precisely by speaker and emotion folders.
-- Emotion labels are extracted programmatically from the parent folder names.
-- Transcript text is extracted by parsing the raw audio filenames (e.g., `OAF_back_angry.wav` extracts the word `back`).
+This project utilizes three distinct datasets to evaluate the models across different modalities and conditions.
 
-**Important Note on Modality Strength**: TESS is incredibly strong for speech emotion recognition because the actors clearly vocally project the emotions. However, TESS is inherently weak for text emotion recognition because the spoken words are emotionally neutral target words (such as "bar", "ditch", "jar") that repeat identically across every emotional state.
+### 1. Toronto Emotional Speech Set (TESS)
+- **Primary Use:** Speech Pipeline, Text Pipeline (baseline), Fusion Pipeline (baseline)
+- **Characteristics:** Acted emotional speech recordings.
+- **Speakers:** Two female speakers (OAF and YAF).
+- **Structure:** Audio files organized by speaker and emotion folders.
+- **Text Extraction:** Transcript text is extracted by parsing the raw audio filenames (e.g., `OAF_back_angry.wav` extracts the word `back`).
+- **Important Note:** TESS is incredibly strong for speech emotion recognition because the actors project emotions clearly. However, TESS is inherently weak for text/fusion evaluation because the spoken words are emotionally neutral target words (such as "bar", "ditch", "jar") that repeat identically across every emotional state.
+
+### 2. DailyDialog
+- **Primary Use:** Text Pipeline 2 (Real conversational text evaluation)
+- **Characteristics:** Human-written multi-turn dialogues reflecting daily communication.
+- **Structure:** Text grouped by `dialogue_id` with corresponding emotion labels.
+- **Important Note:** This dataset provides realistic semantic emotion data, avoiding the label-conflict issue found in TESS text.
+
+### 3. Multimodal EmotionLines Dataset (MELD)
+- **Primary Use:** Multimodal Fusion Pipeline MELD (Real-world fusion evaluation)
+- **Characteristics:** Multimodal dataset containing audio and text from the TV show Friends.
+- **Structure:** Pre-split into Train, Dev, and Test sets.
+- **Important Note:** MELD provides a realistic environment for multimodal fusion, featuring multiple speakers, background noise, spontaneous speech, and semantically rich transcripts.
 
 ### TESS Folder Structure
 ```text
@@ -211,7 +226,14 @@ Multimodal Emotion Recognition/
 │   │       ├── special_tokens_map.json
 │   │       └── vocab.txt
 │   │
-│   └── fusion_pipeline/
+│   ├── Text_pipeline_2/
+│   │   ├── preprocess.py
+│   │   ├── train.py
+│   │   ├── data/
+│   │   ├── processed_data/
+│   │   └── saved_models/
+│   │
+│   ├── fusion_pipeline/
 │       ├── preprocess.py
 │       ├── train.py
 │       ├── test.py
@@ -226,6 +248,12 @@ Multimodal Emotion Recognition/
 │           ├── tokenizer.json
 │           ├── special_tokens_map.json
 │           └── vocab.txt
+│   │
+│   └── fusion_pipeline_MELD/
+│       ├── preprocess.py
+│       ├── train.py
+│       ├── processed_data/
+│       └── saved_models/
 │
 ├── results/
 │   ├── speech_pipeline/
@@ -252,7 +280,12 @@ Multimodal Emotion Recognition/
 │   │       ├── confusion_matrix.csv
 │   │       └── summary.csv
 │   │
-│   └── fusion_pipeline/
+│   ├── text_pipeline_2/
+│   │   ├── metrics/
+│   │   ├── plots/
+│   │   └── results/
+│   │
+│   ├── fusion_pipeline/
 │       ├── metrics/
 │       │   ├── fusion_metrics.json
 │       │   └── training_metrics.csv
@@ -265,6 +298,11 @@ Multimodal Emotion Recognition/
 │           ├── classification_report.txt
 │           ├── confusion_matrix.csv
 │           └── summary.csv
+│   │
+│   └── fusion_pipeline_MELD/
+│       ├── metrics/
+│       ├── plots/
+│       └── results/
 │
 └── README.md
 ```
@@ -954,11 +992,13 @@ On datasets with meaningful text transcripts (e.g., customer reviews, social med
 
 ## Final Comparison
 
-| Pipeline | Input | Architecture | Accuracy | UAR | Macro F1 | Main Inference |
-|---|---|---|---:|---:|---:|---|
-| Speech Pipeline | Audio (16 kHz) | CNN + BiLSTM + Attention (Mel Spectrogram + Delta + MFCC) | 99.89% | 99.89% | 99.89% | Acoustic features are highly discriminative for TESS. Clean, acted recordings with clear emotional vocal cues enable near-perfect classification. |
-| Text Pipeline | Text (TESS filename words) | DistilBERT Transformer | 14.93% | 14.93% | 7.29% | Text-only emotion recognition fails on TESS because extracted words are emotionally neutral and identical across all emotion classes. Performance is near random chance (14.28%), demonstrating that TESS is fundamentally an audio emotion dataset. |
-| Fusion Pipeline | Audio + Text | CNN-BiLSTM-Attention (speech) + DistilBERT (text) + Concatenation | 94.74% | 94.74% | 94.67% | Fusion performs well but remains dominated by the speech branch because TESS text is inherently weak. On datasets with meaningful text and diverse speakers, multimodal fusion would provide more balanced benefits. |
+| Pipeline | Dataset | Input | Architecture | Accuracy | UAR | Macro F1 | Main Inference |
+|---|---|---|---|---:|---:|---:|---|
+| Speech Pipeline | TESS | Audio | CNN + BiLSTM + Attention | 99.89% | 99.89% | 99.89% | Acoustic features are highly discriminative for TESS. Clean, acted recordings with clear emotional vocal cues enable near-perfect classification. |
+| Text Pipeline | TESS | Text (words) | DistilBERT | 14.93% | 14.93% | 7.29% | Text-only emotion recognition fails on TESS because extracted words are emotionally neutral. Proves TESS is fundamentally an audio emotion dataset. |
+| Text Pipeline 2 | DailyDialog | Text (dialogue) | RoBERTa | 77.34% | 59.31% | 46.49% | Validates text architecture on real conversational data. Shows realistic baseline for NLP emotion recognition on imbalanced classes. |
+| Fusion Pipeline | TESS | Audio + Text | CNN-BiLSTM-Attention + DistilBERT | 94.74% | 94.74% | 94.67% | Fusion performs well but is lower than speech alone because TESS text is noisy/neutral. |
+| Fusion Pipeline MELD | MELD | Audio + Text | CNN-BiLSTM-Attention + DistilBERT | (TBD) | (TBD) | (TBD) | Designed for true multimodal fusion on real-world conversational data. Metrics to be evaluated. |
 
 ---
 

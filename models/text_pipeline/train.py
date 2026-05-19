@@ -24,10 +24,7 @@ from sklearn.metrics import (
 
 from transformers import AutoTokenizer, AutoModel
 
-
-# =========================
-# PATH CONFIGURATION
-# =========================
+# Resolve project paths
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
@@ -43,10 +40,7 @@ RESULTS_DIR = os.path.join(OUTPUT_ROOT, "results")
 for d in [MODELS_DIR, METRICS_DIR, PLOTS_DIR, RESULTS_DIR]:
     os.makedirs(d, exist_ok=True)
 
-
-# =========================
-# CONFIGURATION
-# =========================
+# Model configuration
 
 BATCH_SIZE = 16
 EPOCHS = 20
@@ -71,10 +65,7 @@ CLASS_NAMES = [
     "surprise"
 ]
 
-
-# =========================
-# SEED SETUP
-# =========================
+# Set random seeds
 
 torch.manual_seed(SEED)
 np.random.seed(SEED)
@@ -83,10 +74,7 @@ random.seed(SEED)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(SEED)
 
-
-# =========================
-# DATASET CLASS
-# =========================
+# Dataset definition
 
 class TextEmotionDataset(Dataset):
     def __init__(self, df, encoder, tokenizer, max_len=MAX_LEN):
@@ -125,10 +113,7 @@ class TextEmotionDataset(Dataset):
             "label": torch.tensor(label, dtype=torch.long)
         }
 
-
-# =========================
-# MODEL
-# =========================
+# Model architecture
 
 class TextEmotionModel(nn.Module):
     def __init__(self, num_classes, model_name=MODEL_NAME):
@@ -151,17 +136,13 @@ class TextEmotionModel(nn.Module):
             attention_mask=attention_mask
         )
 
-        # DistilBERT has no pooler output.
-        # Use CLS token representation.
+        # Use CLS token representation
         cls_output = outputs.last_hidden_state[:, 0, :]
 
         logits = self.classifier(cls_output)
         return logits
 
-
-# =========================
-# SPLIT FUNCTION
-# =========================
+# Build train, validation, and test splits
 
 def build_training_data(df):
     df["speaker_id"] = df["speaker_id"].str.lower()
@@ -229,10 +210,7 @@ def build_training_data(df):
 
     return train_df, val_df, test_df
 
-
-# =========================
-# EVALUATION
-# =========================
+# Evaluation helpers
 
 def evaluate(model, loader, device):
     model.eval()
@@ -258,10 +236,7 @@ def evaluate(model, loader, device):
 
     return accuracy, uar, f1, actuals, predictions
 
-
-# =========================
-# PLOTS
-# =========================
+# Plotting functions
 
 def save_curves(history):
     plt.figure(figsize=(8, 5))
@@ -275,10 +250,7 @@ def save_curves(history):
     plt.savefig(os.path.join(PLOTS_DIR, "training_curve.png"))
     plt.close()
 
-
-# =========================
-# MAIN TRAINING
-# =========================
+# Main training loop
 
 def main():
     if not os.path.exists(METADATA_PATH):
@@ -536,7 +508,6 @@ def main():
     save_curves(history)
 
     print("\nAll Text Pipeline Outputs Saved Successfully")
-
 
 if __name__ == "__main__":
     main()

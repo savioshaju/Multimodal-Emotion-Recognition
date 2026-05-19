@@ -17,10 +17,7 @@ try:
 except Exception:
     sd = None
 
-
-# =========================
-# UI CONFIGURATION
-# =========================
+# UI configuration
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -47,10 +44,7 @@ EMOTION_EMOJIS = {
     "uncertain": "❓"
 }
 
-
-# =========================
-# PATH CONFIGURATION
-# =========================
+# Resolve project paths
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
@@ -60,10 +54,7 @@ CONFIG_PATH = os.path.join(PIPELINE_DIR, "saved_models", "model_config.json")
 
 OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "results", "speech_pipeline")
 
-
-# =========================
-# AUDIO / FEATURE CONFIGURATION
-# =========================
+# Configure audio settings
 
 SR = 16000
 DURATION = 3
@@ -81,10 +72,7 @@ CLASS_NAMES = [
     "surprise"
 ]
 
-
-# =========================
-# FEATURE EXTRACTION
-# =========================
+# Extract acoustic features
 
 def preprocess_audio_array(audio, fs=SR, max_len=MAX_LEN):
     audio = np.asarray(audio, dtype=np.float32)
@@ -103,10 +91,8 @@ def preprocess_audio_array(audio, fs=SR, max_len=MAX_LEN):
 
     return audio.astype(np.float32)
 
-
 def normalize_feature(feature):
     return (feature - feature.mean()) / (feature.std() + 1e-8)
-
 
 def extract_features_from_audio(audio):
     mel = librosa.feature.melspectrogram(
@@ -157,11 +143,7 @@ def extract_features_from_audio(audio):
 
     return features.astype(np.float32)
 
-
-# =========================
-# MODEL ARCHITECTURE
-# Must match train.py exactly
-# =========================
+# Model architecture
 
 class ResBlock(nn.Module):
     def __init__(self, in_channels, out_channels, stride=1):
@@ -212,7 +194,6 @@ class ResBlock(nn.Module):
         out = self.relu(out)
         return out
 
-
 class AttentionPooling(nn.Module):
     def __init__(self, hidden_dim):
         super().__init__()
@@ -228,7 +209,6 @@ class AttentionPooling(nn.Module):
         weights = torch.softmax(scores, dim=1)
         context = torch.sum(weights * x, dim=1)
         return context
-
 
 class CNNBiLSTMAttentionSER(nn.Module):
     def __init__(self, num_classes):
@@ -289,10 +269,7 @@ class CNNBiLSTMAttentionSER(nn.Module):
 
         return logits
 
-
-# =========================
-# GUI APP
-# =========================
+# User interface setup
 
 class SERApp:
     def __init__(self, root):
@@ -821,10 +798,7 @@ class SERApp:
         )
         close_btn.pack(pady=(20, 20))
 
-
-# =========================
-# CLI PREDICTION
-# =========================
+# Cli prediction
 
 def predict_cli(audio_path):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -884,10 +858,7 @@ def predict_cli(audio_path):
     except Exception as e:
         print(f"Error processing audio: {e}")
 
-
-# =========================
-# ENTRY POINT
-# =========================
+# Entry point
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

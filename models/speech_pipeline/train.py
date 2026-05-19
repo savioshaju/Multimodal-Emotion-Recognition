@@ -22,9 +22,7 @@ from sklearn.metrics import (
     confusion_matrix
 )
 
-# =========================
-# PATH CONFIGURATION
-# =========================
+# paths
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
@@ -40,9 +38,7 @@ RESULTS_DIR = os.path.join(OUTPUT_ROOT, "results")
 for d in [MODELS_DIR, METRICS_DIR, PLOTS_DIR, RESULTS_DIR]:
     os.makedirs(d, exist_ok=True)
 
-# =========================
-# CONFIGURATION
-# =========================
+# Model configuration
 
 SEED = 42
 BATCH_SIZE = 16
@@ -77,10 +73,7 @@ random.seed(SEED)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(SEED)
 
-
-# =========================
-# DATASET
-# =========================
+# Dataset
 
 class SpeechFeatureDataset(Dataset):
     def __init__(self, df, label_encoder, augment=False):
@@ -92,30 +85,19 @@ class SpeechFeatureDataset(Dataset):
         return len(self.df)
 
     def augment_feature(self, x):
-        """
-        Light feature-space augmentation.
-        x shape: (3, 128, time)
-        """
+        """Light feature-space augmentation."""
         x = x.copy()
-
-        # Add small Gaussian noise
         if random.random() < 0.40:
             noise = np.random.normal(0, 0.015, size=x.shape).astype(np.float32)
             x = x + noise
-
-        # Random gain
         if random.random() < 0.40:
             gain = np.random.uniform(0.90, 1.10)
             x = x * gain
-
-        # Time masking
         if random.random() < 0.35:
             time_len = x.shape[-1]
             mask_size = random.randint(5, 18)
             start = random.randint(0, max(0, time_len - mask_size))
             x[:, :, start:start + mask_size] = 0
-
-        # Frequency masking
         if random.random() < 0.35:
             freq_len = x.shape[1]
             mask_size = random.randint(4, 14)
@@ -141,10 +123,7 @@ class SpeechFeatureDataset(Dataset):
 
         return torch.tensor(x, dtype=torch.float32), torch.tensor(y, dtype=torch.long)
 
-
-# =========================
-# MODEL
-# =========================
+# Model architecture
 
 class ResBlock(nn.Module):
     def __init__(self, in_channels, out_channels, stride=1):
@@ -195,7 +174,6 @@ class ResBlock(nn.Module):
         out = self.relu(out)
         return out
 
-
 class AttentionPooling(nn.Module):
     def __init__(self, hidden_dim):
         super().__init__()
@@ -214,7 +192,6 @@ class AttentionPooling(nn.Module):
         weights = torch.softmax(scores, dim=1)
         context = torch.sum(weights * x, dim=1)
         return context
-
 
 class CNNBiLSTMAttentionSER(nn.Module):
     def __init__(self, num_classes):
@@ -236,11 +213,7 @@ class CNNBiLSTMAttentionSER(nn.Module):
 
         self.dropout_cnn = nn.Dropout(0.30)
 
-        # Input feature shape from preprocess.py is normally:
-        # (3, 128, 188)
-        # After four MaxPool2d(2): frequency 128 -> 8, time 188 -> 11
-        # CNN output channels = 256
-        # LSTM input size = 256 * 8 = 2048
+        
         self.lstm_input_size = 256 * 8
 
         self.lstm = nn.LSTM(
@@ -270,11 +243,10 @@ class CNNBiLSTMAttentionSER(nn.Module):
         x = self.cnn(x)
         x = self.dropout_cnn(x)
 
-        # x shape: (batch, channels, freq, time)
+        
         batch, channels, freq, time = x.shape
 
-        # Convert to sequence for LSTM:
-        # (batch, time, channels * freq)
+        # Reshape for LSTM
         x = x.permute(0, 3, 1, 2).contiguous()
         x = x.view(batch, time, channels * freq)
 
@@ -286,10 +258,7 @@ class CNNBiLSTMAttentionSER(nn.Module):
 
         return logits
 
-
-# =========================
-# SPLIT STRATEGY
-# =========================
+# Build train, validation, and test splits
 
 def build_training_data(df):
     df = df.copy()
@@ -369,10 +338,7 @@ def build_training_data(df):
 
     return train_df, val_df, test_df
 
-
-# =========================
-# BALANCING
-# =========================
+# Handle class imbalance
 
 def create_weighted_sampler(train_df, label_encoder):
     labels = label_encoder.transform(train_df["emotion"])
@@ -389,7 +355,6 @@ def create_weighted_sampler(train_df, label_encoder):
 
     return sampler
 
-
 def create_class_weights(train_df, label_encoder, device):
     labels = label_encoder.transform(train_df["emotion"])
     class_counts = np.bincount(labels, minlength=len(label_encoder.classes_))
@@ -401,10 +366,7 @@ def create_class_weights(train_df, label_encoder, device):
 
     return weights
 
-
-# =========================
-# TRAIN / EVALUATE
-# =========================
+# Training and evaluation 
 
 def evaluate(model, loader, criterion, device):
     model.eval()
@@ -436,7 +398,6 @@ def evaluate(model, loader, criterion, device):
 
     return avg_loss, accuracy, uar, macro_f1, actuals, predictions
 
-
 def save_training_curve(history):
     plt.figure(figsize=(9, 6))
     plt.plot(history["train_loss"], label="Train Loss")
@@ -450,7 +411,6 @@ def save_training_curve(history):
     plt.tight_layout()
     plt.savefig(os.path.join(PLOTS_DIR, "training_curve.png"))
     plt.close()
-
 
 def save_confusion_matrix(cm):
     plt.figure(figsize=(10, 8))
@@ -469,10 +429,7 @@ def save_confusion_matrix(cm):
     plt.savefig(os.path.join(PLOTS_DIR, "confusion_matrix.png"))
     plt.close()
 
-
-# =========================
-# MAIN
-# =========================
+# Main execution
 
 def main():
     if not os.path.exists(METADATA_PATH):
@@ -789,7 +746,6 @@ def main():
     print("\nAll Outputs Saved Successfully")
     print(f"Saved model -> {best_model_path}")
     print(f"Results folder -> {OUTPUT_ROOT}")
-
 
 if __name__ == "__main__":
     main()

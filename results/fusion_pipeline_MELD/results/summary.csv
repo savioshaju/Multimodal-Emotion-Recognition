@@ -1,0 +1,2 @@
+dataset,test_accuracy,test_uar,test_macro_f1,test_weighted_f1,speech_model_name,text_model_name,fusion_model_name,imbalance_strategy
+MELD,0.5950191570881226,0.42226530763341186,0.4135579890870379,0.5991216422403307,CNN + BiLSTM + Attention,distilbert-base-uncased,CNN-BiLSTM-Attention + DistilBERT,class_weighted_loss

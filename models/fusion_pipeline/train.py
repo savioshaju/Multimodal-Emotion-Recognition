@@ -16,10 +16,7 @@ from sklearn.metrics import (
     recall_score,
 )
 import matplotlib.pyplot as plt
-
-# =========================
-# PATH CONFIGURATION
-# =========================
+# paths
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
@@ -37,9 +34,7 @@ os.makedirs(PLOTS_DIR, exist_ok=True)
 os.makedirs(RESULTS_OUT_DIR, exist_ok=True)
 os.makedirs(MODELS_DIR, exist_ok=True)
 
-# =========================
-# CONFIGURATION
-# =========================
+# Model configuration
 
 MODEL_TEXT_NAME = "distilbert-base-uncased"
 
@@ -71,10 +66,7 @@ IDX_TO_EMOTION = {idx: emotion for emotion, idx in EMOTION_TO_IDX.items()}
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
-# =========================
-# REPRODUCIBILITY
-# =========================
+# Set random seeds
 
 def seed_everything(seed=42):
     random.seed(seed)
@@ -84,10 +76,7 @@ def seed_everything(seed=42):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-
-# =========================
-# DATASET
-# =========================
+# Dataset 
 
 class FusionDataset(Dataset):
     def __init__(self, dataframe, tokenizer):
@@ -123,10 +112,7 @@ class FusionDataset(Dataset):
             "label": torch.tensor(label, dtype=torch.long),
         }
 
-
-# =========================
-# SPEECH BRANCH: CNN + BiLSTM + ATTENTION
-# =========================
+# Speech branch architecture
 
 class AttentionPooling(nn.Module):
     def __init__(self, hidden_dim):
@@ -138,7 +124,6 @@ class AttentionPooling(nn.Module):
         weights = torch.softmax(scores, dim=1)
         context = torch.sum(lstm_output * weights.unsqueeze(-1), dim=1)
         return context
-
 
 class SpeechCNNBiLSTMAttention(nn.Module):
     def __init__(self, embedding_dim=256):
@@ -181,7 +166,7 @@ class SpeechCNNBiLSTMAttention(nn.Module):
     def forward(self, x):
         x = self.cnn(x)
 
-        # x shape: [batch, channels, freq, time]
+        
         x = x.permute(0, 3, 1, 2)
 
         batch_size, time_steps, channels, freq_bins = x.shape
@@ -194,10 +179,7 @@ class SpeechCNNBiLSTMAttention(nn.Module):
 
         return speech_embedding
 
-
-# =========================
-# FUSION MODEL
-# =========================
+# Fusion model architecture
 
 class LightweightFusionModel(nn.Module):
     def __init__(self, num_classes):
@@ -241,10 +223,7 @@ class LightweightFusionModel(nn.Module):
 
         return logits
 
-
-# =========================
-# SPLIT STRATEGY
-# =========================
+#  train, validation, and test splits
 
 def create_speaker_aware_splits(df):
     df["speaker_id"] = df["speaker_id"].str.lower()
@@ -297,11 +276,6 @@ def create_speaker_aware_splits(df):
 
     return train_df, val_df, test_df
 
-
-# =========================
-# TRAIN / EVALUATE HELPERS
-# =========================
-
 def run_validation(model, data_loader):
     model.eval()
 
@@ -327,7 +301,6 @@ def run_validation(model, data_loader):
 
     return acc, uar, macro_f1, all_labels, all_preds
 
-
 def save_confusion_matrix_plot(cm):
     fig, ax = plt.subplots(figsize=(9, 7))
     im = ax.imshow(cm)
@@ -350,7 +323,6 @@ def save_confusion_matrix_plot(cm):
     plt.savefig(os.path.join(PLOTS_DIR, "confusion_matrix.png"))
     plt.close()
 
-
 def save_training_curve(history):
     plt.figure(figsize=(10, 5))
     plt.plot(history["epoch"], history["train_loss"], label="Train Loss")
@@ -364,10 +336,7 @@ def save_training_curve(history):
     plt.savefig(os.path.join(PLOTS_DIR, "training_curve.png"))
     plt.close()
 
-
-# =========================
-# MAIN TRAINING
-# =========================
+# Main training loop
 
 def train():
     seed_everything(SEED)
@@ -642,7 +611,6 @@ def train():
     print(f"- Classification report: {os.path.join(RESULTS_OUT_DIR, 'classification_report.csv')}")
     print(f"- Confusion matrix: {os.path.join(RESULTS_OUT_DIR, 'confusion_matrix.csv')}")
     print(f"- Plots: {PLOTS_DIR}")
-
 
 if __name__ == "__main__":
     train()

@@ -5,9 +5,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-# =========================
-# PATH CONFIGURATION
-# =========================
+# paths
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
@@ -16,9 +14,7 @@ DATASET_PATH = os.path.join(PROJECT_ROOT, "dataset")
 PROCESSED_DIR = os.path.join(PIPELINE_DIR, "processed_data")
 METADATA_PATH = os.path.join(PIPELINE_DIR, "metadata.csv")
 
-# =========================
-# AUDIO CONFIGURATION
-# =========================
+# Configure audio settings
 
 SR = 16000
 DURATION = 3
@@ -26,9 +22,7 @@ MAX_LEN = SR * DURATION
 N_MELS = 128
 N_MFCC = 40
 
-# =========================
-# EMOTION LABEL MAPPING
-# =========================
+# Map raw labels to standard emotion names
 
 EMOTION_MAP = {
     "angry": "anger",
@@ -54,16 +48,10 @@ CLASS_NAMES = [
     "surprise",
 ]
 
-
-# =========================
-# UTILITY FUNCTIONS
-# =========================
+# Utility functions
 
 def reset_output():
-    """
-    Clears old processed feature files and old metadata.csv.
-    This ensures the new feature-based speech pipeline starts cleanly.
-    """
+    """Clear old processed files."""
     if os.path.exists(PROCESSED_DIR):
         shutil.rmtree(PROCESSED_DIR)
 
@@ -72,20 +60,8 @@ def reset_output():
     if os.path.exists(METADATA_PATH):
         os.remove(METADATA_PATH)
 
-
 def get_emotion_from_folder(folder):
-    """
-    TESS folder names are usually:
-    OAF_angry
-    OAF_disgust
-    YAF_happy
-    YAF_pleasant_surprise
-
-    This function extracts:
-    speaker_id = oaf / yaf
-    raw_emotion = angry / disgust / pleasant_surprise
-    normalized emotion = anger / disgust / surprise
-    """
+    """Extract speaker_id, raw_emotion, and emotion from folder name."""
     folder_lower = folder.lower().strip()
     parts = folder_lower.split("_")
 
@@ -98,12 +74,8 @@ def get_emotion_from_folder(folder):
 
     return speaker_id, raw_emotion, emotion
 
-
 def preprocess_audio(file_path):
-    """
-    Loads audio, trims silence, fixes duration, and normalizes waveform.
-    Output shape: (48000,) for 3 seconds at 16 kHz.
-    """
+    """Load, trim, pad, and normalize audio."""
     audio, _ = librosa.load(file_path, sr=SR)
 
     audio, _ = librosa.effects.trim(audio, top_db=30)
@@ -117,25 +89,12 @@ def preprocess_audio(file_path):
 
     return audio.astype(np.float32)
 
-
 def normalize_feature(feature):
-    """
-    Applies z-score normalization to each feature matrix.
-    """
+    """Apply z-score normalization."""
     return (feature - feature.mean()) / (feature.std() + 1e-8)
 
-
 def extract_features(audio):
-    """
-    Extracts 3-channel acoustic features:
-
-    Channel 1: Mel spectrogram in dB
-    Channel 2: Delta Mel spectrogram
-    Channel 3: MFCC expanded to 128 rows
-
-    Final output shape:
-    (3, 128, time_frames)
-    """
+    """Extract 3-channel acoustic features."""
     mel = librosa.feature.melspectrogram(
         y=audio,
         sr=SR,
@@ -161,14 +120,12 @@ def extract_features(audio):
         hop_length=256
     )
 
-    # Match MFCC time dimension with Mel spectrogram
     mfcc = librosa.util.fix_length(
         mfcc,
         size=mel_db.shape[1],
         axis=1
     )
 
-    # Expand MFCC rows from 40 to 128 so it can be stacked with Mel features
     mfcc = np.repeat(
         mfcc,
         4,
@@ -186,19 +143,13 @@ def extract_features(audio):
 
     return stacked_features.astype(np.float32)
 
-
 def make_safe_filename(speaker_id, emotion, original_file):
-    """
-    Creates a clean feature filename for processed .npy files.
-    """
+    """Create a clean filename for processed features."""
     base_name = os.path.splitext(original_file)[0]
     base_name = base_name.replace(" ", "_").replace("-", "_")
     return f"{speaker_id}_{emotion}_{base_name}.npy"
 
-
-# =========================
-# MAIN PREPROCESSING
-# =========================
+# Main preprocessing logic
 
 def main():
     if not os.path.exists(DATASET_PATH):
@@ -304,7 +255,6 @@ def main():
 
     print(f"\nMetadata Saved -> {METADATA_PATH}")
     print(f"Processed Features Saved -> {PROCESSED_DIR}")
-
 
 if __name__ == "__main__":
     main()

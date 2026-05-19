@@ -1,0 +1,30 @@
+{
+    "dataset": "MELD",
+    "architecture": "CNN + BiLSTM + Attention speech branch + DistilBERT text branch + Concatenation + MLP",
+    "speech_branch": "Mel Spectrogram + Delta + MFCC -> CNN -> BiLSTM -> Attention",
+    "text_branch": "distilbert-base-uncased",
+    "fusion_method": "Concatenation + MLP classifier",
+    "num_classes": 7,
+    "classes": [
+        "anger",
+        "disgust",
+        "fear",
+        "happiness",
+        "neutral",
+        "sadness",
+        "surprise"
+    ],
+    "split_strategy": "official MELD train/dev/test split",
+    "max_text_len": 64,
+    "batch_size": 8,
+    "epochs": 12,
+    "patience": 3,
+    "speech_learning_rate": 0.0001,
+    "text_learning_rate": 1e-05,
+    "head_learning_rate": 2e-05,
+    "weight_decay": 0.0001,
+    "class_weighted_loss": true,
+    "weighted_sampler": false,
+    "freeze_text_encoder_epochs": 1,
+    "seed": 42
+}
