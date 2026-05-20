@@ -4,10 +4,7 @@ import json
 import pandas as pd
 from sklearn.model_selection import GroupShuffleSplit
 
-
-# =========================
-# PATH CONFIGURATION
-# =========================
+# Paths
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -25,10 +22,7 @@ SPLIT_INFO_PATH = os.path.join(PROCESSED_DIR, "split_info.json")
 
 os.makedirs(PROCESSED_DIR, exist_ok=True)
 
-
-# =========================
-# CONFIGURATION
-# =========================
+# Configuration
 
 SEED = 42
 
@@ -52,10 +46,7 @@ CLASS_NAMES = [
     "surprise"
 ]
 
-
-# =========================
-# TEXT CLEANING
-# =========================
+# Preprocessing
 
 def clean_text(text):
     text = str(text).strip()
@@ -63,10 +54,7 @@ def clean_text(text):
     text = re.sub(r"\s+", " ", text)
     return text
 
-
-# =========================
-# FILE LOADING
-# =========================
+# Utilities
 
 def load_lines(path):
     if not os.path.exists(path):
@@ -80,10 +68,7 @@ def load_lines(path):
 
     return [line.strip() for line in lines if line.strip()]
 
-
-# =========================
-# GROUP SPLIT
-# =========================
+# Splits
 
 def group_split(df):
     """
@@ -140,10 +125,7 @@ def print_distribution(name, df):
     print(f"\n{name} samples: {len(df)}")
     print(df["emotion"].value_counts().reindex(CLASS_NAMES, fill_value=0))
 
-
-# =========================
-# MAIN
-# =========================
+# Main
 
 def main():
     print("\nLoading DailyDialog files...")

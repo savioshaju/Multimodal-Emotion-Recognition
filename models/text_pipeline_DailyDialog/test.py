@@ -16,10 +16,7 @@ warnings.filterwarnings("ignore")
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
-
-# =========================
-# PATH CONFIGURATION
-# =========================
+# Paths
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
@@ -36,10 +33,7 @@ METRICS_JSON = os.path.join(OUTPUT_ROOT, "metrics", "text_metrics.json")
 PLOT_CM = os.path.join(OUTPUT_ROOT, "plots", "confusion_matrix.png")
 PLOT_CURVE = os.path.join(OUTPUT_ROOT, "plots", "training_curve.png")
 
-
-# =========================
-# UI CONFIGURATION
-# =========================
+# Configuration
 
 EMOTION_COLORS = {
     "anger": "#ef5350",
@@ -61,10 +55,7 @@ EMOTION_EMOJIS = {
     "surprise": "😲"
 }
 
-
-# =========================
-# TEXT CLEANING
-# =========================
+# Preprocessing
 
 def clean_text(text):
     text = str(text).strip()
@@ -72,10 +63,7 @@ def clean_text(text):
     text = re.sub(r"\s+", " ", text)
     return text
 
-
-# =========================
-# MODEL CLASS
-# =========================
+# Model
 
 class TextEmotionModel(nn.Module):
     def __init__(self, model_name, num_classes, dropout_rate=0.30):
@@ -112,10 +100,7 @@ class TextEmotionModel(nn.Module):
         logits = self.classifier(pooled_output)
         return logits
 
-
-# =========================
-# APPLICATION
-# =========================
+# GUI
 
 class TextEmotionApp:
     def __init__(self, root):

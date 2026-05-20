@@ -16,7 +16,7 @@ from sklearn.metrics import (
     recall_score,
 )
 import matplotlib.pyplot as plt
-# paths
+# Paths
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
@@ -34,7 +34,7 @@ os.makedirs(PLOTS_DIR, exist_ok=True)
 os.makedirs(RESULTS_OUT_DIR, exist_ok=True)
 os.makedirs(MODELS_DIR, exist_ok=True)
 
-# Model configuration
+# Configuration
 
 MODEL_TEXT_NAME = "distilbert-base-uncased"
 
@@ -76,7 +76,7 @@ def seed_everything(seed=42):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-# Dataset 
+# Dataset
 
 class FusionDataset(Dataset):
     def __init__(self, dataframe, tokenizer):
@@ -112,7 +112,7 @@ class FusionDataset(Dataset):
             "label": torch.tensor(label, dtype=torch.long),
         }
 
-# Speech branch architecture
+# Speech branch
 
 class AttentionPooling(nn.Module):
     def __init__(self, hidden_dim):
@@ -179,7 +179,7 @@ class SpeechCNNBiLSTMAttention(nn.Module):
 
         return speech_embedding
 
-# Fusion model architecture
+# Model
 
 class LightweightFusionModel(nn.Module):
     def __init__(self, num_classes):
@@ -223,7 +223,19 @@ class LightweightFusionModel(nn.Module):
 
         return logits
 
-#  train, validation, and test splits
+    def embed(self, speech_features, input_ids, attention_mask):
+        """Return fused embedding before classifier."""
+        speech_emb = self.speech_branch(speech_features)
+        text_outputs = self.text_encoder(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+        )
+        cls_emb = text_outputs.last_hidden_state[:, 0, :]
+        text_emb = self.text_projection(cls_emb)
+        fused = torch.cat([speech_emb, text_emb], dim=1)
+        return fused
+
+# Splits
 
 def create_speaker_aware_splits(df):
     df["speaker_id"] = df["speaker_id"].str.lower()
@@ -336,7 +348,7 @@ def save_training_curve(history):
     plt.savefig(os.path.join(PLOTS_DIR, "training_curve.png"))
     plt.close()
 
-# Main training loop
+# Main
 
 def train():
     seed_everything(SEED)

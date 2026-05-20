@@ -14,15 +14,8 @@ from PIL import Image
 
 from transformers import AutoModel, AutoTokenizer
 
-try:
-    import sounddevice as sd
-except Exception:
-    sd = None
 
-
-# =========================
-# UI CONFIGURATION
-# =========================
+# Configuration
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -66,10 +59,7 @@ N_MELS = 128
 N_MFCC = 40
 
 
-# =========================
-# AUDIO PREPROCESSING
-# Must match fusion preprocess.py
-# =========================
+# Preprocessing (matches fusion preprocess.py)
 
 def normalize_feature(x):
     return (x - x.mean()) / (x.std() + 1e-8)
@@ -131,10 +121,7 @@ def extract_audio_features(audio, sr=DEFAULT_SR):
     return features.astype(np.float32)
 
 
-# =========================
-# MODEL ARCHITECTURE
-# Must match train.py
-# =========================
+# Model architecture (matches train.py)
 
 class AttentionPooling(nn.Module):
     def __init__(self, hidden_dim):
@@ -245,9 +232,7 @@ class LightweightFusionModel(nn.Module):
         return logits
 
 
-# =========================
-# APP
-# =========================
+# GUI
 
 class FusionEmotionApp:
     def __init__(self, root):
@@ -282,9 +267,7 @@ class FusionEmotionApp:
         self.max_text_len = DEFAULT_MAX_TEXT_LEN
         self.text_model_name = DEFAULT_TEXT_MODEL
 
-        self.recording = False
-        self.audio_data = []
-        self.stream = None
+
         self.current_audio = None
         self.current_audio_path = None
 
@@ -380,23 +363,12 @@ class FusionEmotionApp:
 
         self.upload_audio_btn = ctk.CTkButton(
             self.input_card,
-            text="Upload WAV Audio",
+            text="Select Audio File",
             height=45,
             corner_radius=10,
             command=self.upload_audio
         )
         self.upload_audio_btn.pack(padx=30, pady=8, fill="x")
-
-        self.record_btn = ctk.CTkButton(
-            self.input_card,
-            text="Record 3 Seconds",
-            height=45,
-            corner_radius=10,
-            fg_color="#455a64",
-            hover_color="#607d8b",
-            command=self.record_audio
-        )
-        self.record_btn.pack(padx=30, pady=8, fill="x")
 
         self.text_label = ctk.CTkLabel(
             self.input_card,
@@ -569,7 +541,7 @@ class FusionEmotionApp:
 
     def upload_audio(self):
         path = filedialog.askopenfilename(
-            title="Select WAV Audio",
+            title="Select Audio File",
             filetypes=[
                 ("Audio Files", "*.wav *.mp3 *.flac *.ogg"),
                 ("WAV Files", "*.wav"),
@@ -593,46 +565,13 @@ class FusionEmotionApp:
         except Exception as e:
             messagebox.showerror("Audio Error", f"Failed to load audio:\n{e}")
 
-    def record_audio(self):
-        if sd is None:
-            messagebox.showerror(
-                "Recording Error",
-                "sounddevice is not installed.\n\nInstall it using:\npip install sounddevice"
-            )
-            return
-
-        try:
-            self.set_status("Recording...", badge_color="#f57f17", text_color="#ffee58")
-            self.root.update()
-
-            recording = sd.rec(
-                int(self.duration * self.sr),
-                samplerate=self.sr,
-                channels=1,
-                dtype="float32"
-            )
-            sd.wait()
-
-            audio = recording.flatten()
-            audio = preprocess_audio_array(audio, sr=self.sr, max_audio_len=self.max_audio_len)
-
-            self.current_audio = audio
-            self.current_audio_path = None
-
-            self.audio_label.configure(text="Recorded audio loaded")
-            self.set_status("Recording Complete")
-
-        except Exception as e:
-            messagebox.showerror("Recording Error", f"Failed to record audio:\n{e}")
-            self.set_status("Recording Error", badge_color="#b71c1c", text_color="#ff5252")
-
     def predict_emotion(self):
         if self.model is None or self.tokenizer is None:
             messagebox.showerror("Model Error", "Model is not loaded.")
             return
 
         if self.current_audio is None:
-            messagebox.showwarning("Input Error", "Please upload or record audio first.")
+            messagebox.showwarning("Input Error", "Please upload an audio file first.")
             return
 
         text = self.textbox.get("1.0", "end-1c").strip()

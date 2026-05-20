@@ -57,10 +57,7 @@ CLASS_DISTRIBUTION_PLOT_PATH = os.path.join(PLOTS_DIR, "class_distribution.png")
 for d in [SAVED_MODELS_DIR, METRICS_DIR, PLOTS_DIR, RESULTS_DIR]:
     os.makedirs(d, exist_ok=True)
 
-
-# =========================
-# TRAINING CONFIGURATION
-# =========================
+# Training configuration
 
 MODEL_NAME = "roberta-base"
 
@@ -91,10 +88,7 @@ CLASS_NAMES = [
     "surprise"
 ]
 
-
-# =========================
-# REPRODUCIBILITY
-# =========================
+# Reproducibility
 
 def set_seed(seed):
     random.seed(seed)
@@ -111,10 +105,7 @@ def set_seed(seed):
 
 set_seed(SEED)
 
-
-# =========================
-# DATASET CLASS
-# =========================
+# Dataset
 
 class EncodedTextDataset(Dataset):
     def __init__(self, encodings, labels):
@@ -132,10 +123,7 @@ class EncodedTextDataset(Dataset):
             "label": self.labels[idx]
         }
 
-
-# =========================
-# MODEL CLASS
-# =========================
+# Model
 
 class TextEmotionModel(nn.Module):
     def __init__(self, model_name, num_classes):
@@ -172,10 +160,7 @@ class TextEmotionModel(nn.Module):
         logits = self.classifier(pooled)
         return logits
 
-
-# =========================
-# HELPER FUNCTIONS
-# =========================
+# Utilities
 
 def validate_files():
     for path in [TRAIN_PATH, VAL_PATH, TEST_PATH]:
@@ -404,10 +389,7 @@ def plot_class_distribution(train_df, val_df, test_df):
     plt.savefig(CLASS_DISTRIBUTION_PLOT_PATH)
     plt.close()
 
-
-# =========================
-# MAIN FUNCTION
-# =========================
+# Main
 
 def main():
     validate_files()

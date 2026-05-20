@@ -32,7 +32,7 @@ The primary dataset used for the core implementation is the Toronto Emotional Sp
 Clone the project to your local machine and open the project directory.
 ```powershell
 git clone https://github.com/savioshaju/Multimodal-Emotion-Recognition.git
-cd "Multimodal Emotion Recognition"
+cd "Multimodal-Emotion-Recognition"
 ```
 
 ### 2. Setup the Environment
@@ -59,7 +59,25 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 3. Running the Pipelines
+### 3. Model Checkpoints
+
+Trained model checkpoints are not included directly in this GitHub repository because some files exceed GitHub's 100 MB file size limit.
+
+All trained model checkpoints are stored separately in Google Drive:
+
+[Download Trained Model Checkpoints](https://drive.google.com/drive/folders/1Y0OlP0rBU5A2lPE7DFwtUskw0kB71XmN?usp=sharing)
+
+After downloading, place each checkpoint folder inside the corresponding pipeline directory:
+
+```text
+models/speech_pipeline/saved_models/
+models/text_pipeline/saved_models/
+models/text_pipeline_DailyDialog/saved_models/
+models/fusion_pipeline/saved_models/
+models/fusion_pipeline_MELD/saved_models/
+```
+
+### 4. Running the Pipelines
 
 The project contains three core TESS pipelines and two additional experimental pipelines. Each pipeline must be run from its respective directory inside `models/`.
 
@@ -174,30 +192,9 @@ DailyDialog is used only as an additional text experiment under the text pipelin
 ### Supporting Dataset: MELD
 
 MELD is used only as an additional fusion experiment under the fusion pipeline. It is not the main required fusion pipeline. It is included to test multimodal fusion on realistic dialogue data with aligned audio and text.
-## Overall Architecture
 
-```mermaid
-flowchart TD
-    A[Speech Audio] --> B[Audio Preprocessing]
-    B --> C[Feature Extraction: Mel Spectrogram + Delta + MFCC]
-    C --> D[CNN Feature Extraction]
-    D --> E[BiLSTM Temporal Modeling]
-    E --> F[Attention Pooling]
-    F --> H[Fusion Layer]
 
-    G[Text Transcript] --> I[Text Preprocessing]
-    I --> J[DistilBERT Text Encoding]
-    J --> H[Fusion Layer]
-
-    H --> K[MLP Classifier]
-    K --> L[Emotion Label]
-```
-
-The architecture utilizes independent processing branches. Audio is preprocessed and converted to three-channel acoustic features (Mel Spectrogram, Delta, MFCC) which are processed through a CNN feature extractor, BiLSTM temporal modeler, and attention pooling layer to extract acoustic representations. Text is tokenized and processed by DistilBERT to capture semantic meaning. The fusion layer concatenates these representations and feeds them into an MLP classifier to generate the final emotion label.
-
----
-
-## Complete Project Folder Structure
+## Project Folder Structure
 
 ```text
 Multimodal Emotion Recognition/
@@ -210,10 +207,6 @@ Multimodal Emotion Recognition/
 │   │   ├── preprocess.py
 │   │   ├── train.py
 │   │   ├── test.py
-│   │   ├── metadata.csv
-│   │   ├── train_split.csv
-│   │   ├── val_split.csv
-│   │   ├── test_split.csv
 │   │   └── saved_models/
 │   │       ├── best_model.pth
 │   │       └── model_config.json
@@ -222,45 +215,32 @@ Multimodal Emotion Recognition/
 │   │   ├── preprocess.py
 │   │   ├── train.py
 │   │   ├── test.py
-│   │   ├── metadata.csv
-│   │   ├── train_split.csv
-│   │   ├── val_split.csv
-│   │   ├── test_split.csv
 │   │   └── saved_models/
 │   │       ├── best_model.pth
 │   │       ├── model_config.json
 │   │       ├── tokenizer_config.json
-│   │       ├── tokenizer.json
-│   │       ├── special_tokens_map.json
-│   │       └── vocab.txt
+│   │       └── tokenizer.json
 │   │
 │   ├── text_pipeline_DailyDialog/
 │   │   ├── preprocess.py
 │   │   ├── train.py
-│   │   ├── data/
-│   │   ├── processed_data/
+|   |   ├── test.py
 │   │   └── saved_models/
 │   │
 │   ├── fusion_pipeline/
 │   │   ├── preprocess.py
 │   │   ├── train.py
 │   │   ├── test.py
-│   │   ├── metadata.csv
-│   │   ├── train_split.csv
-│   │   ├── val_split.csv
-│   │   ├── test_split.csv
 │   │   └── saved_models/
 │   │       ├── best_model.pth
 │   │       ├── model_config.json
 │   │       ├── tokenizer_config.json
-│   │       ├── tokenizer.json
-│   │       ├── special_tokens_map.json
-│   │       └── vocab.txt
+│   │       └── tokenizer.json
 │   │
 │   └── fusion_pipeline_MELD/
-│   │   ├── preprocess.py
+│       ├── preprocess.py
 │       ├── train.py
-│       ├── processed_data/
+│       ├── test.py
 │       └── saved_models/
 │
 ├── results/
@@ -308,9 +288,9 @@ Multimodal Emotion Recognition/
 │   │       └── summary.csv
 │   │
 │   └── fusion_pipeline_MELD/
-│   │   ├── metrics/
-│   │   ├── plots/
-│   │   └── results/
+│       ├── metrics/
+│       ├── plots/
+│       └── results/
 │
 └── README.md
 ```

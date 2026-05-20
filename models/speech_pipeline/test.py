@@ -12,10 +12,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-try:
-    import sounddevice as sd
-except Exception:
-    sd = None
+
 
 # UI configuration
 
@@ -284,10 +281,6 @@ class SERApp:
         self.fs = SR
         self.max_len = MAX_LEN
 
-        self.recording = False
-        self.audio_data = []
-        self.stream = None
-
         self.load_config()
 
         self.model = CNNBiLSTMAttentionSER(
@@ -365,22 +358,6 @@ class SERApp:
         )
         self.upload_btn.pack(padx=30, pady=15, fill="x")
 
-        self.record_btn = ctk.CTkButton(
-            self.controls_card,
-            text="Hold To Record",
-            height=50,
-            corner_radius=10,
-            fg_color="#d32f2f",
-            hover_color="#b71c1c",
-            font=ctk.CTkFont(size=16, weight="bold")
-        )
-        self.record_btn.pack(padx=30, pady=15, fill="x")
-
-        if sd is not None:
-            self.record_btn.bind("<ButtonPress-1>", self.start_recording)
-            self.record_btn.bind("<ButtonRelease-1>", self.stop_recording)
-        else:
-            self.record_btn.configure(state="disabled", text="sounddevice Missing")
 
         self.reports_title = ctk.CTkLabel(
             self.controls_card,
@@ -509,59 +486,6 @@ class SERApp:
             messagebox.showerror("Audio Error", str(e))
             self.set_status("Audio Error", badge_color="#b71c1c", text_color="#ff5252")
 
-    def start_recording(self, event):
-        if sd is None:
-            return
-
-        self.recording = True
-        self.audio_data = []
-
-        self.set_status("Recording...", badge_color="#b71c1c", text_color="#ff5252")
-        self.record_btn.configure(text="Recording...", fg_color="#b71c1c")
-
-        def callback(indata, frames, time, status):
-            if self.recording:
-                self.audio_data.append(indata.copy())
-
-        try:
-            self.stream = sd.InputStream(
-                samplerate=self.fs,
-                channels=1,
-                dtype="float32",
-                callback=callback
-            )
-            self.stream.start()
-
-        except Exception as e:
-            self.recording = False
-            messagebox.showerror("Recording Error", str(e))
-            self.set_status("Recording Error", badge_color="#b71c1c", text_color="#ff5252")
-            self.record_btn.configure(text="Hold To Record", fg_color="#d32f2f")
-
-    def stop_recording(self, event):
-        if sd is None:
-            return
-
-        self.recording = False
-
-        try:
-            if self.stream is not None:
-                self.stream.stop()
-                self.stream.close()
-                self.stream = None
-        except Exception:
-            pass
-
-        self.record_btn.configure(text="Hold To Record", fg_color="#d32f2f")
-
-        if len(self.audio_data) == 0:
-            self.set_status("No Audio", badge_color="#b71c1c", text_color="#ff5252")
-            return
-
-        self.set_status("Processing...", badge_color="#f57f17", text_color="#ffee58")
-
-        audio_np = np.concatenate(self.audio_data, axis=0).flatten()
-        self.predict(audio_np)
 
     def predict(self, audio_np):
         try:

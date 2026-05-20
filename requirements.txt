@@ -3,7 +3,6 @@ torchaudio
 transformers
 librosa
 soundfile
-sounddevice
 numpy
 pandas
 matplotlib
