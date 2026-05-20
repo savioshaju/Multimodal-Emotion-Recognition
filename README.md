@@ -224,7 +224,7 @@ Multimodal Emotion Recognition/
 │   ├── text_pipeline_DailyDialog/
 │   │   ├── preprocess.py
 │   │   ├── train.py
-|   |   ├── test.py
+│   │   ├── test.py
 │   │   └── saved_models/
 │   │
 │   ├── fusion_pipeline/
@@ -249,7 +249,9 @@ Multimodal Emotion Recognition/
 │   │   │   └── speech_metrics.json
 │   │   ├── plots/
 │   │   │   ├── confusion_matrix.png
-│   │   │   └── training_curve.png
+│   │   │   ├── training_curve.png
+│   │   │   ├── speech_pca.csv
+│   │   │   └── speech_pca.png
 │   │   └── results/
 │   │       ├── classification_report.csv
 │   │       ├── classification_report.txt
@@ -261,7 +263,9 @@ Multimodal Emotion Recognition/
 │   │   │   └── text_metrics.json
 │   │   ├── plots/
 │   │   │   ├── confusion_matrix.png
-│   │   │   └── training_curve.png
+│   │   │   ├── training_curve.png
+│   │   │   ├── text_pca.csv
+│   │   │   └── text_pca.png
 │   │   └── results/
 │   │       ├── classification_report.csv
 │   │       ├── classification_report.txt
@@ -280,7 +284,9 @@ Multimodal Emotion Recognition/
 │   │   ├── plots/
 │   │   │   ├── confusion_matrix.png
 │   │   │   ├── confusion_matrix_test.png
-│   │   │   └── training_curve.png
+│   │   │   ├── training_curve.png
+│   │   │   ├── fusion_pca.csv
+│   │   │   └── fusion_pca.png
 │   │   └── results/
 │   │       ├── classification_report.csv
 │   │       ├── classification_report.txt
@@ -453,6 +459,10 @@ python test.py
 ![Speech Training Curve](results/speech_pipeline/plots/training_curve.png)
 
 ![Speech Confusion Matrix](results/speech_pipeline/plots/confusion_matrix.png)
+
+![Speech Embeddings PCA](results/speech_pipeline/plots/speech_pca.png)
+
+The PCA plot visualizes learned speech embeddings extracted from the temporal modelling block before the classifier. Each point represents a test sample, and the color represents the true emotion label. Clearer separation indicates stronger learned acoustic emotion representations.
 
 ## Speech Result Interpretation
 
@@ -738,6 +748,10 @@ Command purpose:
 
 ![Text Confusion Matrix](results/text_pipeline/plots/confusion_matrix.png)
 
+![Text Embeddings PCA](results/text_pipeline/plots/text_pca.png)
+
+The PCA plot visualizes learned text embeddings extracted from the contextual modelling block before the classifier. Because TESS text contains mostly short neutral words, overlapping clusters are expected and support the finding that the text modality is weak for this dataset.
+
 ## Text Result Interpretation
 
 The text pipeline performs poorly on the TESS dataset.
@@ -980,6 +994,10 @@ python test.py
 ![Fusion Training Curve](results/fusion_pipeline/plots/training_curve.png)
 ![Fusion Confusion Matrix](results/fusion_pipeline/plots/confusion_matrix_test.png)
 
+![Fusion Embeddings PCA](results/fusion_pipeline/plots/fusion_pca.png)
+
+The PCA plot visualizes fused speech-text embeddings extracted after concatenation and before the classifier. The visualization helps show how the multimodal model organizes emotion classes in the learned representation space.
+
 ## Fusion Result Interpretation
 
 The fusion pipeline achieves 94.74% accuracy by combining speech and text representations through concatenation and an MLP classifier.
@@ -1056,18 +1074,66 @@ The result is still useful because it shows how the fusion architecture behaves 
 
 ## Result Visualizations
 
+### Speech Pipeline Visualizations
 
-## Speech Pipeline Visualizations
-![Speech Training Curve](results/speech_pipeline/plots/training_curve.png)
-![Speech Confusion Matrix](results/speech_pipeline/plots/confusion_matrix.png)
+<table>
+  <tr>
+    <td align="center">
+      <img src="results/speech_pipeline/plots/training_curve.png" width="320"><br>
+      <b>Training Curve</b>
+    </td>
+    <td align="center">
+      <img src="results/speech_pipeline/plots/confusion_matrix.png" width="320"><br>
+      <b>Confusion Matrix</b>
+    </td>
+    <td align="center">
+      <img src="results/speech_pipeline/plots/speech_pca.png" width="320"><br>
+      <b>Speech Embeddings PCA</b>
+    </td>
+  </tr>
+</table>
 
-## Text Pipeline Visualizations
-![Text Training Curve](results/text_pipeline/plots/training_curve.png)
-![Text Confusion Matrix](results/text_pipeline/plots/confusion_matrix.png)
+### Text Pipeline Visualizations
 
-## Fusion Pipeline Visualizations
-![Fusion Training Curve](results/fusion_pipeline/plots/training_curve.png)
-![Fusion Confusion Matrix](results/fusion_pipeline/plots/confusion_matrix_test.png)
+<table>
+  <tr>
+    <td align="center">
+      <img src="results/text_pipeline/plots/training_curve.png" width="320"><br>
+      <b>Training Curve</b>
+    </td>
+    <td align="center">
+      <img src="results/text_pipeline/plots/confusion_matrix.png" width="320"><br>
+      <b>Confusion Matrix</b>
+    </td>
+    <td align="center">
+      <img src="results/text_pipeline/plots/text_pca.png" width="320"><br>
+      <b>Text Embeddings PCA</b>
+    </td>
+  </tr>
+</table>
+
+### Fusion Pipeline Visualizations
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="results/fusion_pipeline/plots/training_curve.png" width="320"><br>
+      <b>Training Curve</b>
+    </td>
+    <td align="center">
+      <img src="results/fusion_pipeline/plots/confusion_matrix_test.png" width="320"><br>
+      <b>Confusion Matrix</b>
+    </td>
+    <td align="center">
+      <img src="results/fusion_pipeline/plots/fusion_pca.png" width="320"><br>
+      <b>Fusion Embeddings PCA</b>
+    </td>
+  </tr>
+</table>
+
+### Learned Representation Visualization
+
+PCA was used to project high-dimensional learned embeddings into two dimensions for visual analysis. These plots do not affect model training or evaluation metrics. They are included to inspect whether the trained models learned separable emotion representations before the final classifier. Speech and fusion embeddings are expected to show stronger separation than text embeddings because TESS carries emotion mainly through acoustic cues rather than semantic text content.
 
 ---
 
