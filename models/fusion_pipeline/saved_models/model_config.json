@@ -1,9 +1,10 @@
 {
     "dataset": "TESS",
-    "architecture": "CNN + BiLSTM + Attention speech branch + DistilBERT text branch + Concatenation + MLP",
+    "architecture": "CNN-BiLSTM-Attention speech branch + frozen DistilBERT text branch + fusion projection",
     "speech_branch": "Mel Spectrogram + Delta + MFCC -> CNN -> BiLSTM -> Attention",
     "text_branch": "distilbert-base-uncased",
-    "fusion_method": "Concatenation + MLP classifier",
+    "text_encoder_trainable": false,
+    "fusion_method": "Concatenation + fusion projection",
     "num_classes": 7,
     "classes": [
         "anger",
@@ -21,5 +22,6 @@
     "batch_size": 16,
     "learning_rate": 2e-05,
     "weight_decay": 0.0001,
+    "gradient_clipping": 1.0,
     "seed": 42
 }

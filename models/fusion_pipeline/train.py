@@ -16,7 +16,7 @@ from sklearn.metrics import (
     recall_score,
 )
 import matplotlib.pyplot as plt
-# Paths
+
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(PIPELINE_DIR, "..", ".."))
@@ -34,8 +34,6 @@ os.makedirs(PLOTS_DIR, exist_ok=True)
 os.makedirs(RESULTS_OUT_DIR, exist_ok=True)
 os.makedirs(MODELS_DIR, exist_ok=True)
 
-# Configuration
-
 MODEL_TEXT_NAME = "distilbert-base-uncased"
 
 BASE_TRAIN_SPEAKER = "oaf"
@@ -48,6 +46,7 @@ EPOCHS = 30
 PATIENCE = 5
 LR = 2e-5
 WEIGHT_DECAY = 1e-4
+GRAD_CLIP = 1.0
 SEED = 42
 
 EMOTIONS = [
@@ -66,7 +65,6 @@ IDX_TO_EMOTION = {idx: emotion for emotion, idx in EMOTION_TO_IDX.items()}
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Set random seeds
 
 def seed_everything(seed=42):
     random.seed(seed)
@@ -76,7 +74,6 @@ def seed_everything(seed=42):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-# Dataset
 
 class FusionDataset(Dataset):
     def __init__(self, dataframe, tokenizer):
@@ -112,7 +109,6 @@ class FusionDataset(Dataset):
             "label": torch.tensor(label, dtype=torch.long),
         }
 
-# Speech branch
 
 class AttentionPooling(nn.Module):
     def __init__(self, hidden_dim):
@@ -124,6 +120,7 @@ class AttentionPooling(nn.Module):
         weights = torch.softmax(scores, dim=1)
         context = torch.sum(lstm_output * weights.unsqueeze(-1), dim=1)
         return context
+
 
 class SpeechCNNBiLSTMAttention(nn.Module):
     def __init__(self, embedding_dim=256):
@@ -166,7 +163,6 @@ class SpeechCNNBiLSTMAttention(nn.Module):
     def forward(self, x):
         x = self.cnn(x)
 
-        
         x = x.permute(0, 3, 1, 2)
 
         batch_size, time_steps, channels, freq_bins = x.shape
@@ -179,7 +175,6 @@ class SpeechCNNBiLSTMAttention(nn.Module):
 
         return speech_embedding
 
-# Model
 
 class LightweightFusionModel(nn.Module):
     def __init__(self, num_classes):
@@ -188,18 +183,26 @@ class LightweightFusionModel(nn.Module):
         self.speech_branch = SpeechCNNBiLSTMAttention(embedding_dim=256)
 
         self.text_encoder = AutoModel.from_pretrained(MODEL_TEXT_NAME)
+
+        for param in self.text_encoder.parameters():
+            param.requires_grad = False
+
         text_hidden = self.text_encoder.config.hidden_size
 
         self.text_projection = nn.Sequential(
             nn.Linear(text_hidden, 256),
             nn.ReLU(),
+            nn.Dropout(0.2),
+        )
+
+        self.fusion_projection = nn.Sequential(
+            nn.Linear(512, 256),
+            nn.BatchNorm1d(256),
+            nn.ReLU(),
             nn.Dropout(0.3),
         )
 
         self.classifier = nn.Sequential(
-            nn.Linear(512, 256),
-            nn.ReLU(),
-            nn.Dropout(0.4),
             nn.Linear(256, 128),
             nn.ReLU(),
             nn.Dropout(0.3),
@@ -209,33 +212,39 @@ class LightweightFusionModel(nn.Module):
     def forward(self, speech_features, input_ids, attention_mask):
         speech_embedding = self.speech_branch(speech_features)
 
-        text_outputs = self.text_encoder(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-        )
+        with torch.no_grad():
+            text_outputs = self.text_encoder(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+            )
 
         cls_embedding = text_outputs.last_hidden_state[:, 0, :]
         text_embedding = self.text_projection(cls_embedding)
 
         fused = torch.cat([speech_embedding, text_embedding], dim=1)
+        fused = self.fusion_projection(fused)
 
         logits = self.classifier(fused)
 
         return logits
 
     def embed(self, speech_features, input_ids, attention_mask):
-        """Return fused embedding before classifier."""
-        speech_emb = self.speech_branch(speech_features)
-        text_outputs = self.text_encoder(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-        )
-        cls_emb = text_outputs.last_hidden_state[:, 0, :]
-        text_emb = self.text_projection(cls_emb)
-        fused = torch.cat([speech_emb, text_emb], dim=1)
+        speech_embedding = self.speech_branch(speech_features)
+
+        with torch.no_grad():
+            text_outputs = self.text_encoder(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+            )
+
+        cls_embedding = text_outputs.last_hidden_state[:, 0, :]
+        text_embedding = self.text_projection(cls_embedding)
+
+        fused = torch.cat([speech_embedding, text_embedding], dim=1)
+        fused = self.fusion_projection(fused)
+
         return fused
 
-# Splits
 
 def create_speaker_aware_splits(df):
     df["speaker_id"] = df["speaker_id"].str.lower()
@@ -288,6 +297,7 @@ def create_speaker_aware_splits(df):
 
     return train_df, val_df, test_df
 
+
 def run_validation(model, data_loader):
     model.eval()
 
@@ -313,6 +323,7 @@ def run_validation(model, data_loader):
 
     return acc, uar, macro_f1, all_labels, all_preds
 
+
 def save_confusion_matrix_plot(cm):
     fig, ax = plt.subplots(figsize=(9, 7))
     im = ax.imshow(cm)
@@ -335,6 +346,7 @@ def save_confusion_matrix_plot(cm):
     plt.savefig(os.path.join(PLOTS_DIR, "confusion_matrix.png"))
     plt.close()
 
+
 def save_training_curve(history):
     plt.figure(figsize=(10, 5))
     plt.plot(history["epoch"], history["train_loss"], label="Train Loss")
@@ -348,7 +360,6 @@ def save_training_curve(history):
     plt.savefig(os.path.join(PLOTS_DIR, "training_curve.png"))
     plt.close()
 
-# Main
 
 def train():
     seed_everything(SEED)
@@ -371,17 +382,13 @@ def train():
         if col not in df.columns:
             raise ValueError(f"metadata.csv is missing required column: {col}")
 
-    print("\nCreating speaker-aware train/val/test splits...")
+    print("Creating splits")
     train_df, val_df, test_df = create_speaker_aware_splits(df)
 
-    print(f"\nTrain samples: {len(train_df)}")
-    print(train_df["emotion"].value_counts().sort_index())
-
-    print(f"\nValidation samples: {len(val_df)}")
-    print(val_df["emotion"].value_counts().sort_index())
-
-    print(f"\nTest samples: {len(test_df)}")
-    print(test_df["emotion"].value_counts().sort_index())
+    print("Train samples:", len(train_df))
+    print("Validation samples:", len(val_df))
+    print("Test samples:", len(test_df))
+    print("Device:", DEVICE)
 
     tokenizer = AutoTokenizer.from_pretrained(MODEL_TEXT_NAME)
     tokenizer.save_pretrained(MODELS_DIR)
@@ -416,7 +423,7 @@ def train():
     criterion = nn.CrossEntropyLoss(label_smoothing=0.03)
 
     optimizer = torch.optim.AdamW(
-        model.parameters(),
+        filter(lambda p: p.requires_grad, model.parameters()),
         lr=LR,
         weight_decay=WEIGHT_DECAY,
     )
@@ -433,7 +440,7 @@ def train():
         "val_f1": [],
     }
 
-    print(f"\nTraining lightweight fusion model on {DEVICE}...\n")
+    print("Training started")
 
     for epoch in range(EPOCHS):
         model.train()
@@ -451,6 +458,7 @@ def train():
             loss = criterion(logits, labels)
 
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=GRAD_CLIP)
             optimizer.step()
 
             total_loss += loss.item()
@@ -483,13 +491,13 @@ def train():
                 os.path.join(MODELS_DIR, "best_model.pth"),
             )
 
-            print("  --> Saved new best model.")
+            print("Best model saved")
         else:
             patience_counter += 1
-            print(f"  --> No improvement. Patience: {patience_counter}/{PATIENCE}")
+            print(f"No improvement: {patience_counter}/{PATIENCE}")
 
         if patience_counter >= PATIENCE:
-            print("\nEarly stopping triggered.")
+            print("Early stopping")
             break
 
     pd.DataFrame(history).to_csv(
@@ -501,10 +509,11 @@ def train():
 
     model_config = {
         "dataset": "TESS",
-        "architecture": "CNN + BiLSTM + Attention speech branch + DistilBERT text branch + Concatenation + MLP",
+        "architecture": "CNN-BiLSTM-Attention speech branch + frozen DistilBERT text branch + fusion projection",
         "speech_branch": "Mel Spectrogram + Delta + MFCC -> CNN -> BiLSTM -> Attention",
         "text_branch": MODEL_TEXT_NAME,
-        "fusion_method": "Concatenation + MLP classifier",
+        "text_encoder_trainable": False,
+        "fusion_method": "Concatenation + fusion projection",
         "num_classes": NUM_CLASSES,
         "classes": EMOTIONS,
         "base_train_speaker": BASE_TRAIN_SPEAKER,
@@ -514,13 +523,14 @@ def train():
         "batch_size": BATCH_SIZE,
         "learning_rate": LR,
         "weight_decay": WEIGHT_DECAY,
+        "gradient_clipping": GRAD_CLIP,
         "seed": SEED,
     }
 
     with open(os.path.join(MODELS_DIR, "model_config.json"), "w") as f:
         json.dump(model_config, f, indent=4)
 
-    print("\nEvaluating best model on test set...")
+    print("Testing best model")
 
     model.load_state_dict(
         torch.load(
@@ -534,9 +544,9 @@ def train():
         test_loader,
     )
 
-    print(f"\nFinal Test Accuracy: {test_acc:.4f}")
-    print(f"Final Test UAR: {test_uar:.4f}")
-    print(f"Final Test Macro F1: {test_f1:.4f}")
+    print(f"Test Accuracy: {test_acc:.4f}")
+    print(f"Test UAR: {test_uar:.4f}")
+    print(f"Test Macro F1: {test_f1:.4f}")
 
     report_text = classification_report(
         test_labels,
@@ -546,7 +556,6 @@ def train():
         zero_division=0,
     )
 
-    print("\nClassification Report:")
     print(report_text)
 
     with open(os.path.join(RESULTS_OUT_DIR, "classification_report.txt"), "w") as f:
@@ -576,10 +585,11 @@ def train():
 
     fusion_metrics = {
         "dataset": "TESS",
-        "architecture": "CNN + BiLSTM + Attention speech branch + DistilBERT text branch + Concatenation + MLP",
+        "architecture": "CNN-BiLSTM-Attention speech branch + frozen DistilBERT text branch + fusion projection",
         "speech_branch": "Mel Spectrogram + Delta + MFCC -> CNN -> BiLSTM -> Attention",
         "text_branch": MODEL_TEXT_NAME,
-        "fusion_method": "Concatenation",
+        "text_encoder_trainable": False,
+        "fusion_method": "Concatenation + fusion projection",
         "best_epoch": best_epoch,
         "best_validation_macro_f1": float(best_val_f1),
         "test_accuracy": float(test_acc),
@@ -593,8 +603,9 @@ def train():
         "max_text_len": MAX_TEXT_LEN,
         "batch_size": BATCH_SIZE,
         "learning_rate": LR,
+        "weight_decay": WEIGHT_DECAY,
+        "gradient_clipping": GRAD_CLIP,
         "seed": SEED,
-        "note": "Lightweight fusion model using CNN-BiLSTM-Attention speech features and DistilBERT text representation.",
     }
 
     with open(os.path.join(METRICS_DIR, "fusion_metrics.json"), "w") as f:
@@ -604,9 +615,9 @@ def train():
         "test_accuracy": test_acc,
         "test_uar": test_uar,
         "test_macro_f1": test_f1,
-        "speech_model_name": "CNN + BiLSTM + Attention",
+        "speech_model_name": "CNN-BiLSTM-Attention",
         "text_model_name": MODEL_TEXT_NAME,
-        "fusion_model_name": "CNN-BiLSTM-Attention + DistilBERT",
+        "fusion_model_name": "CNN-BiLSTM-Attention + frozen DistilBERT",
     }
 
     pd.DataFrame([summary]).to_csv(
@@ -614,15 +625,15 @@ def train():
         index=False,
     )
 
-    print("\nSaved outputs:")
-    print(f"- Best model: {os.path.join(MODELS_DIR, 'best_model.pth')}")
-    print(f"- Model config: {os.path.join(MODELS_DIR, 'model_config.json')}")
-    print(f"- Training metrics: {os.path.join(METRICS_DIR, 'training_metrics.csv')}")
-    print(f"- Fusion metrics: {os.path.join(METRICS_DIR, 'fusion_metrics.json')}")
-    print(f"- Summary: {os.path.join(RESULTS_OUT_DIR, 'summary.csv')}")
-    print(f"- Classification report: {os.path.join(RESULTS_OUT_DIR, 'classification_report.csv')}")
-    print(f"- Confusion matrix: {os.path.join(RESULTS_OUT_DIR, 'confusion_matrix.csv')}")
-    print(f"- Plots: {PLOTS_DIR}")
+    print("Saved best_model.pth")
+    print("Saved model_config.json")
+    print("Saved training_metrics.csv")
+    print("Saved fusion_metrics.json")
+    print("Saved summary.csv")
+    print("Saved classification_report.csv")
+    print("Saved confusion_matrix.csv")
+    print("Saved plots")
+
 
 if __name__ == "__main__":
     train()

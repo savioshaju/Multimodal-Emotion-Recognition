@@ -15,10 +15,9 @@ from PIL import Image
 from transformers import AutoModel, AutoTokenizer
 
 
-# Configuration
-
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
+
 
 EMOTION_COLORS = {
     "anger": "#ef5350",
@@ -58,8 +57,6 @@ DEFAULT_TEXT_MODEL = "distilbert-base-uncased"
 N_MELS = 128
 N_MFCC = 40
 
-
-# Preprocessing (matches fusion preprocess.py)
 
 def normalize_feature(x):
     return (x - x.mean()) / (x.std() + 1e-8)
@@ -120,8 +117,6 @@ def extract_audio_features(audio, sr=DEFAULT_SR):
 
     return features.astype(np.float32)
 
-
-# Model architecture (matches train.py)
 
 class AttentionPooling(nn.Module):
     def __init__(self, hidden_dim):
@@ -196,18 +191,26 @@ class LightweightFusionModel(nn.Module):
         self.speech_branch = SpeechCNNBiLSTMAttention(embedding_dim=256)
 
         self.text_encoder = AutoModel.from_pretrained(model_text_name)
+
+        for param in self.text_encoder.parameters():
+            param.requires_grad = False
+
         text_hidden = self.text_encoder.config.hidden_size
 
         self.text_projection = nn.Sequential(
             nn.Linear(text_hidden, 256),
             nn.ReLU(),
+            nn.Dropout(0.2),
+        )
+
+        self.fusion_projection = nn.Sequential(
+            nn.Linear(512, 256),
+            nn.BatchNorm1d(256),
+            nn.ReLU(),
             nn.Dropout(0.3),
         )
 
         self.classifier = nn.Sequential(
-            nn.Linear(512, 256),
-            nn.ReLU(),
-            nn.Dropout(0.4),
             nn.Linear(256, 128),
             nn.ReLU(),
             nn.Dropout(0.3),
@@ -217,22 +220,39 @@ class LightweightFusionModel(nn.Module):
     def forward(self, speech_features, input_ids, attention_mask):
         speech_embedding = self.speech_branch(speech_features)
 
-        text_outputs = self.text_encoder(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-        )
+        with torch.no_grad():
+            text_outputs = self.text_encoder(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+            )
 
         cls_embedding = text_outputs.last_hidden_state[:, 0, :]
         text_embedding = self.text_projection(cls_embedding)
 
         fused = torch.cat([speech_embedding, text_embedding], dim=1)
+        fused = self.fusion_projection(fused)
 
         logits = self.classifier(fused)
 
         return logits
 
+    def embed(self, speech_features, input_ids, attention_mask):
+        speech_embedding = self.speech_branch(speech_features)
 
-# GUI
+        with torch.no_grad():
+            text_outputs = self.text_encoder(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+            )
+
+        cls_embedding = text_outputs.last_hidden_state[:, 0, :]
+        text_embedding = self.text_projection(cls_embedding)
+
+        fused = torch.cat([speech_embedding, text_embedding], dim=1)
+        fused = self.fusion_projection(fused)
+
+        return fused
+
 
 class FusionEmotionApp:
     def __init__(self, root):
@@ -246,7 +266,7 @@ class FusionEmotionApp:
         self.base_dir = os.path.dirname(os.path.abspath(__file__))
         self.project_root = os.path.abspath(os.path.join(self.base_dir, "..", ".."))
 
-        print("RUNNING APP FROM:", self.base_dir)
+        print("Running app from:", self.base_dir)
 
         self.output_root = os.path.join(self.project_root, "results", "fusion_pipeline")
         self.models_dir = os.path.join(self.base_dir, "saved_models")
@@ -259,6 +279,7 @@ class FusionEmotionApp:
         self.metrics_json = os.path.join(self.output_root, "metrics", "fusion_metrics.json")
         self.plot_cm = os.path.join(self.output_root, "plots", "confusion_matrix.png")
         self.plot_curve = os.path.join(self.output_root, "plots", "training_curve.png")
+        self.plot_pca = os.path.join(self.output_root, "plots", "fusion_pca.png")
 
         self.classes = DEFAULT_CLASS_NAMES
         self.sr = DEFAULT_SR
@@ -266,7 +287,6 @@ class FusionEmotionApp:
         self.max_audio_len = self.sr * self.duration
         self.max_text_len = DEFAULT_MAX_TEXT_LEN
         self.text_model_name = DEFAULT_TEXT_MODEL
-
 
         self.current_audio = None
         self.current_audio_path = None
@@ -297,7 +317,7 @@ class FusionEmotionApp:
             else:
                 self.text_model_name = DEFAULT_TEXT_MODEL
 
-            print("Fusion config loaded successfully.")
+            print("Config loaded")
             print("Classes:", self.classes)
             print("Max text length:", self.max_text_len)
             print("Text model:", self.text_model_name)
@@ -528,7 +548,7 @@ class FusionEmotionApp:
             self.set_status(f"Model Loaded: {self.device}")
             self.predict_btn.configure(state="normal")
 
-            print("Fusion model loaded successfully.")
+            print("Model loaded")
             print("Device:", self.device)
 
         except Exception as e:
@@ -874,7 +894,15 @@ class FusionEmotionApp:
             )
 
     def show_plots(self):
-        if not os.path.exists(self.plot_cm) and not os.path.exists(self.plot_curve):
+        plot_paths = [
+            ("Training Curve", self.plot_curve),
+            ("Confusion Matrix", self.plot_cm),
+            ("Fusion PCA", self.plot_pca),
+        ]
+
+        available_plots = [(title, path) for title, path in plot_paths if os.path.exists(path)]
+
+        if not available_plots:
             messagebox.showinfo(
                 "Not Found",
                 "No plots found in the fusion_pipeline plots directory."
@@ -928,11 +956,8 @@ class FusionEmotionApp:
                 )
                 err_lbl.pack()
 
-        if os.path.exists(self.plot_curve):
-            add_image(scroll_frame, "Training Curve", self.plot_curve)
-
-        if os.path.exists(self.plot_cm):
-            add_image(scroll_frame, "Confusion Matrix", self.plot_cm)
+        for title, path in available_plots:
+            add_image(scroll_frame, title, path)
 
         close_btn = ctk.CTkButton(
             top,
@@ -944,13 +969,8 @@ class FusionEmotionApp:
         close_btn.pack(pady=(20, 20))
 
 
-# =========================
-# CLI PREDICTION SUPPORT
-# =========================
-
 def predict_cli(audio_path, text):
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.abspath(os.path.join(base_dir, "..", ".."))
     models_dir = os.path.join(base_dir, "saved_models")
 
     model_path = os.path.join(models_dir, "best_model.pth")
@@ -970,6 +990,7 @@ def predict_cli(audio_path, text):
         max_text_len = int(config.get("max_text_len", DEFAULT_MAX_TEXT_LEN))
 
         text_branch = config.get("text_branch", DEFAULT_TEXT_MODEL)
+
         if isinstance(text_branch, str) and "distilbert" in text_branch.lower():
             text_model_name = text_branch
 
@@ -987,7 +1008,12 @@ def predict_cli(audio_path, text):
     )
 
     checkpoint = torch.load(model_path, map_location=device)
-    model.load_state_dict(checkpoint)
+
+    if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
+        model.load_state_dict(checkpoint["model_state_dict"])
+    else:
+        model.load_state_dict(checkpoint)
+
     model.to(device)
     model.eval()
 
@@ -1014,7 +1040,8 @@ def predict_cli(audio_path, text):
 
     top_probs, top_indices = torch.topk(probs, k=3, dim=1)
 
-    print("\nFusion Prediction")
+    print("")
+    print("Fusion Prediction")
     print("-----------------")
 
     for i in range(3):
@@ -1025,7 +1052,8 @@ def predict_cli(audio_path, text):
     prediction = classes[top_indices[0][0].item()]
     confidence = top_probs[0][0].item() * 100
 
-    print(f"\nFinal Prediction: {prediction.upper()}")
+    print("")
+    print(f"Final Prediction: {prediction.upper()}")
     print(f"Confidence: {confidence:.2f}%")
 
 

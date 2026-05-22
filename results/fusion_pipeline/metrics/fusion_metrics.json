@@ -1,14 +1,15 @@
 {
     "dataset": "TESS",
-    "architecture": "CNN + BiLSTM + Attention speech branch + DistilBERT text branch + Concatenation + MLP",
+    "architecture": "CNN-BiLSTM-Attention speech branch + frozen DistilBERT text branch + fusion projection",
     "speech_branch": "Mel Spectrogram + Delta + MFCC -> CNN -> BiLSTM -> Attention",
     "text_branch": "distilbert-base-uncased",
-    "fusion_method": "Concatenation",
-    "best_epoch": 14,
-    "best_validation_macro_f1": 0.96991662709302,
-    "test_accuracy": 0.9473684210526315,
-    "test_uar": 0.9473684210526316,
-    "test_macro_f1": 0.9467248323699017,
+    "text_encoder_trainable": false,
+    "fusion_method": "Concatenation + fusion projection",
+    "best_epoch": 18,
+    "best_validation_macro_f1": 0.9974935414719948,
+    "test_accuracy": 0.9892588614393125,
+    "test_uar": 0.9892588614393125,
+    "test_macro_f1": 0.9892240981793219,
     "classes": [
         "anger",
         "disgust",
@@ -25,6 +26,7 @@
     "max_text_len": 32,
     "batch_size": 16,
     "learning_rate": 2e-05,
-    "seed": 42,
-    "note": "Lightweight fusion model using CNN-BiLSTM-Attention speech features and DistilBERT text representation."
+    "weight_decay": 0.0001,
+    "gradient_clipping": 1.0,
+    "seed": 42
 }
