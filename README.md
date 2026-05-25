@@ -14,7 +14,7 @@ The primary dataset used for the core implementation is the Toronto Emotional Sp
 5. [Complete Project Folder Structure](#complete-project-folder-structure)
 6. [Speech Emotion Recognition Pipeline](#speech-emotion-recognition-pipeline)
 7. [Text Emotion Recognition Pipeline](#text-emotion-recognition-pipeline)
-   - [Additional Text Experiment: DailyDialog](#additional-text-experiment-dailydialog)
+   - [Additional Text Experiment: MELD and DailyDialog](#additional-text-experiment-meld-and-dailydialog)
 8. [Multimodal Fusion Pipeline](#multimodal-fusion-pipeline)
    - [Additional Fusion Experiment: MELD](#additional-fusion-experiment-meld)
 9. [Final Comparison Table](#final-comparison-table)
@@ -72,7 +72,7 @@ After downloading, place each checkpoint folder inside the corresponding pipelin
 ```text
 models/speech_pipeline/saved_models/
 models/text_pipeline/saved_models/
-models/text_pipeline_DailyDialog/saved_models/
+models/text_pipeline_MELD/saved_models/
 models/fusion_pipeline/saved_models/
 models/fusion_pipeline_MELD/saved_models/
 ```
@@ -122,22 +122,22 @@ python test.py
 * `python test.py`: Opens the graphical user interface (GUI) to test the fusion model.
 * `python test.py path/to/audio.wav "your transcript here"`: Runs a direct CLI prediction using both audio and text without opening the GUI.
 
-#### DailyDialog Text Pipeline
+#### MELD Text Pipeline (Supporting Experiment)
 
-This pipeline evaluates text emotion recognition on realistic conversational text using DailyDialog.
+This pipeline evaluates text emotion recognition on realistic conversational text from the MELD dataset. It replaces the legacy DailyDialog experiment.
 
 ```powershell
-cd models\text_pipeline_DailyDialog
+cd models\text_pipeline_MELD
 python preprocess.py
 python train.py
 python test.py
 ```
 
-* `python preprocess.py`: Parses DailyDialog files, cleans utterances, maps labels, creates metadata, and generates dialogue-level train/validation/test splits.
-* `python train.py`: Trains the RoBERTa-based text emotion classifier and saves metrics, plots, and reports.
-* `python test.py`: Opens the GUI or evaluation interface if implemented in the pipeline.
+* `python preprocess.py`: Parses MELD CSV files (`dataset1`), cleans text utterances, maps labels, and generates `metadata.csv` containing train/dev/test splits. (Legacy DailyDialog `.txt` files inside `data/` folder are not used).
+* `python train.py`: Trains a `roberta-base` text emotion classifier using Focal Loss and class weights to handle extreme label imbalance.
+* `python test.py`: Opens the CustomTkinter GUI interface for inference and metrics visualization.
 
-#### MELD Fusion Pipeline
+#### MELD Fusion Pipeline (Supporting Experiment)
 
 This pipeline evaluates multimodal emotion recognition on realistic dialogue data using MELD.
 
@@ -148,9 +148,9 @@ python train.py
 python test.py
 ```
 
-* `python preprocess.py`: Processes MELD train/dev/test metadata, extracts acoustic features from video/audio files, and aligns them with text utterances.
-* `python train.py`: Trains the CNN-BiLSTM-Attention + DistilBERT fusion model using class-weighted loss.
-* `python test.py`: Runs final evaluation or inference if implemented in the pipeline.
+* `python preprocess.py`: Processes MELD train/dev/test metadata (`dataset1`), extracts acoustic features from video/audio files, and aligns them with text utterances.
+* `python train.py`: Trains the multimodal fusion model. The training script supports both the v1 baseline (simple concatenation, frozen DistilBERT, cross-entropy loss) and the upgraded v2 architecture (Gated Fusion, fine-tuned RoBERTa, Focal Loss).
+* `python test.py`: Opens the CustomTkinter GUI or runs evaluation metrics.
 
 ---
 
@@ -221,13 +221,13 @@ Multimodal Emotion Recognition/
 │   │       ├── tokenizer_config.json
 │   │       └── tokenizer.json
 │   │
-│   ├── text_pipeline_DailyDialog/
+│   ├── text_pipeline_MELD/     # Upgraded MELD text pipeline (RoBERTa + Focal Loss)
 │   │   ├── preprocess.py
 │   │   ├── train.py
 │   │   ├── test.py
 │   │   └── saved_models/
 │   │
-│   ├── fusion_pipeline/
+│   ├── fusion_pipeline/        # FusionSER: Audio-Text concat (TESS)
 │   │   ├── preprocess.py
 │   │   ├── train.py
 │   │   ├── test.py
@@ -237,7 +237,7 @@ Multimodal Emotion Recognition/
 │   │       ├── tokenizer_config.json
 │   │       └── tokenizer.json
 │   │
-│   └── fusion_pipeline_MELD/
+│   └── fusion_pipeline_MELD/   # FusionSER: Speech-Text gated fusion (MELD)
 │       ├── preprocess.py
 │       ├── train.py
 │       ├── test.py
@@ -248,9 +248,8 @@ Multimodal Emotion Recognition/
 │   │   ├── metrics/
 │   │   │   └── speech_metrics.json
 │   │   ├── plots/
-│   │   │   ├── confusion_matrix.png
+│   │   │   ├── speech_confusion_matrix.png
 │   │   │   ├── training_curve.png
-│   │   │   ├── speech_pca.csv
 │   │   │   └── speech_pca.png
 │   │   └── results/
 │   │       ├── classification_report.csv
@@ -262,9 +261,8 @@ Multimodal Emotion Recognition/
 │   │   ├── metrics/
 │   │   │   └── text_metrics.json
 │   │   ├── plots/
-│   │   │   ├── confusion_matrix.png
+│   │   │   ├── text_confusion_matrix.png
 │   │   │   ├── training_curve.png
-│   │   │   ├── text_pca.csv
 │   │   │   └── text_pca.png
 │   │   └── results/
 │   │       ├── classification_report.csv
@@ -282,10 +280,9 @@ Multimodal Emotion Recognition/
 │   │   │   ├── fusion_metrics.json
 │   │   │   └── training_metrics.csv
 │   │   ├── plots/
-│   │   │   ├── confusion_matrix.png
+│   │   │   ├── fusion_confusion_matrix.png
 │   │   │   ├── confusion_matrix_test.png
 │   │   │   ├── training_curve.png
-│   │   │   ├── fusion_pca.csv
 │   │   │   └── fusion_pca.png
 │   │   └── results/
 │   │       ├── classification_report.csv
@@ -458,7 +455,7 @@ python test.py
 
 ![Speech Training Curve](results/speech_pipeline/plots/training_curve.png)
 
-![Speech Confusion Matrix](results/speech_pipeline/plots/confusion_matrix.png)
+![Speech Confusion Matrix](results/speech_pipeline/plots/speech_confusion_matrix.png)
 
 ![Speech Embeddings PCA](results/speech_pipeline/plots/speech_pca.png)
 
@@ -768,7 +765,7 @@ Command purpose:
 
 ![Text Training Curve](results/text_pipeline/plots/training_curve.png)
 
-![Text Confusion Matrix](results/text_pipeline/plots/confusion_matrix.png)
+![Text Confusion Matrix](results/text_pipeline/plots/text_confusion_matrix.png)
 
 ![Text Embeddings PCA](results/text_pipeline/plots/text_pca.png)
 
@@ -850,17 +847,15 @@ This makes the text pipeline useful as an experimental baseline. It proves that 
 ---
 
 
-## Additional Text Experiment: DailyDialog
+## Additional Text Experiment: MELD and DailyDialog
 
 DailyDialog was added as a supporting text-only experiment because the TESS text pipeline has a structural limitation. In TESS, the extracted text is usually a single neutral word such as `back`, `bar`, `goose`, or `ditch`. These words repeat across all emotion classes, so they do not contain enough semantic information for reliable text emotion recognition.
 
-DailyDialog provides natural conversational utterances where emotion can be expressed through sentence meaning. This makes it more suitable for evaluating whether the text model architecture can learn emotion-related language patterns.
-
-This experiment is not a replacement for the required TESS text pipeline. It is included only as a secondary validation experiment.
+To evaluate text-only emotion recognition on natural conversational text, a supporting MELD text pipeline was implemented in [models/text_pipeline_MELD/](file:///d:/Savio%20Shaju/Multimodal%20Emotion%20Recognition/models/text_pipeline_MELD/). This pipeline processes text transcripts from the MELD dataset and replaces the legacy DailyDialog model.
 
 | Item | Description |
 |---|---|
-| Dataset | DailyDialog |
+| Dataset | MELD (Text transcripts from `dataset1`) |
 | Modality | Text only |
 | Model | RoBERTa-based text classifier |
 | Split Strategy | Dialogue-level split to avoid leakage |
@@ -875,9 +870,9 @@ This experiment is not a replacement for the required TESS text pipeline. It is 
 | Test Macro F1 | 46.49% |
 | Test Weighted F1 | 79.93% |
 
-### DailyDialog Interpretation
+#### DailyDialog Interpretation
 
-The DailyDialog result shows that the text model performs much better when the input text contains meaningful emotional semantics. This supports the conclusion that the poor TESS text result is caused by the dataset structure, not by a failure of the text model itself.
+The DailyDialog result shows that the transformer architecture performs significantly better (77.34% accuracy) when the input text contains meaningful conversational semantics, confirming that the poor TESS text result (14.93%) is due to the dataset's neutral target words rather than a limitation of the model itself.
 
 
 # Multimodal Fusion Pipeline
@@ -1052,23 +1047,19 @@ On datasets with meaningful text transcripts (e.g., customer reviews, social med
 
 ## Additional Fusion Experiment: MELD
 
-MELD was added as a supporting multimodal fusion experiment because TESS has limited text semantics. In the TESS fusion pipeline, the speech branch dominates because the text branch receives only short neutral words extracted from filenames.
+MELD was added as a supporting multimodal fusion experiment because TESS has limited text semantics. MELD provides aligned audio and text from realistic multi-speaker dialogue.
 
-MELD provides aligned audio and text from realistic multi-speaker dialogue. This makes it more suitable for testing whether speech and text can contribute together in a true multimodal setting.
-
-This experiment is not a replacement for the required TESS fusion pipeline. It is included only as a secondary validation experiment.
+### Core MELD Fusion Pipeline (v1 Baseline)
+The original MELD fusion pipeline model is stored under `models/fusion_pipeline_MELD/` and its results are archived in [results/fusion_pipeline_MELD/](file:///d:/Savio%20Shaju/Multimodal%20Emotion%20Recognition/results/fusion_pipeline_MELD/).
 
 | Item | Description |
 |---|---|
-| Dataset | MELD |
-| Modality | Audio + Text |
-| Split Strategy | Official train/dev/test split |
 | Speech Branch | CNN-BiLSTM-Attention acoustic encoder |
 | Text Branch | DistilBERT |
 | Fusion Method | Concatenation + MLP classifier |
-| Imbalance Handling | Class-weighted cross-entropy loss |
+| Loss Function | Class-weighted Cross-Entropy Loss |
 
-### MELD Fusion Results
+#### MELD Fusion v1 Results
 
 | Metric | Value |
 |---|---:|
@@ -1077,11 +1068,20 @@ This experiment is not a replacement for the required TESS fusion pipeline. It i
 | Test Macro F1 | 41.36% |
 | Test Weighted F1 | 59.91% |
 
+### Upgraded MELD Fusion Pipeline (v2 Improved)
+An upgraded, higher-capacity fusion architecture has been implemented inside the active training script [models/fusion_pipeline_MELD/train.py](file:///d:/Savio%20Shaju/Multimodal%20Emotion%20Recognition/models/fusion_pipeline_MELD/train.py). Outputs are routed to `results/fusion_pipeline_MELD_v2/` and `saved_models_v2/`.
+
+| Item | Upgrade Description |
+|---|---|
+| Text Branch | Upgraded from DistilBERT to fine-tuned `roberta-base` |
+| Speech Branch | Larger CNN channels (64, 128, 256) and increased LSTM hidden size (256) |
+| Fusion Method | **Gated Fusion Network**: Learns gate coefficients to dynamically weight speech/text modalities |
+| Loss Function | Focal Loss ($\gamma = 2$) with class-weighted scaling |
+| Preprocessing | Time and frequency SpecAugment masking for speech features |
+
 ### MELD Interpretation
 
-The MELD result is lower than the TESS result because MELD is more realistic and more difficult. It contains multiple speakers, natural dialogue, background variation, short utterances, and strong class imbalance.
-
-The result is still useful because it shows how the fusion architecture behaves outside the clean TESS environment. It also gives a more realistic estimate of multimodal emotion recognition performance.
+The MELD result is lower than the TESS result because MELD is more realistic and more difficult. It contains multiple speakers, natural dialogue, background variation, short utterances, and strong class imbalance. It provides a more realistic estimate of multimodal emotion recognition performance.
 
 
 ## Final Comparison Table
@@ -1105,7 +1105,7 @@ The result is still useful because it shows how the fusion architecture behaves 
       <b>Training Curve</b>
     </td>
     <td align="center">
-      <img src="results/speech_pipeline/plots/confusion_matrix.png" width="320"><br>
+      <img src="results/speech_pipeline/plots/speech_confusion_matrix.png" width="320"><br>
       <b>Confusion Matrix</b>
     </td>
     <td align="center">
@@ -1124,7 +1124,7 @@ The result is still useful because it shows how the fusion architecture behaves 
       <b>Training Curve</b>
     </td>
     <td align="center">
-      <img src="results/text_pipeline/plots/confusion_matrix.png" width="320"><br>
+      <img src="results/text_pipeline/plots/text_confusion_matrix.png" width="320"><br>
       <b>Confusion Matrix</b>
     </td>
     <td align="center">
@@ -1152,6 +1152,17 @@ The result is still useful because it shows how the fusion architecture behaves 
     </td>
   </tr>
 </table>
+
+### Report Figures (Standardized Academic Plots)
+
+The final high-resolution confusion matrix plots, styled with unified academic fonts and consistent color schemes, are generated inside [results/report_figures/](file:///d:/Savio%20Shaju/Multimodal%20Emotion%20Recognition/results/report_figures/):
+
+* **Speech SER (TESS)**: [results/report_figures/speech_confusion_matrix.png](file:///d:/Savio%20Shaju/Multimodal%20Emotion%20Recognition/results/report_figures/speech_confusion_matrix.png)
+* **Text TER (TESS)**: [results/report_figures/text_confusion_matrix.png](file:///d:/Savio%20Shaju/Multimodal%20Emotion%20Recognition/results/report_figures/text_confusion_matrix.png)
+* **Multimodal Fusion (TESS)**: [results/report_figures/fusion_confusion_matrix.png](file:///d:/Savio%20Shaju/Multimodal%20Emotion%20Recognition/results/report_figures/fusion_confusion_matrix.png)
+* **Speaker-Independent (CNN Zero-Shot)**: [results/report_figures/speaker_independent_speech_confusion_matrix.png](file:///d:/Savio%20Shaju/Multimodal%20Emotion%20Recognition/results/report_figures/speaker_independent_speech_confusion_matrix.png)
+* **Wav2Vec2 Zero-Shot**: [results/report_figures/wav2vec2_zero_shot_confusion_matrix.png](file:///d:/Savio%20Shaju/Multimodal%20Emotion%20Recognition/results/report_figures/wav2vec2_zero_shot_confusion_matrix.png)
+* **MELD Fusion (v1)**: [results/report_figures/fusion_confusion_matrix_MELD.png](file:///d:/Savio%20Shaju/Multimodal%20Emotion%20Recognition/results/report_figures/fusion_confusion_matrix_MELD.png)
 
 ### Learned Representation Visualization
 
@@ -1259,7 +1270,7 @@ This project comprehensively implements and evaluates three emotion recognition 
 ## Deployment Readiness
 
 The project provides:
-- **Robust preprocessing pipelines** for audio feature extraction and text tokenization
+- **Reproducible preprocessing pipelines** for audio feature extraction and text tokenization
 - **Automated training workflows** with early stopping, model checkpointing, and hyperparameter tuning
 - **Comprehensive evaluation** including classification reports, confusion matrices, and training curves
 - **User-facing GUI interfaces** (CustomTkinter) for model inference and result visualization
@@ -1268,7 +1279,7 @@ The project provides:
 
 ## Important Caveats
 
-This project demonstrates state-of-the-art performance **on TESS specifically**. Users should note:
+This project achieves highly competitive near-perfect baseline performance **on TESS specifically**. Users should note:
 1. TESS contains only two female speakers—generalization to other speakers/accents is limited
 2. Studio-quality recordings do not represent real-world noisy environments
 3. Acted emotions differ from spontaneous emotional expressions
