@@ -484,6 +484,28 @@ The confusion matrix shows that almost all samples are correctly classified. The
 
 This model demonstrates the effectiveness of feature-based (Mel Spectrogram + Delta + MFCC) CNN-BiLSTM-Attention architectures for controlled datasets but should not be overclaimed for real-world deployment.
 
+### Speaker-Independent (Zero-Shot) Speech Generalization Experiments
+
+To evaluate the models' ability to generalize to unseen speakers under strict speaker-independent settings (zero-shot), additional speech SER experiments were performed by training on one speaker (e.g., OAF) and testing on the other (e.g., YAF) without any adaptation, or utilizing Group-Shuffle Splits. Below is a summary of these experiments compared to the main adapted speech pipeline:
+
+| Experiment | Model Architecture | Split Strategy | Test Accuracy | Macro F1 | Key Acoustic Bottlenecks (Low Recall Classes) |
+| :--- | :--- | :--- | :---: | :---: | :--- |
+| **Main Adapted SER Model** | Mel/Delta/MFCC + CNN-BiLSTM-Attention | Speaker-Aware (5% YAF Adapt) | **99.89%** | **99.89%** | Near-perfect generalization across all emotions due to target speaker adaptation. |
+| **Custom CNN Zero-Shot** | Simple Sequential CNN (4 conv layers) | Speaker-Independent Zero-Shot | **77.57%** | **74.01%** | `happiness` (0.00% recall), `surprise` (75.00% recall), `disgust` (77.50% recall). |
+| **Unified SER CNN GroupSplit 0.2** | Residual CNN (UnifiedSERModel) | GroupShuffleSplit (unseen speaker) | **66.11%** | **62.82%** | `happiness` (0.00% recall), `anger` (43.50% recall), `disgust` (76.65% recall). |
+| **Wav2Vec2-base Zero-Shot** | Pre-trained Wav2Vec2 + Classifier Head | Speaker-Independent Zero-Shot | **62.64%** | **57.61%** | `happy` (9.00% recall), `sad` (20.50% recall), `disgust` (50.00% recall). |
+
+#### Key Academic Observations
+
+1. **Acoustic Arousal Confusion (Anger vs. Happiness)**:
+   A major failure mode observed in both the Custom CNN zero-shot and the Unified SER CNN GroupSplit experiments is the complete inability to identify `happiness` (0.00% recall). The confusion matrices reveal that `happiness` samples are misclassified almost entirely as `anger` (e.g., in Custom CNN zero-shot, 197 out of 200 happy samples were predicted as angry). In speech acoustics, happiness and anger are both high-arousal emotions characterized by elevated pitch register, pitch range, and voice intensity. Without speaker-specific baseline adaptation, local CNNs struggle to separate valence (positive vs. negative) from arousal cues, resulting in severe class confusion.
+
+2. **Pre-trained Representation Generalization Limits (Wav2Vec2)**:
+   The zero-shot Wav2Vec2-base model achieved an accuracy of only 62.64% (Macro F1 of 57.61%). Despite containing deep self-supervised contextualized speech representations, Wav2Vec2-base struggled significantly with `happy` (9.00% recall, confused with `fear` and `angry`) and `sad` (20.50% recall, confused with `neutral` due to similar low-intensity acoustic profiles). This indicates that raw pre-trained transformer features, without task-specific fine-tuning or speaker-specific calibration, contain high speaker and phonetic variability that degrades speaker-independent emotion classification boundaries.
+
+3. **Valence and Intensity Bottlenecks**:
+   The classes that consistently reduced the overall accuracy across all zero-shot/speaker-independent experiments were `happy/happiness`, `sad/sadness`, and `disgust`. Low-intensity emotions (sadness) were frequently misclassified as `neutral` (e.g., in Wav2Vec2-base, 120 out of 200 sad samples were predicted as neutral), while high-arousal emotions (happiness) were misclassified as other high-arousal emotions (anger or fear). This suggests that speaker-independent models are highly sensitive to vocal intensity thresholds and require adaptation or acoustic normalization (e.g., instance normalization, which was shown to help but not fully resolve the issue) to build robust emotion-specific boundaries.
+
 ---
 
 # Text Emotion Recognition Pipeline
@@ -958,37 +980,37 @@ python test.py
 
 | Metric | Value |
 |---|---:|
-| Test Accuracy | 94.74% |
-| Test UAR | 94.74% |
-| Test Macro F1 | 94.67% |
-| Best Epoch | 14 |
+| Test Accuracy | 98.93% |
+| Test UAR | 98.93% |
+| Test Macro F1 | 98.92% |
+| Best Epoch | 18 |
 | Model Architecture | CNN-BiLSTM-Attention + DistilBERT + Concatenation + MLP |
 
-**Note on Performance**: The fusion model achieves 94.74% accuracy on TESS, combining acoustic and semantic information. However, the text component (TESS filename-derived words) is inherently weak, so performance is primarily driven by the speech branch. On real-world data with meaningful text transcripts and diverse speakers/acoustic conditions, multimodal fusion would likely provide more balanced cross-modal contributions.
+**Note on Performance**: The fusion model achieves 98.93% accuracy on TESS, combining acoustic and semantic information. However, the text component (TESS filename-derived words) is inherently weak, so performance is primarily driven by the speech branch. On real-world data with meaningful text transcripts and diverse speakers/acoustic conditions, multimodal fusion would likely provide more balanced cross-modal contributions.
 
 ## Fusion Classification Report
 
 | Emotion | Precision | Recall | F1-score | Support |
 |---|---:|---:|---:|---:|
-| anger | 0.9561 | 0.8195 | 0.8826 | 133 |
-| disgust | 0.9924 | 0.9774 | 0.9848 | 133 |
-| fear | 0.9708 | 1.0000 | 0.9852 | 133 |
-| happiness | 0.9695 | 0.9549 | 0.9621 | 133 |
-| neutral | 0.8832 | 0.9098 | 0.8963 | 133 |
-| sadness | 0.9167 | 0.9925 | 0.9531 | 133 |
-| surprise | 0.9489 | 0.9774 | 0.9630 | 133 |
+| anger | 1.0000 | 0.9549 | 0.9769 | 133 |
+| disgust | 0.9852 | 1.0000 | 0.9925 | 133 |
+| fear | 1.0000 | 0.9850 | 0.9924 | 133 |
+| happiness | 0.9708 | 1.0000 | 0.9852 | 133 |
+| neutral | 1.0000 | 0.9850 | 0.9924 | 133 |
+| sadness | 0.9852 | 1.0000 | 0.9925 | 133 |
+| surprise | 0.9852 | 1.0000 | 0.9925 | 133 |
 
 ## Fusion Confusion Matrix
 
 | Actual \ Predicted | anger | disgust | fear | happiness | neutral | sadness | surprise |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| anger | 109 | 0 | 0 | 0 | 23 | 1 | 0 |
-| disgust | 0 | 130 | 0 | 0 | 2 | 0 | 1 |
-| fear | 0 | 0 | 133 | 0 | 0 | 0 | 0 |
-| happiness | 1 | 0 | 0 | 127 | 4 | 1 | 0 |
-| neutral | 0 | 2 | 0 | 3 | 121 | 7 | 0 |
-| sadness | 0 | 0 | 0 | 1 | 9 | 132 | 0 |
-| surprise | 0 | 0 | 0 | 1 | 0 | 0 | 130 |
+| anger | 127 | 2 | 0 | 2 | 0 | 0 | 2 |
+| disgust | 0 | 133 | 0 | 0 | 0 | 0 | 0 |
+| fear | 0 | 0 | 131 | 2 | 0 | 0 | 0 |
+| happiness | 0 | 0 | 0 | 133 | 0 | 0 | 0 |
+| neutral | 0 | 0 | 0 | 0 | 131 | 2 | 0 |
+| sadness | 0 | 0 | 0 | 0 | 0 | 133 | 0 |
+| surprise | 0 | 0 | 0 | 0 | 0 | 0 | 133 |
 
 ## Fusion Result Images
 ![Fusion Training Curve](results/fusion_pipeline/plots/training_curve.png)
@@ -1000,7 +1022,7 @@ The PCA plot visualizes fused speech-text embeddings extracted after concatenati
 
 ## Fusion Result Interpretation
 
-The fusion pipeline achieves 94.74% accuracy by combining speech and text representations through concatenation and an MLP classifier.
+The fusion pipeline achieves 98.93% accuracy by combining speech and text representations through concatenation and an MLP classifier.
 
 **Key Findings:**
 
@@ -1068,7 +1090,7 @@ The result is still useful because it shows how the fusion architecture behaves 
 |---|---|---|---|---:|---:|---:|---:|---|
 | Speech Pipeline | TESS | Audio | Mel/Delta/MFCC + CNN-BiLSTM-Attention | 99.89% | 99.89% | 99.89% | Not reported | Strongest core pipeline; TESS speech contains clear acoustic emotion cues. |
 | Text Pipeline | TESS | Text | DistilBERT | 14.93% | 14.93% | 7.29% | Not reported | Performs near random chance because TESS text is semantically weak. |
-| Fusion Pipeline | TESS | Audio + Text | CNN-BiLSTM-Attention + DistilBERT | 94.74% | 94.74% | 94.67% | Not reported | Strong performance, but lower than speech-only because weak text adds noise. |
+| Fusion Pipeline | TESS | Audio + Text | CNN-BiLSTM-Attention + DistilBERT | 98.93% | 98.93% | 98.92% | Not reported | Strong performance, but slightly lower than speech-only because weak text adds noise. |
 | Additional Text Experiment | DailyDialog | Text | RoBERTa | 77.34% | 59.31% | 46.49% | 79.93% | Shows text model works when sentence semantics contain emotional cues. |
 | Additional Fusion Experiment | MELD | Audio + Text | CNN-BiLSTM-Attention + DistilBERT | 59.50% | 42.23% | 41.36% | 59.91% | More realistic fusion benchmark with noisy, imbalanced, multi-speaker dialogue. |
 
@@ -1228,7 +1250,7 @@ This project comprehensively implements and evaluates three emotion recognition 
 - This demonstrates a fundamental limitation: TESS is an audio emotion dataset, not a text emotion dataset
 - Finding is scientifically valuable—it proves poor text performance is due to dataset design, not modeling failure
 
-**Multimodal Fusion (94.74% Accuracy)**
+**Multimodal Fusion (98.93% Accuracy)**
 - Fusion combines CNN-BiLSTM-Attention (speech) and DistilBERT (text) through concatenation
 - Performance is dominated by the speech branch due to weak text modality
 - Architecture is more parameter-efficient and interpretable compared to transformer-based approaches like WavLM
