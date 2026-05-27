@@ -1,2 +1,2 @@
 test_accuracy,test_uar,test_macro_f1,speech_model_name,text_model_name,fusion_model_name
-0.9892588614393125,0.9892588614393125,0.9892240981793219,CNN-BiLSTM-Attention,distilbert-base-uncased,CNN-BiLSTM-Attention + frozen DistilBERT
+0.9860365198711063,0.9860365198711063,0.9860569920185912,CNN-BiLSTM-Attention,distilbert-base-uncased,CNN-BiLSTM-Attention + frozen DistilBERT
