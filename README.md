@@ -259,9 +259,6 @@ Multimodal Emotion Recognition/
 │   │   ├── preprocess.py
 │   │   ├── train.py
 │   │   ├── test.py
-│   │   ├── data/
-│   │   │   ├── dialogues_text.txt
-│   │   │   └── dialogues_emotion.txt
 │   │   └── saved_models/
 │   │       ├── best_model.pth
 │   │       ├── text_emotion_model.pth
