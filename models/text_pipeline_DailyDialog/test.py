@@ -30,7 +30,7 @@ REPORT_TXT = os.path.join(OUTPUT_ROOT, "metrics", "classification_report.txt")
 CM_CSV = os.path.join(OUTPUT_ROOT, "metrics", "confusion_matrix.csv")
 METRICS_JSON = os.path.join(OUTPUT_ROOT, "metrics", "text_metrics.json")
 
-PLOT_CM = os.path.join(OUTPUT_ROOT, "plots", "confusion_matrix.png")
+PLOT_CM = os.path.join(OUTPUT_ROOT, "plots", "dailydialog_confusion_matrix.png")
 PLOT_CURVE = os.path.join(OUTPUT_ROOT, "plots", "training_curve.png")
 
 # Configuration

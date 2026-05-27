@@ -17,9 +17,10 @@ The primary dataset used for the core implementation is the Toronto Emotional Sp
 | Pipeline | Accuracy |
 |---|---:|
 | Speech SER (TESS) | **99.89%** |
-| Fusion SER (TESS) | **98.60%** |
+| Multimodal Fusion SER (Custom CNN-BiLSTM + DistilBERT) (TESS) | **98.60%** |
+| Multimodal Fusion SER (Pretrained WavLM + DistilBERT) (TESS) | **99.68%** |
 | Text SER (DailyDialog) | **77.34%** |
-| Fusion SER (MELD) | **59.50%** |
+| Multimodal Fusion SER (MELD) | **59.50%** |
 
 ## Table of Contents
 
@@ -30,8 +31,8 @@ The primary dataset used for the core implementation is the Toronto Emotional Sp
 5. [Speech Emotion Recognition Pipeline](#speech-emotion-recognition-pipeline)
 6. [Text Emotion Recognition Pipeline](#text-emotion-recognition-pipeline)
 7. [DailyDialog Text-Only Pipeline (Supporting Experiment)](#dailydialog-text-only-pipeline-supporting-experiment)
-8. [Multimodal Fusion Pipeline](#multimodal-fusion-pipeline)
-9. [MELD Multimodal Fusion Pipeline (Supporting Experiment)](#meld-multimodal-fusion-pipeline-supporting-experiment)
+8. [Multimodal Fusion SER](#multimodal-fusion-ser)
+9. [MELD Multimodal Fusion SER (Supporting Experiment)](#meld-multimodal-fusion-ser-supporting-experiment)
 10. [Final Comparison Table](#final-comparison-table)
 11. [Result Visualizations](#result-visualizations)
 12. [Evaluation Metrics](#evaluation-metrics)
@@ -187,7 +188,7 @@ The system categorizes input into one of seven distinct emotion classes:
 - sadness
 - surprise
 
-The project fundamentally compares speech, text, and fusion methods to isolate which data modality provides the richest emotional signal and to observe if a multimodal fusion strategy successfully leverages both modalities simultaneously.
+The project comparatively evaluates speech-only, text-only, and multimodal fusion approaches for emotion recognition to isolate which data modality provides the richest emotional signal and to observe if a multimodal fusion strategy successfully leverages both modalities simultaneously.
 
 ---
 
@@ -200,7 +201,7 @@ The Toronto Emotional Speech Set (TESS) is the primary dataset used for the thre
 |---|---|---|
 | Speech Pipeline | TESS | Required speech-only emotion recognition |
 | Text Pipeline | TESS | Required text-only baseline using filename-derived transcript words |
-| Fusion Pipeline | TESS | Required multimodal speech + text fusion |
+| Multimodal Fusion SER | TESS | Required multimodal speech + text fusion |
 
 #### TESS Dataset Download
 Download the TESS dataset from Kaggle:  
@@ -263,6 +264,7 @@ Multimodal Emotion Recognition/
 │   │   │   └── dialogues_emotion.txt
 │   │   └── saved_models/
 │   │       ├── best_model.pth
+│   │       ├── text_emotion_model.pth
 │   │       └── model_config.json
 │   │
 │   ├── fusion_pipeline/        # Core FusionSER: Audio-Text concat (TESS)
@@ -318,7 +320,7 @@ Multimodal Emotion Recognition/
 │   │   │   └── training_metrics.csv
 │   │   ├── plots/
 │   │   │   ├── class_distribution.png
-│   │   │   ├── confusion_matrix.png
+│   │   │   ├── dailydialog_confusion_matrix.png
 │   │   │   └── training_curve.png
 │   │   └── results/
 │   │       ├── classification_report.csv
@@ -344,7 +346,7 @@ Multimodal Emotion Recognition/
 │       │   ├── fusion_metrics.json
 │       │   └── training_metrics.csv
 │       ├── plots/
-│       │   ├── confusion_matrix.png
+│       │   ├── meld_confusion_matrix.png
 │       │   └── training_curve.png
 │       └── results/
 │           ├── classification_report.csv
@@ -648,7 +650,7 @@ The DailyDialog result shows that the transformer architecture performs signific
 
 ---
 
-# Multimodal Fusion Pipeline
+# Multimodal Fusion SER
 
 ## Purpose
 This pipeline combines acoustic speech representation and text representation to generate a unified emotion prediction. The objective is to evaluate whether multimodal fusion improves emotion recognition compared with using speech or text independently.
@@ -755,7 +757,7 @@ The fusion pipeline achieves 98.60% accuracy by combining speech and text repres
 
 ---
 
-# MELD Multimodal Fusion Pipeline (Supporting Experiment)
+# MELD Multimodal Fusion SER (Supporting Experiment)
 
 MELD was added as a supporting multimodal fusion experiment because TESS has limited text semantics. MELD provides aligned audio and text from realistic multi-speaker dialogue.
 
@@ -808,9 +810,10 @@ The MELD result is lower than the TESS result because MELD is a much more realis
 |---|---|---|---|---:|---:|---:|---|
 | **Speech Pipeline** | TESS | Audio | Mel/Delta/MFCC + CNN-BiLSTM-Attention | 99.89% | 99.89% | 99.89% | Strongest core pipeline; TESS speech contains clear acoustic emotion cues. |
 | **Text Pipeline** | TESS | Text | DistilBERT | 14.93% | 14.93% | 7.29% | Performs near random chance because TESS text is semantically weak and repeating. |
-| **Fusion Pipeline** | TESS | Audio + Text | CNN-BiLSTM-Attention + DistilBERT | 98.60% | 98.60% | 98.61% | Strong performance, but slightly lower than speech-only because weak text adds noise. |
+| **Multimodal Fusion SER (Custom)** | TESS | Audio + Text | Custom CNN-BiLSTM-Attention + DistilBERT | 98.60% | 98.60% | 98.61% | Strong performance, but slightly lower than speech-only because weak text adds noise. |
+| **Multimodal Fusion SER (Pretrained)** | TESS | Audio + Text | Pretrained WavLM + DistilBERT | 99.68% | Not evaluated | Not evaluated | Best overall fusion model, leveraging deep pretrained speech representations. |
 | **Supporting Text** | DailyDialog | Text | RoBERTa-base | 77.34% | 59.31% | 46.49% | Confirms text models work well when conversational semantics contain emotional cues. |
-| **Supporting Fusion** | MELD | Audio + Text | CNN-BiLSTM-Attention + DistilBERT | 59.50% | 42.23% | 41.36% | Realistic benchmark demonstrating performance limits on noisy, imbalanced dialogue. |
+| **Supporting Multimodal Fusion SER** | MELD | Audio + Text | CNN-BiLSTM-Attention + DistilBERT | 59.50% | 42.23% | 41.36% | Realistic benchmark demonstrating performance limits on noisy, imbalanced dialogue. |
 
 ---
 
@@ -848,7 +851,7 @@ The MELD result is lower than the TESS result because MELD is a much more realis
       <b>Training Curve</b>
     </td>
     <td align="center">
-      <img src="results/text_pipeline/plots/confusion_matrix.png" width="300"><br>
+      <img src="results/text_pipeline/plots/text_confusion_matrix.png" width="300"><br>
       <b>Confusion Matrix</b>
     </td>
     <td align="center">
@@ -872,7 +875,7 @@ The MELD result is lower than the TESS result because MELD is a much more realis
       <b>Training Curve</b>
     </td>
     <td align="center">
-      <img src="results/fusion_pipeline/plots/confusion_matrix.png" width="300"><br>
+      <img src="results/fusion_pipeline/plots/fusion_confusion_matrix.png" width="300"><br>
       <b>Confusion Matrix</b>
     </td>
     <td align="center">
@@ -888,8 +891,8 @@ The MELD result is lower than the TESS result because MELD is a much more realis
 </p>  
 
 ### Supporting Experiment Visualizations
-* **DailyDialog Confusion Matrix**: Located at `results/text_pipeline_DailyDialog/plots/confusion_matrix.png`
-* **MELD Fusion Confusion Matrix**: Located at `results/fusion_pipeline_MELD/plots/confusion_matrix.png`
+* **DailyDialog Confusion Matrix**: Located at `results/text_pipeline_DailyDialog/plots/dailydialog_confusion_matrix.png`
+* **MELD Fusion Confusion Matrix**: Located at `results/fusion_pipeline_MELD/plots/meld_confusion_matrix.png`
 
 ---
 
