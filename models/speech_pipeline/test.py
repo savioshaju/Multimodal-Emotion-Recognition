@@ -652,7 +652,7 @@ class SERApp:
         )
 
     def show_plots(self):
-        plot_cm = os.path.join(OUTPUT_ROOT, "plots", "confusion_matrix.png")
+        plot_cm = os.path.join(OUTPUT_ROOT, "plots", "speech_confusion_matrix.png")
         plot_curve = os.path.join(OUTPUT_ROOT, "plots", "training_curve.png")
 
         if not os.path.exists(plot_cm) and not os.path.exists(plot_curve):

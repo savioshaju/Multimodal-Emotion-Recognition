@@ -277,7 +277,7 @@ class FusionEmotionApp:
         self.report_txt = os.path.join(self.output_root, "results", "classification_report.txt")
         self.cm_csv = os.path.join(self.output_root, "results", "confusion_matrix.csv")
         self.metrics_json = os.path.join(self.output_root, "metrics", "fusion_metrics.json")
-        self.plot_cm = os.path.join(self.output_root, "plots", "confusion_matrix.png")
+        self.plot_cm = os.path.join(self.output_root, "plots", "fusion_confusion_matrix.png")
         self.plot_curve = os.path.join(self.output_root, "plots", "training_curve.png")
         self.plot_pca = os.path.join(self.output_root, "plots", "fusion_pca.png")
 

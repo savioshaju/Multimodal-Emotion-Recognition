@@ -12,6 +12,14 @@ This project implements a comparative emotion recognition system using three cor
 
 The primary dataset used for the core implementation is the Toronto Emotional Speech Set (TESS). The core pipelines are designed to evaluate how acoustic information, textual information, and combined multimodal information contribute to emotion classification.
 
+## Key Results
+
+| Pipeline | Accuracy |
+|---|---:|
+| Speech SER (TESS) | **99.89%** |
+| Fusion SER (TESS) | **98.60%** |
+| Text SER (DailyDialog) | **77.34%** |
+| Fusion SER (MELD) | **59.50%** |
 
 ## Table of Contents
 
@@ -161,7 +169,8 @@ python test.py
 ```
 * `python preprocess.py`: Processes MELD train/dev/test metadata (`dataset1`), extracts acoustic features from video/audio files, and aligns them with text utterances.
 * `python train.py`: Trains the multimodal fusion model. The training script supports joint fine-tuning of DistilBERT and the CNN-BiLSTM-Attention speech branch using a class-weighted loss function.
-* `python test.py`: Opens the CustomTkinter GUI or runs evaluation metrics.
+* `python test.py`: Opens the CustomTkinter GUI for prediction and viewing reports.
+* `python test.py path/to/audio.wav "your transcript here"`: Performs CLI emotion prediction using both audio and text without opening the GUI.
 
 ---
 
@@ -322,7 +331,6 @@ Multimodal Emotion Recognition/
 │   │   │   └── training_metrics.csv
 │   │   ├── plots/
 │   │   │   ├── fusion_confusion_matrix.png
-│   │   │   ├── confusion_matrix_test.png
 │   │   │   ├── training_curve.png
 │   │   │   └── fusion_pca.png
 │   │   └── results/
@@ -594,7 +602,7 @@ Running `python test.py` opens the CustomTkinter GUI to test the model manually 
 
 ![Text Training Curve](results/text_pipeline/plots/training_curve.png)
 
-![Text Confusion Matrix](results/text_pipeline/plots/confusion_matrix.png)
+![Text Confusion Matrix](results/text_pipeline/plots/text_confusion_matrix.png)
 
 ![Text Embeddings PCA](results/text_pipeline/plots/text_pca.png)
 
@@ -731,7 +739,7 @@ Running `python test.py` opens the CustomTkinter GUI. The GUI allows uploading a
 
 ## Fusion Result Images
 ![Fusion Training Curve](results/fusion_pipeline/plots/training_curve.png)
-![Fusion Confusion Matrix](results/fusion_pipeline/plots/confusion_matrix_test.png)
+![Fusion Confusion Matrix](results/fusion_pipeline/plots/fusion_confusion_matrix.png)
 
 ![Fusion Embeddings PCA](results/fusion_pipeline/plots/fusion_pca.png)
 
