@@ -26,8 +26,8 @@ OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "results", "text_pipeline_DailyDialog")
 MODEL_PATH = os.path.join(PIPELINE_DIR, "saved_models", "text_emotion_model.pth")
 CONFIG_PATH = os.path.join(PIPELINE_DIR, "saved_models", "model_config.json")
 
-REPORT_TXT = os.path.join(OUTPUT_ROOT, "metrics", "classification_report.txt")
-CM_CSV = os.path.join(OUTPUT_ROOT, "metrics", "confusion_matrix.csv")
+REPORT_TXT = os.path.join(OUTPUT_ROOT, "results", "classification_report.txt")
+CM_CSV = os.path.join(OUTPUT_ROOT, "results", "confusion_matrix.csv")
 METRICS_JSON = os.path.join(OUTPUT_ROOT, "metrics", "text_metrics.json")
 
 PLOT_CM = os.path.join(OUTPUT_ROOT, "plots", "dailydialog_confusion_matrix.png")
